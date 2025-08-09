@@ -5,12 +5,10 @@ interface Props {
   headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   content: '',
   headingLevel: 'h2'
 });
-
-const props = defineProps<Props>();
 </script>
 
 <template>
