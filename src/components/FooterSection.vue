@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import Badge from './Badge.vue';
 
+const emit = defineEmits<{
+  navigate: [page: string]
+}>();
+
 interface SocialLink {
   name: string;
   url: string;
@@ -52,7 +56,7 @@ const socialLinks: SocialLink[] = [
 
 const footerLinks: FooterLinks = {
   product: [
-    { name: 'Funcionalidades', url: '#features' },
+    { name: 'Funcionalidades', url: 'features' },
     { name: 'Preços', url: '#pricing' },
     { name: 'Demonstração', url: '#demo' },
     { name: 'Atualizações', url: '#updates' }
@@ -161,7 +165,20 @@ const subscribeNewsletter = async () => {
             <h3 class="text-white font-semibold mb-4">Produto</h3>
             <ul class="space-y-3">
               <li v-for="link in footerLinks.product" :key="link.name">
-                <a :href="link.url" class="text-gray-400 hover:text-white transition-colors duration-300">{{ link.name }}</a>
+                <button 
+                  v-if="link.url === 'features'"
+                  @click="emit('navigate', 'features')"
+                  class="text-gray-400 hover:text-white transition-colors duration-300 text-left"
+                >
+                  {{ link.name }}
+                </button>
+                <a 
+                  v-else
+                  :href="link.url" 
+                  class="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  {{ link.name }}
+                </a>
               </li>
             </ul>
           </div>

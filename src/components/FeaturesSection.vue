@@ -3,6 +3,10 @@ import { ref, onMounted } from 'vue';
 import Badge from './Badge.vue';
 import Button from './Button.vue';
 
+const emit = defineEmits<{
+  navigate: [page: string]
+}>();
+
 interface Feature {
   id: number;
   title: string;
@@ -493,7 +497,7 @@ onMounted(() => {
         <h3 class="text-2xl md:text-3xl font-bold text-white mb-6">Pronto para simplificar a manutenção do seu carro?</h3>
         <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
           <Button label="Baixar Agora" primary class="px-8 py-3 text-lg" />
-          <Button label="Saiba Mais" class="px-8 py-3 text-lg" />
+          <Button label="Saiba Mais" class="px-8 py-3 text-lg" @click="emit('navigate', 'features')" />
         </div>
       </div>
     </div>

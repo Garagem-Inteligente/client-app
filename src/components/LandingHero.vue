@@ -3,6 +3,10 @@ import { ref } from 'vue';
 import Button from './Button.vue';
 import Badge from './Badge.vue';
 
+const emit = defineEmits<{
+  navigate: [page: string]
+}>();
+
 const appFeatures = [
   { icon: 'transfer', text: 'Registro transferível entre donos' },
   { icon: 'bell', text: 'Alertas de manutenção preventiva' },
@@ -15,12 +19,16 @@ const isAnimated = ref(false);
 setTimeout(() => {
   isAnimated.value = true;
 }, 500);
+
+const handleNavigation = (page: string) => {
+  emit('navigate', page);
+};
 </script>
 
 <template>
   <div class="w-full min-h-[600px] md:min-h-[700px] lg:min-h-[750px] bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
     <!-- Navbar -->
-    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center relative z-20">
       <div class="flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
@@ -29,7 +37,7 @@ setTimeout(() => {
         <span class="text-white text-xl font-bold">AutoCare</span>
       </div>
       <div class="hidden md:flex items-center space-x-6">
-        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</a>
+        <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
         <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</a>
         <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</a>
         <Button label="Baixar App" primary />
@@ -42,7 +50,7 @@ setTimeout(() => {
     </nav>
 
     <!-- Hero Section -->
-    <div class="container mx-auto px-6 py-8 md:py-12 pb-16 md:pb-20 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)]">
+    <div class="container mx-auto px-6 py-8 md:py-12 pb-16 md:pb-20 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)] relative z-10">
       <!-- Left Content -->
       <div class="md:w-1/2 flex flex-col items-center space-y-6 md:space-y-8 mb-8 md:mb-16 text-center">
         <Badge 
@@ -70,19 +78,19 @@ setTimeout(() => {
         </p>
         
         <div 
-          class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-300" 
+          class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-300 relative z-20" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          <Button label="Baixar Agora" primary class="px-8 py-3 text-lg" />
-          <Button label="Saiba Mais" class="px-8 py-3 text-lg" />
+          <Button label="Baixar Agora" primary class="px-8 py-3 text-lg" @click="handleNavigation('features')" />
+          <Button label="Saiba Mais" class="px-8 py-3 text-lg" @click="handleNavigation('features')" />
         </div>
         
         <div 
           class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-8 mx-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-start space-x-2">
-            <div class="flex-shrink-0 mt-1 bg-purple-900 rounded-full p-1">
+          <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-center space-x-2">
+            <div class="flex-shrink-0 bg-purple-900 rounded-full p-1">
               <!-- Transfer Icon -->
               <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
