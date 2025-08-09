@@ -68,8 +68,8 @@ const footerLinks: FooterLinks = {
     { name: 'Imprensa', url: '#press' }
   ],
   support: [
-    { name: 'Central de Ajuda', url: '#help' },
-    { name: 'Contato', url: '#contact' },
+    { name: 'Central de Ajuda', url: 'support' },
+    { name: 'Contato', url: 'support' },
     { name: 'Status do Sistema', url: '#status' },
     { name: 'Comunidade', url: '#community' }
   ],
