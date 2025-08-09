@@ -134,7 +134,7 @@ onMounted(() => {
         >
           <div class="relative">
             <!-- Phone frame -->
-            <div class="w-72 h-[580px] mx-auto bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
+            <div class="w-72 h-[580px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
               <div class="bg-gray-800 w-full h-full rounded-[32px] overflow-hidden">
                 <!-- App screenshot based on active feature -->
                 <div class="bg-gradient-to-b from-gray-900 to-gray-800 w-full h-full pt-6 px-3 relative">
