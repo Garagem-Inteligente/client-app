@@ -42,7 +42,7 @@ setTimeout(() => {
     </nav>
 
     <!-- Hero Section -->
-    <div class="container mx-auto px-6 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)]">
+    <div class="container mx-auto px-6 py-8 md:py-12 pb-16 md:pb-20 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)]">
       <!-- Left Content -->
       <div class="md:w-1/2 flex flex-col items-center md:items-start space-y-6 md:space-y-8 mb-8 md:mb-16 text-center md:text-left">
         <Badge 
