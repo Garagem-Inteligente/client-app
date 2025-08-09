@@ -18,7 +18,7 @@ setTimeout(() => {
 </script>
 
 <template>
-  <div class="w-full min-h-[600px] max-h-[800px] md:min-h-[700px] md:max-h-[900px] lg:min-h-[750px] lg:max-h-[1000px] bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
+  <div class="w-full min-h-[600px] md:min-h-[700px] lg:min-h-[750px] bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
     <!-- Navbar -->
     <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2">
