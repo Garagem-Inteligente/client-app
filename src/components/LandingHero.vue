@@ -4,10 +4,10 @@ import Button from './Button.vue';
 import Badge from './Badge.vue';
 
 const appFeatures = [
+  { icon: 'transfer', text: 'Registro transferível entre donos' },
   { icon: 'bell', text: 'Alertas de manutenção preventiva' },
-  { icon: 'document', text: 'Gerenciamento de notas fiscais' },
-  { icon: 'chart', text: 'Histórico completo do veículo' },
-  { icon: 'calendar', text: 'Agendamento de serviços' }
+  { icon: 'document', text: 'Gerenciamento de documentos' },
+  { icon: 'chart', text: 'Histórico completo preservado' }
 ];
 
 const isAnimated = ref(false);
@@ -65,8 +65,8 @@ setTimeout(() => {
           class="text-lg text-gray-300 max-w-lg transform translate-y-4 opacity-0 transition-all duration-700 delay-200" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          O AutoCare simplifica a manutenção do seu veículo com alertas inteligentes, 
-          gerenciamento de documentos e histórico completo. Tudo isso na palma da sua mão.
+          Crie um registro digital completo do seu veículo que pode ser transferido para o próximo dono, 
+          preservando todo o histórico real de manutenções e cuidados. O futuro da documentação automotiva.
         </p>
         
         <div 
@@ -78,13 +78,17 @@ setTimeout(() => {
         </div>
         
         <div 
-          class="grid grid-cols-2 gap-6 w-full max-w-lg mt-8 transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
+          class="grid grid-cols-2 gap-4 w-full max-w-lg mt-8 transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
           <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-start space-x-2">
             <div class="flex-shrink-0 mt-1 bg-purple-900 rounded-full p-1">
+              <!-- Transfer Icon -->
+              <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
               <!-- Bell Icon -->
-              <svg v-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               <!-- Document Icon -->
@@ -94,10 +98,6 @@ setTimeout(() => {
               <!-- Chart Icon -->
               <svg v-else-if="feature.icon === 'chart'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <!-- Calendar Icon -->
-              <svg v-else-if="feature.icon === 'calendar'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <span class="text-sm text-gray-300">{{ feature.text }}</span>

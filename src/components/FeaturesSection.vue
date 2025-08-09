@@ -15,35 +15,35 @@ interface Feature {
 const features: Feature[] = [
   {
     id: 1,
-    title: 'Alertas de Manutenção',
-    description: 'Receba notificações inteligentes sobre manutenções preventivas baseadas no histórico e quilometragem do seu veículo.',
-    icon: 'bell',
+    title: 'Registro Transferível',
+    description: 'Crie um registro digital completo que pode ser transferido para o próximo dono, mantendo todo o histórico real do veículo de dono para dono.',
+    icon: 'transfer',
     color: 'purple',
-    image: '/maintenance-alert.png'
+    image: '/vehicle-transfer.png'
   },
   {
     id: 2,
-    title: 'Gerenciamento de Documentos',
-    description: 'Organize notas fiscais, comprovantes e garantias em um só lugar. Acesse quando precisar, sem papelada.',
-    icon: 'document',
+    title: 'Alertas de Manutenção',
+    description: 'Receba notificações inteligentes sobre manutenções preventivas baseadas no histórico e quilometragem do seu veículo.',
+    icon: 'bell',
     color: 'blue',
-    image: '/document-management.png'
+    image: '/maintenance-alert.png'
   },
   {
     id: 3,
-    title: 'Histórico Completo',
-    description: 'Visualize todo o histórico de manutenções, peças trocadas e serviços realizados com gráficos detalhados.',
-    icon: 'chart',
+    title: 'Gerenciamento de Documentos',
+    description: 'Organize notas fiscais, comprovantes e garantias em um só lugar. Acesse quando precisar, sem papelada.',
+    icon: 'document',
     color: 'green',
-    image: '/vehicle-history.png'
+    image: '/document-management.png'
   },
   {
     id: 4,
-    title: 'Agendamento Simplificado',
-    description: 'Agende serviços diretamente com oficinas parceiras e receba lembretes automáticos antes da data marcada.',
-    icon: 'calendar',
+    title: 'Histórico Preservado',
+    description: 'Visualize todo o histórico de manutenções, peças trocadas e serviços realizados que permanece mesmo após a venda.',
+    icon: 'chart',
     color: 'orange',
-    image: '/service-scheduling.png'
+    image: '/vehicle-history.png'
   }
 ];
 
@@ -98,7 +98,12 @@ onMounted(() => {
             <div class="flex items-start space-x-4">
               <!-- Bell Icon -->
               <div class="flex-shrink-0 mt-1 p-2 rounded-lg" :class="`bg-${feature.color}-900`">
-                <svg v-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- Transfer Icon -->
+                <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <!-- Bell Icon -->
+                <svg v-else-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 <!-- Document Icon -->
@@ -160,58 +165,56 @@ onMounted(() => {
                   
                   <!-- Feature specific content -->
                   <div class="px-2">
-                    <!-- Alerts Feature -->
+                    <!-- Transfer Feature -->
                     <div v-if="activeFeature.id === 1" class="space-y-4">
-                      <h3 class="text-white font-medium">Próximas Manutenções</h3>
+                      <h3 class="text-white font-medium">Registro do Veículo</h3>
                       
-                      <!-- Alert items -->
-                      <div class="bg-purple-900/30 border border-purple-500/30 rounded-xl p-3 mb-3">
-                        <div class="flex items-start space-x-3">
-                          <div class="flex-shrink-0 mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      <!-- Vehicle info card -->
+                      <div class="bg-purple-900/30 border border-purple-500/50 rounded-xl p-4 mb-3">
+                        <div class="flex items-center justify-between mb-3">
+                          <h5 class="text-white text-sm font-medium">Honda Civic 2020</h5>
+                          <span class="text-xs bg-purple-500 text-white px-2 py-1 rounded-full">Transferível</span>
+                        </div>
+                        <div class="space-y-2">
+                          <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">Proprietário</span>
+                            <span class="text-white">João Silva</span>
                           </div>
-                          <div>
-                            <h5 class="text-white text-xs font-medium">Troca de Óleo</h5>
-                            <p class="text-purple-300 text-xs">Em 15 dias ou 1.500 km</p>
-                            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                              <div class="bg-purple-500 h-1.5 rounded-full" style="width: 75%"></div>
-                            </div>
+                          <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">Quilometragem</span>
+                            <span class="text-white">45.230 km</span>
+                          </div>
+                          <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">Última revisão</span>
+                            <span class="text-white">15/12/2024</span>
                           </div>
                         </div>
                       </div>
                       
-                      <div class="bg-blue-900/30 border border-blue-500/30 rounded-xl p-3 mb-3">
-                        <div class="flex items-start space-x-3">
-                          <div class="flex-shrink-0 mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h5 class="text-white text-xs font-medium">Revisão dos Freios</h5>
-                            <p class="text-blue-300 text-xs">Em 45 dias ou 3.000 km</p>
-                            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                              <div class="bg-blue-500 h-1.5 rounded-full" style="width: 40%"></div>
-                            </div>
-                          </div>
-                        </div>
+                      <!-- Transfer button -->
+                      <div class="bg-gray-800/50 border border-gray-600 rounded-xl p-3 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <p class="text-white text-xs font-medium">Transferir Registro</p>
+                        <p class="text-gray-400 text-xs mt-1">Mantenha o histórico completo</p>
                       </div>
                       
-                      <div class="bg-green-900/30 border border-green-500/30 rounded-xl p-3">
-                        <div class="flex items-start space-x-3">
-                          <div class="flex-shrink-0 mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      <!-- History preview -->
+                      <div class="space-y-2">
+                        <h6 class="text-white text-xs font-medium">Histórico Preservado</h6>
+                        <div class="bg-gray-800/30 rounded-lg p-2">
+                          <div class="flex items-center space-x-2 mb-1">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-xs text-gray-300">23 manutenções registradas</span>
                           </div>
-                          <div>
-                            <h5 class="text-white text-xs font-medium">Troca de Filtros</h5>
-                            <p class="text-green-300 text-xs">Em 60 dias ou 5.000 km</p>
-                            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                              <div class="bg-green-500 h-1.5 rounded-full" style="width: 25%"></div>
-                            </div>
+                          <div class="flex items-center space-x-2 mb-1">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span class="text-xs text-gray-300">15 documentos anexados</span>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                            <span class="text-xs text-gray-300">2 proprietários anteriores</span>
                           </div>
                         </div>
                       </div>
