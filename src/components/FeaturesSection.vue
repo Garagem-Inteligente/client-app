@@ -81,10 +81,10 @@ onMounted(() => {
       </div>
       
       <!-- Features tabs and content -->
-      <div class="flex flex-col lg:flex-row gap-12 items-center">
+      <div class="flex flex-col lg:flex-row gap-12 items-start lg:items-start">
         <!-- Feature tabs (left side on desktop) -->
         <div 
-          class="lg:w-1/2 space-y-4 transform translate-x-10 opacity-0 transition-all duration-1000 delay-300" 
+          class="lg:w-1/2 space-y-4 transform translate-x-10 opacity-0 transition-all duration-1000 delay-300 w-full" 
           :class="{ 'translate-x-0 opacity-100': isVisible }"
         >
           <div 
@@ -129,7 +129,7 @@ onMounted(() => {
         
         <!-- Feature showcase (right side on desktop) -->
         <div 
-          class="lg:w-1/2 transform translate-x-10 opacity-0 transition-all duration-1000 delay-500" 
+          class="lg:w-1/2 transform translate-x-10 opacity-0 transition-all duration-1000 delay-500 w-full flex justify-center" 
           :class="{ 'translate-x-0 opacity-100': isVisible }"
         >
           <div class="relative">
