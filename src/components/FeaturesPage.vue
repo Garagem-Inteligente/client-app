@@ -139,7 +139,7 @@ const getIconSvg = (icon: string) => {
       <div class="hidden md:flex items-center space-x-6">
         <button @click="emit('navigate', 'home')" class="text-gray-300 hover:text-white transition-colors duration-300">Início</button>
         <span class="text-purple-400 font-medium">Funcionalidades</span>
-        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</a>
+        <button @click="emit('navigate', 'pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
         <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</a>
         <Button label="Baixar App" primary />
       </div>

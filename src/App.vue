@@ -8,6 +8,7 @@ import WaitlistSection from './components/WaitlistSection.vue';
 import FAQSection from './components/FAQSection.vue';
 import FooterSection from './components/FooterSection.vue';
 import FeaturesPage from './components/FeaturesPage.vue';
+import PricingPage from './components/PricingPage.vue';
 
 const currentPage = ref('home');
 
@@ -34,6 +35,12 @@ const navigateTo = (page: string) => {
     <!-- Features Page -->
     <div v-else-if="currentPage === 'features'">
       <FeaturesPage @navigate="navigateTo" />
+      <FooterSection @navigate="navigateTo" />
+    </div>
+    
+    <!-- Pricing Page -->
+    <div v-else-if="currentPage === 'pricing'">
+      <PricingPage @navigate="navigateTo" />
       <FooterSection @navigate="navigateTo" />
     </div>
   </div>

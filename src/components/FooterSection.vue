@@ -57,7 +57,7 @@ const socialLinks: SocialLink[] = [
 const footerLinks: FooterLinks = {
   product: [
     { name: 'Funcionalidades', url: 'features' },
-    { name: 'Preços', url: '#pricing' },
+    { name: 'Preços', url: 'pricing' },
     { name: 'Demonstração', url: '#demo' },
     { name: 'Atualizações', url: '#updates' }
   ],

@@ -38,7 +38,7 @@ const handleNavigation = (page: string) => {
       </div>
       <div class="hidden md:flex items-center space-x-6">
         <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
-        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</a>
+        <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
         <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</a>
         <Button label="Baixar App" primary />
       </div>
