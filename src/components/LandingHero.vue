@@ -44,7 +44,7 @@ setTimeout(() => {
     <!-- Hero Section -->
     <div class="container mx-auto px-6 py-8 md:py-12 pb-16 md:pb-20 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)]">
       <!-- Left Content -->
-      <div class="md:w-1/2 flex flex-col items-center md:items-start space-y-6 md:space-y-8 mb-8 md:mb-16 text-center md:text-left">
+      <div class="md:w-1/2 flex flex-col items-center space-y-6 md:space-y-8 mb-8 md:mb-16 text-center">
         <Badge 
           text="NOVO APP" 
           color="purple" 
@@ -78,7 +78,7 @@ setTimeout(() => {
         </div>
         
         <div 
-          class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-8 transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
+          class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-8 mx-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
           <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-start space-x-2">
@@ -107,10 +107,10 @@ setTimeout(() => {
       
       <!-- Right Content (Phone Mockup) -->
       <div 
-        class="md:w-1/2 relative transform translate-y-8 md:translate-y-0 md:translate-x-20 opacity-0 transition-all duration-1000 delay-500" 
-        :class="{ 'translate-y-0 md:translate-x-0 opacity-100': isAnimated }"
+        class="md:w-1/2 relative flex justify-center transform translate-y-8 opacity-0 transition-all duration-1000 delay-500" 
+        :class="{ 'translate-y-0 opacity-100': isAnimated }"
       >
-        <div class="relative flex justify-center">
+        <div class="relative">
           <!-- Phone frame -->
           <div class="w-56 h-[480px] sm:w-64 sm:h-[530px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
             <div class="bg-gray-800 w-full h-full rounded-[32px] overflow-hidden">
