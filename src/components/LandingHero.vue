@@ -44,7 +44,7 @@ setTimeout(() => {
     <!-- Hero Section -->
     <div class="container mx-auto px-6 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)]">
       <!-- Left Content -->
-      <div class="md:w-1/2 flex flex-col items-start space-y-6 md:space-y-8 mb-12 md:mb-16">
+      <div class="md:w-1/2 flex flex-col items-center md:items-start space-y-6 md:space-y-8 mb-8 md:mb-16 text-center md:text-left">
         <Badge 
           text="NOVO APP" 
           color="purple" 
@@ -78,7 +78,7 @@ setTimeout(() => {
         </div>
         
         <div 
-          class="grid grid-cols-2 gap-4 w-full max-w-lg mt-8 transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
+          class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-8 transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
           <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-start space-x-2">
@@ -107,12 +107,12 @@ setTimeout(() => {
       
       <!-- Right Content (Phone Mockup) -->
       <div 
-        class="md:w-1/2 relative transform translate-x-20 opacity-0 transition-all duration-1000 delay-500" 
-        :class="{ 'translate-x-0 opacity-100': isAnimated }"
+        class="md:w-1/2 relative transform translate-y-8 md:translate-y-0 md:translate-x-20 opacity-0 transition-all duration-1000 delay-500" 
+        :class="{ 'translate-y-0 md:translate-x-0 opacity-100': isAnimated }"
       >
-        <div class="relative">
+        <div class="relative flex justify-center">
           <!-- Phone frame -->
-          <div class="w-64 h-[530px] mx-auto bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
+          <div class="w-56 h-[480px] sm:w-64 sm:h-[530px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
             <div class="bg-gray-800 w-full h-full rounded-[32px] overflow-hidden">
               <!-- App screenshot -->
               <div class="bg-gradient-to-b from-purple-900 to-gray-900 w-full h-full pt-6 px-3">
@@ -207,16 +207,16 @@ setTimeout(() => {
           </div>
           
           <!-- Decorative elements -->
-          <div class="absolute top-1/4 -left-10 w-40 h-40 bg-purple-600 rounded-full filter blur-3xl opacity-20"></div>
-          <div class="absolute bottom-1/4 -right-10 w-40 h-40 bg-blue-600 rounded-full filter blur-3xl opacity-20"></div>
+          <div class="hidden md:block absolute top-1/4 -left-10 w-40 h-40 bg-purple-600 rounded-full filter blur-3xl opacity-20"></div>
+          <div class="hidden md:block absolute bottom-1/4 -right-10 w-40 h-40 bg-blue-600 rounded-full filter blur-3xl opacity-20"></div>
         </div>
       </div>
     </div>
     
     <!-- Decorative elements -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20">
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/4 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
     </div>
   </div>
 </template>
