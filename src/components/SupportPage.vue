@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import Badge from './Badge.vue';
 import Button from './Button.vue';
-import Card from './Card.vue';
+import Container from './Container.vue';
 import Input from './Input.vue';
 
 const emit = defineEmits<{
@@ -304,7 +304,7 @@ onMounted(() => {
             :class="{ 'translate-y-0 opacity-100': isVisible }"
             :style="{ transitionDelay: `${index * 100}ms` }"
           >
-            <Card 
+            <Container 
               :class="[
                 'h-full text-center cursor-pointer transition-all duration-300',
                 activeCategory === category.id ? 'ring-2 ring-blue-500 bg-blue-900/30' : 'hover:bg-gray-800/50'
@@ -327,7 +327,7 @@ onMounted(() => {
               </div>
               <h3 class="text-lg font-semibold text-white mb-2">{{ category.name }}</h3>
               <p class="text-gray-400 text-sm">{{ category.description }}</p>
-            </Card>
+            </Container>
           </button>
         </div>
         
@@ -371,7 +371,7 @@ onMounted(() => {
               :class="{ 'translate-y-0 opacity-100': isVisible }"
               :style="{ transitionDelay: `${index * 100}ms` }"
             >
-              <Card class="cursor-pointer hover:bg-gray-800/70 transition-colors duration-300" @click="toggleFAQ(faq.id)">
+              <Container class="cursor-pointer hover:bg-gray-800/70 transition-colors duration-300" @click="toggleFAQ(faq.id)">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold text-white mb-2">{{ faq.question }}</h3>
@@ -388,7 +388,7 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-              </Card>
+              </Container>
             </div>
           </div>
         </div>
@@ -419,7 +419,7 @@ onMounted(() => {
                 :class="{ 'translate-x-0 opacity-100': isVisible }"
                 :style="{ transitionDelay: `${index * 200}ms` }"
               >
-                <Card class="hover:bg-gray-800/50 transition-colors duration-300">
+                <Container class="hover:bg-gray-800/50 transition-colors duration-300">
                   <div class="flex items-center space-x-4">
                     <div :class="['w-12 h-12 rounded-lg flex items-center justify-center', getContactBgClass(method.color)]">
                       <svg v-if="method.icon === 'mail'" xmlns="http://www.w3.org/2000/svg" :class="['h-6 w-6', getContactTextClass(method.color)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,7 +438,7 @@ onMounted(() => {
                       <p :class="['font-medium', getContactTextClass(method.color)]">{{ method.action }}</p>
                     </div>
                   </div>
-                </Card>
+                </Container>
               </div>
             </div>
           </div>
@@ -446,7 +446,7 @@ onMounted(() => {
           <!-- Contact Form -->
           <div>
             <h3 class="text-2xl font-bold text-white mb-8">Envie uma Mensagem</h3>
-            <Card>
+            <Container>
               <form @submit.prevent="submitContactForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input 
@@ -475,7 +475,7 @@ onMounted(() => {
                 ></textarea>
                 <Button label="Enviar Mensagem" primary class="w-full py-3" type="submit" />
               </form>
-            </Card>
+            </Container>
           </div>
         </div>
       </div>

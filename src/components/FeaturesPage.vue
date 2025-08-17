@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import Badge from './Badge.vue';
 import Button from './Button.vue';
-import Card from './Card.vue';
 
 const emit = defineEmits<{
   navigate: [page: string]
