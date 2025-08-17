@@ -79,7 +79,7 @@ onMounted(() => {
         class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
-        <Badge text="RECURSOS" color="purple" size="lg" rounded class="mb-4" />
+        <Badge variant="info" size="lg" rounded class="mb-4">RECURSOS</Badge>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Tudo que você precisa para <span class="text-purple-500">cuidar do seu carro</span></h2>
         <p class="text-gray-300 max-w-2xl mx-auto">O AutoCare reúne todas as ferramentas necessárias para simplificar a manutenção do seu veículo, economizar tempo e dinheiro, e evitar problemas inesperados.</p>
       </div>

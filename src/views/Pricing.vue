@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import Badge from './Badge.vue';
-import Button from './Button.vue';
+import Badge from '../components/Badge.vue';
+import Button from '../components/Button.vue';
 
 const emit = defineEmits<{
   navigate: [page: string]

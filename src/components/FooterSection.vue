@@ -264,7 +264,7 @@ const subscribeNewsletter = async () => {
             <p class="text-gray-400 text-sm">
               © {{ currentYear }} AutoCare. Todos os direitos reservados.
             </p>
-            <Badge text="Em Desenvolvimento" color="orange" size="sm" />
+            <Badge variant="warning" size="sm">Em Desenvolvimento</Badge>
           </div>
           
           <div class="flex items-center space-x-6 text-sm">

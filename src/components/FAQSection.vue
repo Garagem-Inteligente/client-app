@@ -78,7 +78,7 @@ const isOpen = (id: number) => {
     <div class="container mx-auto px-6 relative z-10">
       <!-- Section header -->
       <div class="text-center mb-16">
-        <Badge text="FAQ" color="blue" size="lg" rounded class="mb-4" />
+        <Badge variant="info" size="lg" rounded class="mb-4">FAQ</Badge>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
           Perguntas <span class="text-blue-500">Frequentes</span>
         </h2>

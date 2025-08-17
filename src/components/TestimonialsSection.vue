@@ -119,7 +119,7 @@ onMounted(() => {
         class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
-        <Badge text="DEPOIMENTOS" color="blue" size="lg" rounded class="mb-4" />
+        <Badge variant="info" size="lg" rounded class="mb-4">DEPOIMENTOS</Badge>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">O que nossos <span class="text-blue-500">usuários dizem</span></h2>
         <p class="text-gray-300 max-w-2xl mx-auto">Milhares de motoristas já transformaram a forma como cuidam de seus veículos com o AutoCare. Confira algumas histórias reais.</p>
       </div>

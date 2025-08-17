@@ -37,10 +37,13 @@ const handleNavigation = (page: string) => {
         <span class="text-white text-xl font-bold">AutoCare</span>
       </div>
       <div class="hidden md:flex items-center space-x-6">
+        <button @click="handleNavigation('home')" class="text-gray-300 hover:text-white transition-colors duration-300">Início</button>
         <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
         <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
-        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</a>
-        <Button label="Baixar App" primary />
+        <button @click="handleNavigation('support')" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</button>
+        <button @click="handleNavigation('login')" class="text-gray-300 hover:text-white transition-colors duration-300">Login</button>
+        <button @click="handleNavigation('register')" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</button>
+        <Button variant="primary">Baixar App</Button>
       </div>
       <button class="md:hidden text-white">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,13 +57,14 @@ const handleNavigation = (page: string) => {
       <!-- Left Content -->
       <div class="md:w-1/2 flex flex-col items-center space-y-6 md:space-y-8 mb-8 md:mb-16 text-center">
         <Badge 
-          text="NOVO APP" 
-          color="purple" 
+          variant="info" 
           size="lg" 
           rounded 
           class="mb-2 opacity-0 animate-fade-in" 
           :class="{ 'opacity-100': isAnimated }"
-        />
+        >
+          NOVO APP
+        </Badge>
         
         <h1 
           class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight transform translate-y-4 opacity-0 transition-all duration-700 delay-100" 
@@ -81,8 +85,8 @@ const handleNavigation = (page: string) => {
           class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-300 relative z-20" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          <Button label="Baixar Agora" primary class="px-8 py-3 text-lg" @click="handleNavigation('features')" />
-          <Button label="Saiba Mais" class="px-8 py-3 text-lg" @click="handleNavigation('features')" />
+          <Button variant="primary" size="lg" @click="handleNavigation('features')">Baixar Agora</Button>
+          <Button variant="outline" size="lg" @click="handleNavigation('features')">Saiba Mais</Button>
         </div>
         
         <div 

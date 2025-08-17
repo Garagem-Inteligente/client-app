@@ -1,8 +1,9 @@
 <script setup lang="ts">
 interface Props {
-  label: string;
-  primary?: boolean;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
+  loading?: boolean;
   type?: 'button' | 'submit' | 'reset';
   ariaLabel?: string;
 }
@@ -12,17 +13,38 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  primary: false,
+  variant: 'primary',
+  size: 'md',
   disabled: false,
+  loading: false,
   type: 'button'
 });
 
 const emit = defineEmits<Emits>();
 
 const handleClick = (event: MouseEvent) => {
-  if (!props.disabled) {
+  if (!props.disabled && !props.loading) {
     emit('click', event);
   }
+};
+
+const getVariantClasses = () => {
+  const variants = {
+    primary: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white disabled:bg-blue-400',
+    secondary: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-500 text-white disabled:bg-gray-500',
+    outline: 'border border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white focus:ring-gray-500 disabled:border-gray-700 disabled:text-gray-500',
+    ghost: 'text-gray-300 hover:bg-gray-800 hover:text-white focus:ring-gray-500 disabled:text-gray-500'
+  };
+  return variants[props.variant];
+};
+
+const getSizeClasses = () => {
+  const sizes = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base'
+  };
+  return sizes[props.size];
 };
 </script>
 
@@ -30,16 +52,16 @@ const handleClick = (event: MouseEvent) => {
   <button
     :type="props.type"
     @click="handleClick"
-    :disabled="props.disabled"
-    :aria-label="props.ariaLabel || props.label"
+    :disabled="props.disabled || props.loading"
+    :aria-label="props.ariaLabel"
     :class="[
-      'px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
-      props.primary 
-        ? 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white disabled:bg-blue-400' 
-        : 'bg-gray-200 hover:bg-gray-300 focus:ring-gray-500 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white disabled:bg-gray-300 dark:disabled:bg-gray-600',
-      props.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+      'rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900',
+      getSizeClasses(),
+      getVariantClasses(),
+      (props.disabled || props.loading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
     ]"
   >
-    {{ props.label }}
+    <span v-if="props.loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></span>
+    <slot></slot>
   </button>
 </template>

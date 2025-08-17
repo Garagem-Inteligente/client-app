@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import Badge from './Badge.vue';
-import Button from './Button.vue';
+import Badge from '../components/Badge.vue';
+import Button from '../components/Button.vue';
 
 const emit = defineEmits<{
   navigate: [page: string]
@@ -161,7 +161,7 @@ const getIconSvg = (icon: string) => {
           class="text-center transform translate-y-10 opacity-0 transition-all duration-1000" 
           :class="{ 'translate-y-0 opacity-100': isVisible }"
         >
-          <Badge text="FUNCIONALIDADES" color="purple" size="lg" rounded class="mb-6" />
+          <Badge variant="info" size="lg" rounded class="mb-6">FUNCIONALIDADES</Badge>
           <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
             Tudo que você precisa para
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
@@ -227,7 +227,7 @@ const getIconSvg = (icon: string) => {
       
       <div class="container mx-auto px-6 relative z-10">
         <div class="text-center mb-16">
-          <Badge text="DESTAQUE" color="green" size="lg" rounded class="mb-4" />
+          <Badge variant="success" size="lg" rounded class="mb-4">DESTAQUE</Badge>
           <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Funcionalidade em Destaque</h2>
           <p class="text-gray-300 max-w-2xl mx-auto">Explore em detalhes como cada funcionalidade pode transformar sua experiência automotiva.</p>
         </div>

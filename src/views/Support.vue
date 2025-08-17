@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import Badge from './Badge.vue';
-import Button from './Button.vue';
-import Container from './Container.vue';
-import Input from './Input.vue';
+import Badge from '../components/Badge.vue';
+import Button from '../components/Button.vue';
+import Container from '../components/Container.vue';
+import Input from '../components/Input.vue';
 
 const emit = defineEmits<{
   navigate: [page: string]
@@ -255,7 +255,7 @@ onMounted(() => {
           class="transform translate-y-10 opacity-0 transition-all duration-1000" 
           :class="{ 'translate-y-0 opacity-100': isVisible }"
         >
-          <Badge text="SUPORTE" color="blue" size="lg" rounded class="mb-6" />
+          <Badge variant="info" size="lg" rounded class="mb-6">SUPORTE</Badge>
           <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
             Como podemos
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">

@@ -136,7 +136,7 @@ onMounted(() => {
         class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
-        <Badge text="COMPARATIVO" color="green" size="lg" rounded class="mb-4" />
+        <Badge variant="success" size="lg" rounded class="mb-4">COMPARATIVO</Badge>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Por que escolher o <span class="text-green-500">AutoCare</span>?</h2>
         <p class="text-gray-300 max-w-2xl mx-auto">Veja como o AutoCare revoluciona o cuidado com seu veículo em comparação aos métodos tradicionais.</p>
       </div>

@@ -130,7 +130,7 @@ const submitForm = async () => {
     <div class="container mx-auto px-6 relative z-10">
       <!-- Section header -->
       <div class="text-center mb-16">
-        <Badge text="LISTA DE ESPERA" color="blue" size="lg" rounded class="mb-4" />
+        <Badge variant="info" size="lg" rounded class="mb-4">LISTA DE ESPERA</Badge>
         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
           Seja o primeiro a <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">revolucionar</span> 
           <br>o cuidado com seu veículo
