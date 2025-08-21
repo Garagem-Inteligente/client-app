@@ -41,8 +41,8 @@ const handleNavigation = (page: string) => {
         <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
         <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
         <button @click="handleNavigation('support')" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</button>
-        <button @click="handleNavigation('login')" class="text-gray-300 hover:text-white transition-colors duration-300">Login</button>
-        <button @click="handleNavigation('register')" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</button>
+        <router-link to="/login" class="text-gray-300 hover:text-white transition-colors duration-300">Login</router-link>
+        <router-link to="/register" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</router-link>
         <Button variant="primary">Baixar App</Button>
       </div>
       <button class="md:hidden text-white">

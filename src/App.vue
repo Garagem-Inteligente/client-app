@@ -57,13 +57,13 @@ const navigateTo = (page: string) => {
             <!-- Auth buttons -->
             <div v-if="!authStore.isAuthenticated" class="flex items-center space-x-2">
               <router-link 
-                to="/auth/login" 
+                to="/login" 
                 class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               >
                 Login
               </router-link>
               <router-link 
-                to="/auth/register" 
+                to="/register" 
                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
                 Register

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 // Import components
 import Home from '../views/Home.vue'
@@ -47,14 +48,29 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/auth/login',
+    path: '/login',
     name: 'Login',
-    component: () => import('../views/auth/Login.vue')
+    component: () => import('../views/auth/Login.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/auth/Register.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/auth/login',
+    redirect: '/login'
   },
   {
     path: '/auth/register',
-    name: 'Register',
-    component: () => import('../views/auth/Register.vue')
+    redirect: '/register'
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: '/'
   }
 ]
 
@@ -63,13 +79,29 @@ const router = createRouter({
   routes
 })
 
-// Navigation guard for authentication
-router.beforeEach((to, _from, next) => {
+// Navigation guards for authentication
+router.beforeEach(async (to, _from, next) => {
+  const authStore = useAuthStore()
+  
+  // Wait for auth state to be initialized
+  if (authStore.loading) {
+    // Wait a bit for auth state to initialize
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthenticated = false // TODO: Implement authentication check
+  const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
+  const isAuthenticated = authStore.isAuthenticated
   
   if (requiresAuth && !isAuthenticated) {
-    next('/auth/login')
+    // Redirect to login with return URL
+    next({
+      path: '/login',
+      query: { redirect: to.fullPath }
+    })
+  } else if (requiresGuest && isAuthenticated) {
+    // Redirect authenticated users away from auth pages
+    next('/dashboard')
   } else {
     next()
   }
