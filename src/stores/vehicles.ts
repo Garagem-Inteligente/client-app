@@ -1,5 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { 
+  collection, 
+  doc, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  orderBy, 
+  Timestamp 
+} from 'firebase/firestore'
+import { db } from '@/firebase/config'
+import { useAuthStore } from './auth'
 
 export interface Vehicle {
   id: string
@@ -13,6 +27,16 @@ export interface Vehicle {
   fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
   createdAt: Date
   updatedAt: Date
+}
+
+export interface VehicleInput {
+  make: string
+  model: string
+  year: number
+  plate: string
+  color?: string
+  mileage: number
+  fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
 }
 
 export interface MaintenanceRecord {
@@ -66,75 +90,118 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
     
     try {
-      // TODO: Implement Firestore fetch
-      console.log('Fetching vehicles...')
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const vehiclesRef = collection(db, 'vehicles')
+      const q = query(
+        vehiclesRef, 
+        where('userId', '==', authStore.user.id),
+        orderBy('createdAt', 'desc')
+      )
       
-      // Simulate data for now
-      vehicles.value = [
-        {
-          id: '1',
-          userId: '1',
-          make: 'Toyota',
-          model: 'Corolla',
-          year: 2020,
-          plate: 'ABC-1234',
-          color: 'Branco',
-          mileage: 45000,
-          fuelType: 'gasoline',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      ]
+      const querySnapshot = await getDocs(q)
+      const fetchedVehicles: Vehicle[] = []
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        fetchedVehicles.push({
+          id: doc.id,
+          userId: data.userId,
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          plate: data.plate,
+          color: data.color,
+          mileage: data.mileage,
+          fuelType: data.fuelType,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        })
+      })
+      
+      vehicles.value = fetchedVehicles
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch vehicles'
+      error.value = err instanceof Error ? err.message : 'Falha ao buscar veículos'
+      console.error('Error fetching vehicles:', err)
     } finally {
       loading.value = false
     }
   }
 
-  const addVehicle = async (vehicleData: Omit<Vehicle, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
+  const addVehicle = async (vehicleData: VehicleInput) => {
     loading.value = true
     error.value = null
     
     try {
-      // TODO: Implement Firestore add
-      const newVehicle: Vehicle = {
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const vehiclesRef = collection(db, 'vehicles')
+      const now = Timestamp.now()
+      
+      const newVehicleData = {
         ...vehicleData,
-        id: Date.now().toString(),
-        userId: '1', // TODO: Get from auth store
-        createdAt: new Date(),
-        updatedAt: new Date()
+        userId: authStore.user.id,
+        createdAt: now,
+        updatedAt: now
       }
       
-      vehicles.value.push(newVehicle)
+      const docRef = await addDoc(vehiclesRef, newVehicleData)
+      
+      const newVehicle: Vehicle = {
+        id: docRef.id,
+        ...vehicleData,
+        userId: authStore.user.id,
+        createdAt: now.toDate(),
+        updatedAt: now.toDate()
+      }
+      
+      vehicles.value.unshift(newVehicle)
       return newVehicle
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to add vehicle'
-      return null
+      error.value = err instanceof Error ? err.message : 'Falha ao adicionar veículo'
+      console.error('Error adding vehicle:', err)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
-  const updateVehicle = async (id: string, updates: Partial<Vehicle>) => {
+  const updateVehicle = async (id: string, vehicleData: Partial<VehicleInput>) => {
     loading.value = true
     error.value = null
     
     try {
-      // TODO: Implement Firestore update
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const vehicleRef = doc(db, 'vehicles', id)
+      const updateData = {
+        ...vehicleData,
+        updatedAt: Timestamp.now()
+      }
+      
+      await updateDoc(vehicleRef, updateData)
+      
       const index = vehicles.value.findIndex(v => v.id === id)
       if (index !== -1) {
         vehicles.value[index] = {
           ...vehicles.value[index],
-          ...updates,
+          ...vehicleData,
           updatedAt: new Date()
         }
-        return vehicles.value[index]
       }
-      return null
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update vehicle'
-      return null
+      error.value = err instanceof Error ? err.message : 'Falha ao atualizar veículo'
+      console.error('Error updating vehicle:', err)
+      throw err
     } finally {
       loading.value = false
     }
@@ -145,14 +212,19 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
     
     try {
-      // TODO: Implement Firestore delete
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const vehicleRef = doc(db, 'vehicles', id)
+      await deleteDoc(vehicleRef)
+      
       vehicles.value = vehicles.value.filter(v => v.id !== id)
-      // Also remove related maintenance records
-      maintenanceRecords.value = maintenanceRecords.value.filter(r => r.vehicleId !== id)
-      return true
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete vehicle'
-      return false
+      error.value = err instanceof Error ? err.message : 'Falha ao deletar veículo'
+      console.error('Error deleting vehicle:', err)
+      throw err
     } finally {
       loading.value = false
     }

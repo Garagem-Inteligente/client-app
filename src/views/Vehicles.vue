@@ -39,14 +39,15 @@ const resetForm = () => {
 }
 
 const handleSubmit = async () => {
-  if (editingVehicle.value) {
-    await vehiclesStore.updateVehicle(editingVehicle.value.id, formData.value)
-  } else {
-    await vehiclesStore.addVehicle(formData.value)
-  }
-  
-  if (!vehiclesStore.error) {
+  try {
+    if (editingVehicle.value) {
+      await vehiclesStore.updateVehicle(editingVehicle.value.id, formData.value)
+    } else {
+      await vehiclesStore.addVehicle(formData.value)
+    }
     resetForm()
+  } catch (error) {
+    console.error('Error saving vehicle:', error)
   }
 }
 
@@ -66,7 +67,11 @@ const startEdit = (vehicle: Vehicle) => {
 
 const handleDelete = async (vehicle: Vehicle) => {
   if (confirm(`Tem certeza que deseja excluir o veículo ${vehicle.make} ${vehicle.model}?`)) {
-    await vehiclesStore.deleteVehicle(vehicle.id)
+    try {
+      await vehiclesStore.deleteVehicle(vehicle.id)
+    } catch (error) {
+      console.error('Error deleting vehicle:', error)
+    }
   }
 }
 
