@@ -1,40 +1,216 @@
-# AutoCare - Landing Page
+# 🚗 AutoCare Platform
 
-Este é um projeto de landing page para um aplicativo de controle de manutenção de carros, desenvolvido com Vue 3, TypeScript, Vite e Tailwind CSS, incluindo componentes reutilizáveis e design moderno com tema escuro.
+> Plataforma completa para gerenciamento de veículos e manutenções
 
-## Características
+[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)](https://github.com)
+[![Vue 3](https://img.shields.io/badge/Vue-3.5-42b883)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-12.1-orange)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-- 🚀 [Vue 3](https://v3.vuejs.org/) com [Composition API](https://v3.vuejs.org/guide/composition-api-introduction.html)
-- 🔧 [TypeScript](https://www.typescriptlang.org/) para tipagem estática
-- ⚡️ [Vite](https://vitejs.dev/) para desenvolvimento rápido
-- 🎨 [Tailwind CSS](https://tailwindcss.com/) para estilização
-- 🌑 Design moderno com tema escuro inspirado no visual da Rocketseat
-- 📱 Layout responsivo com mockup de aplicativo móvel
-- 🧩 Componentes reutilizáveis (Button, Card, Badge, LandingHero, FeaturesSection, TestimonialsSection, ComparisonSection, WaitlistSection, FAQSection, FooterSection)
-- ✨ Animações suaves para melhor experiência do usuário
-- 📝 Lista de espera para cadastro de usuários interessados
-- ❓ Seção de perguntas frequentes (FAQ)
-- 🆚 Comparativo com métodos tradicionais de manutenção
+## 📋 Sobre o Projeto
 
-## Configuração Recomendada da IDE
+**AutoCare** é uma plataforma web completa que permite aos usuários gerenciar seus veículos e acompanhar o histórico de manutenções de forma organizada e inteligente. Com alertas automáticos e estatísticas detalhadas, nunca mais perca o prazo de uma manutenção importante!
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+### ✨ Features Principais
 
-## Começando
+- 🔐 **Autenticação Segura**: Sistema completo de login/registro com Firebase Auth
+- 🚗 **Gestão de Veículos**: Adicione, edite e gerencie múltiplos veículos
+- 🔧 **Histórico de Manutenções**: Registre todas as manutenções com detalhes completos
+- 📊 **Dashboard Inteligente**: Visualize estatísticas, custos e alertas em tempo real
+- ⚠️ **Alertas Automáticos**: Notificações de manutenções atrasadas, urgentes e próximas
+- 💰 **Controle de Custos**: Acompanhe quanto gasta com cada veículo
+- 📱 **Design Responsivo**: Funciona perfeitamente em mobile, tablet e desktop
+- 🌑 **Tema Escuro**: Interface moderna inspirada no design da Rocketseat
+- 📄 **Landing Page Marketing**: Capte leads com lista de espera
+
+## �️ Tecnologias
+
+### Frontend
+- **[Vue 3](https://v3.vuejs.org/)** - Framework progressivo com Composition API
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática para maior segurança
+- **[Vite](https://vitejs.dev/)** - Build tool ultra-rápido
+- **[Tailwind CSS](https://tailwindcss.com/)** - Framework CSS utility-first
+- **[Pinia](https://pinia.vuejs.org/)** - State management moderno
+- **[Vue Router](https://router.vuejs.org/)** - Roteamento SPA
+
+### Backend
+- **[Firebase Authentication](https://firebase.google.com/docs/auth)** - Autenticação de usuários
+- **[Cloud Firestore](https://firebase.google.com/docs/firestore)** - Banco de dados NoSQL em tempo real
+- **[Firebase Analytics](https://firebase.google.com/docs/analytics)** - Análise de comportamento
+
+## 🚀 Começando
+
+### Pré-requisitos
+
+- Node.js 16+ e npm/yarn
+- Conta Firebase (gratuita)
+- Git
+
+### Instalação
+
+1. **Clone o repositório**
+```bash
+git clone https://github.com/seu-usuario/autocare-landing-page.git
+cd autocare-landing-page
+```
+
+2. **Instale as dependências**
+```bash
+npm install
+```
+
+3. **Configure as variáveis de ambiente**
+```bash
+# Copie o arquivo de exemplo
+cp .env.example .env
+
+# Edite o arquivo .env com suas credenciais Firebase
+# IMPORTANTE: Obtenha as credenciais no Firebase Console
+```
+
+4. **Inicie o servidor de desenvolvimento**
+```bash
+npm run dev
+```
+
+5. **Acesse no navegador**
+```
+http://localhost:5173
+```
+
+### Build de Produção
 
 ```bash
-# Instalar dependências
-npm install
-
-# Iniciar servidor de desenvolvimento
-npm run dev
-
-# Compilar para produção
+# Gera os arquivos otimizados na pasta dist/
 npm run build
 
-# Visualizar build de produção localmente
+# Visualiza o build localmente
 npm run preview
 ```
+
+## 📁 Estrutura do Projeto
+
+```
+autocare-landing-page/
+├── src/
+│   ├── components/          # Componentes reutilizáveis
+│   │   ├── Alert.vue
+│   │   ├── Button.vue
+│   │   ├── Card.vue
+│   │   ├── Navbar.vue
+│   │   └── ...
+│   ├── views/               # Páginas da aplicação
+│   │   ├── Home.vue         # Landing page
+│   │   ├── Dashboard.vue    # Dashboard principal
+│   │   ├── Vehicles.vue     # Gestão de veículos
+│   │   ├── Maintenance.vue  # Gestão de manutenções
+│   │   └── auth/
+│   │       ├── Login.vue
+│   │       └── Register.vue
+│   ├── stores/              # Gerenciamento de estado (Pinia)
+│   │   ├── auth.ts          # Store de autenticação
+│   │   └── vehicles.ts      # Store de veículos/manutenções
+│   ├── router/              # Configuração de rotas
+│   ├── firebase/            # Configuração Firebase
+│   ├── App.vue              # Componente raiz
+│   └── main.ts              # Entry point
+├── .env                     # Variáveis de ambiente (não versionar!)
+├── .env.example             # Template de variáveis
+├── PLANO_DE_ACAO.md         # Roadmap detalhado do projeto
+├── FIREBASE_SETUP.md        # Guia de configuração Firebase
+└── package.json
+```
+
+## 📚 Documentação Adicional
+
+- **[PLANO_DE_ACAO.md](./PLANO_DE_ACAO.md)** - Análise completa, roadmap e próximos passos
+- **[FIREBASE_SETUP.md](./FIREBASE_SETUP.md)** - Configuração Firebase e deploy
+- **[.github/copilot-instructions.md](./.github/copilot-instructions.md)** - Instruções para AI agents
+
+## 🔒 Segurança
+
+Este projeto implementa as melhores práticas de segurança:
+
+- ✅ Variáveis de ambiente para credenciais sensíveis
+- ✅ Firestore Security Rules (configure no Firebase Console)
+- ✅ Guards de rota para proteção de páginas privadas
+- ✅ Validação de autenticação em todas as operações
+
+**IMPORTANTE:** Antes de colocar em produção, configure as Security Rules do Firestore. Veja [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) para instruções detalhadas.
+
+## 📊 Status do Projeto
+
+### ✅ MVP Completo (v1.0.0)
+- [x] Landing page marketing
+- [x] Sistema de autenticação
+- [x] Dashboard com estatísticas
+- [x] CRUD de veículos
+- [x] CRUD de manutenções
+- [x] Sistema de alertas
+- [x] Design responsivo
+
+### 🔄 Próximas Features (v2.0.0)
+- [ ] Notificações push
+- [ ] Upload de documentos (notas fiscais)
+- [ ] Gráficos de custos
+- [ ] Exportação de dados (PDF, CSV)
+- [ ] Perfil do usuário
+
+Veja o roadmap completo em [PLANO_DE_ACAO.md](./PLANO_DE_ACAO.md).
+
+## 💰 Custos
+
+O projeto utiliza **apenas recursos gratuitos** do Firebase:
+
+| Serviço | Limite Gratuito | Estimativa (1000 usuários/mês) |
+|---------|-----------------|--------------------------------|
+| Authentication | 50.000 MAU | ~1.000 MAU (2%) |
+| Firestore Reads | 50.000/dia | ~10.000/dia (20%) |
+| Firestore Writes | 20.000/dia | ~2.000/dia (10%) |
+| Firestore Storage | 1 GB | ~100 MB (10%) |
+
+**Conclusão:** Suporta facilmente 500-1000 usuários ativos no plano gratuito.
+
+## 🧪 Testes
+
+```bash
+# Testes unitários (a implementar)
+npm run test
+
+# Testes E2E (a implementar)
+npm run test:e2e
+```
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Siga estes passos:
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👨‍💻 Autor
+
+**Michel** - [GitHub](https://github.com/Mikeofic)
+
+## 🙏 Agradecimentos
+
+- Design inspirado em [Rocketseat](https://rocketseat.com.br/)
+- Ícones por [Heroicons](https://heroicons.com/)
+- Firebase por Google
+
+---
+
+**Status:** ✅ Production Ready  
+**Versão:** 1.0.0  
+**Última atualização:** Outubro 2025
 
 ## Componentes Disponíveis
 

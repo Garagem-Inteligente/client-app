@@ -67,16 +67,6 @@ const formatCurrency = (value: number) => {
     currency: 'BRL'
   }).format(value)
 }
-
-const getFuelTypeIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    gasoline: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4',
-    diesel: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z',
-    electric: 'M13 10V3L4 14h7v7l9-11h-7z',
-    hybrid: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707'
-  }
-  return icons[type] || icons.gasoline
-}
 </script>
 
 <template>
@@ -172,28 +162,60 @@ const getFuelTypeIcon = (type: string) => {
       </div>
       
       <!-- Quick Actions -->
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-4">Ações Rápidas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Adicionar Veículo Card -->
+          <router-link to="/vehicles" class="group">
+            <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-2 border-blue-500/30 rounded-xl p-6 hover:border-blue-500/60 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+              <div class="flex items-start space-x-4">
+                <div class="p-3 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors">
+                  <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                    Adicionar Veículo
+                  </h3>
+                  <p class="text-sm text-gray-400">
+                    Cadastre um novo veículo na sua garagem
+                  </p>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </router-link>
+          
+          <!-- Registrar Manutenção Card -->
+          <router-link to="/maintenance" class="group">
+            <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border-2 border-green-500/30 rounded-xl p-6 hover:border-green-500/60 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300">
+              <div class="flex items-start space-x-4">
+                <div class="p-3 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors">
+                  <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition-colors">
+                    Registrar Manutenção
+                  </h3>
+                  <p class="text-sm text-gray-400">
+                    Adicione um novo registro de manutenção
+                  </p>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-green-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </router-link>
+        </div>
+      </div>
+      
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card title="Ações Rápidas">
-          <div class="space-y-4">
-            <router-link to="/vehicles">
-              <Button variant="primary" size="lg" class="w-full">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Adicionar Veículo
-              </Button>
-            </router-link>
-            
-            <router-link to="/maintenance">
-              <Button variant="secondary" size="lg" class="w-full">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Registrar Manutenção
-              </Button>
-            </router-link>
-          </div>
-        </Card>
         
         <!-- Recent Vehicles -->
         <Card title="Meus Veículos" class="hover:shadow-xl transition-shadow duration-300">
@@ -207,20 +229,21 @@ const getFuelTypeIcon = (type: string) => {
             </router-link>
           </div>
           
-          <div v-else class="space-y-4">
-            <div 
+          <div v-else class="space-y-3">
+            <router-link
               v-for="vehicle in vehiclesStore.vehicles.slice(0, 3)" 
               :key="vehicle.id"
-              class="flex items-center justify-between p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors duration-200 cursor-pointer group"
+              :to="`/vehicles/${vehicle.id}`"
+              class="flex items-center justify-between p-4 bg-gray-800 rounded-lg hover:bg-gray-750 hover:border-blue-500/50 border border-transparent transition-all duration-200 cursor-pointer group"
             >
               <div class="flex items-center space-x-4">
-                <div class="p-3 bg-gray-700 rounded-lg group-hover:bg-gray-600 transition-colors">
-                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getFuelTypeIcon(vehicle.fuelType)" />
+                <div class="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 border border-blue-500/30 group-hover:border-blue-500/50 transition-all">
+                  <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 11l-2 0 0-1c0-.5.2-1.1.5-1.5l1.8-2.2c.4-.4 1-.7 1.7-.7l13 0c.7 0 1.3.3 1.7.7l1.8 2.2c.3.4.5 1 .5 1.5l0 1-2 0 0-1c0-.3-.1-.5-.3-.7l-1.8-2.2c-.2-.2-.4-.3-.7-.3l-13 0c-.3 0-.5.1-.7.3l-1.8 2.2c-.2.2-.3.4-.3.7l0 1zm-.5 1c-.3 0-.5.2-.5.5l0 2.5 0 2.5c0 .3.2.5.5.5l.5 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5 10 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5.5 0c.3 0 .5-.2.5-.5l0-2.5 0-2.5c0-.3-.2-.5-.5-.5zm2 1.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm11 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="font-medium text-white">
+                  <h3 class="font-medium text-white group-hover:text-blue-400 transition-colors">
                     {{ vehicle.make }} {{ vehicle.model }}
                   </h3>
                   <p class="text-sm text-gray-400">
@@ -228,17 +251,22 @@ const getFuelTypeIcon = (type: string) => {
                   </p>
                 </div>
               </div>
-              <div class="text-right">
-                <p class="text-sm font-medium text-white">
-                  {{ vehicle.mileage.toLocaleString('pt-BR') }} km
-                </p>
-                <Badge :variant="vehicle.fuelType === 'electric' ? 'success' : 'default'">
-                  {{ vehicle.fuelType === 'gasoline' ? 'Gasolina' : 
-                     vehicle.fuelType === 'diesel' ? 'Diesel' :
-                     vehicle.fuelType === 'electric' ? 'Elétrico' : 'Híbrido' }}
-                </Badge>
+              <div class="flex items-center space-x-3">
+                <div class="text-right">
+                  <p class="text-sm font-medium text-white">
+                    {{ vehicle.mileage.toLocaleString('pt-BR') }} km
+                  </p>
+                  <Badge :variant="vehicle.fuelType === 'electric' ? 'success' : 'default'" size="sm">
+                    {{ vehicle.fuelType === 'gasoline' ? 'Gasolina' : 
+                       vehicle.fuelType === 'diesel' ? 'Diesel' :
+                       vehicle.fuelType === 'electric' ? 'Elétrico' : 'Híbrido' }}
+                  </Badge>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
-            </div>
+            </router-link>
             
             <router-link to="/vehicles" v-if="vehiclesStore.vehicles.length > 3">
               <Button variant="outline" size="sm" class="w-full">

@@ -7,13 +7,20 @@ import { getFirestore } from 'firebase/firestore'
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDtwoXZUnHSgUg_Rr0-BSgrNchn6hk9UgU",
-  authDomain: "autocare-platform.firebaseapp.com",
-  projectId: "autocare-platform",
-  storageBucket: "autocare-platform.firebasestorage.app",
-  messagingSenderId: "868408826724",
-  appId: "1:868408826724:web:37775191fb1e4b26d57871",
-  measurementId: "G-TVZFYH3Z0M"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+}
+
+// Validate configuration
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  throw new Error(
+    'Firebase configuration is missing. Please check your .env file and ensure all required environment variables are set.'
+  )
 }
 
 // Initialize Firebase
@@ -25,7 +32,7 @@ export const auth = getAuth(app)
 // Initialize Firestore Database
 export const db = getFirestore(app)
 
-// Initialize Analytics (optional)
-export const analytics = getAnalytics(app)
+// Initialize Analytics (optional, only in production)
+export const analytics = import.meta.env.PROD ? getAnalytics(app) : null
 
 export default app

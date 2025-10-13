@@ -55,7 +55,7 @@ const getSizeClasses = () => {
     :disabled="props.disabled || props.loading"
     :aria-label="props.ariaLabel"
     :class="[
-      'rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900',
+      'inline-flex items-center justify-center rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900',
       getSizeClasses(),
       getVariantClasses(),
       (props.disabled || props.loading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'

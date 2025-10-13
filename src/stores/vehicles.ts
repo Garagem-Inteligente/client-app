@@ -266,32 +266,38 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         throw new Error('Usuário não autenticado')
       }
 
+      // Buscar todas as manutenções para os veículos do usuário
       const maintenanceRef = collection(db, 'maintenance')
       const q = query(
         maintenanceRef,
-        where('userId', '==', authStore.user.id),
         orderBy('date', 'desc')
       )
       
       const querySnapshot = await getDocs(q)
       const fetchedRecords: MaintenanceRecord[] = []
       
+      // Criar um Set com os IDs dos veículos do usuário para filtrar
+      const userVehicleIds = new Set(vehicles.value.map(v => v.id))
+      
       querySnapshot.forEach((doc) => {
         const data = doc.data()
-        fetchedRecords.push({
-          id: doc.id,
-          vehicleId: data.vehicleId,
-          type: data.type,
-          description: data.description,
-          cost: data.cost,
-          mileage: data.mileage,
-          date: data.date?.toDate() || new Date(),
-          nextDueDate: data.nextDueDate?.toDate(),
-          nextDueMileage: data.nextDueMileage,
-          serviceProvider: data.serviceProvider,
-          notes: data.notes,
-          createdAt: data.createdAt?.toDate() || new Date()
-        })
+        // Apenas adicionar manutenções dos veículos do usuário
+        if (userVehicleIds.has(data.vehicleId)) {
+          fetchedRecords.push({
+            id: doc.id,
+            vehicleId: data.vehicleId,
+            type: data.type,
+            description: data.description,
+            cost: data.cost,
+            mileage: data.mileage,
+            date: data.date?.toDate() || new Date(),
+            nextDueDate: data.nextDueDate?.toDate(),
+            nextDueMileage: data.nextDueMileage,
+            serviceProvider: data.serviceProvider,
+            notes: data.notes,
+            createdAt: data.createdAt?.toDate() || new Date()
+          })
+        }
       })
       
       maintenanceRecords.value = fetchedRecords
@@ -318,7 +324,6 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       const newRecordData = {
         ...recordData,
-        userId: authStore.user.id,
         date: recordData.date instanceof Date ? Timestamp.fromDate(recordData.date) : now,
         nextDueDate: recordData.nextDueDate ? Timestamp.fromDate(recordData.nextDueDate) : null,
         createdAt: now
