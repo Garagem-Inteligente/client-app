@@ -59,6 +59,28 @@ service cloud.firestore {
       allow delete: if vehicleBelongsToUser(resource.data.vehicleId);
     }
     
+    // Regras para a coleção de transferências de veículos
+    match /vehicle_transfers/{transferId} {
+      // Permitir leitura se é o dono atual ou o novo dono
+      allow read: if isAuthenticated() && 
+                     (resource.data.currentOwnerEmail == request.auth.token.email ||
+                      resource.data.newOwnerEmail == request.auth.token.email);
+      
+      // Permitir criação se o usuário é autenticado e é o dono atual
+      allow create: if isAuthenticated() && 
+                       request.resource.data.currentOwnerEmail == request.auth.token.email &&
+                       request.resource.data.keys().hasAll(['vehicleId', 'currentOwnerId', 'currentOwnerEmail', 'newOwnerEmail', 'currentOwnerCode', 'newOwnerCode', 'currentOwnerConfirmed', 'newOwnerConfirmed', 'status', 'createdAt', 'expiresAt']);
+      
+      // Permitir atualização se é o dono atual ou o novo dono
+      allow update: if isAuthenticated() && 
+                       (resource.data.currentOwnerEmail == request.auth.token.email ||
+                        resource.data.newOwnerEmail == request.auth.token.email);
+      
+      // Permitir exclusão apenas pelo dono atual
+      allow delete: if isAuthenticated() && 
+                       resource.data.currentOwnerEmail == request.auth.token.email;
+    }
+    
     // Bloquear acesso a todas as outras coleções
     match /{document=**} {
       allow read, write: if false;

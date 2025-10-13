@@ -36,3 +36,10 @@ dist-ssr
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/tests/e2e/videos/
+/tests/e2e/screenshots/

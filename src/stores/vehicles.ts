@@ -40,6 +40,14 @@ export interface VehicleInput {
   fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
 }
 
+export interface MaintenanceAttachment {
+  name: string
+  url: string
+  uploadedAt: Date
+  type: string
+  size: number
+}
+
 export interface MaintenanceRecord {
   id: string
   vehicleId: string
@@ -52,6 +60,7 @@ export interface MaintenanceRecord {
   nextDueMileage?: number
   serviceProvider?: string
   notes?: string
+  attachments?: MaintenanceAttachment[]
   createdAt: Date
 }
 

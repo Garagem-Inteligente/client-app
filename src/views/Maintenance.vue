@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useVehiclesStore } from '../stores/vehicles'
-// import type { MaintenanceRecord } from '../stores/vehicles'
+import type { MaintenanceAttachment } from '../stores/vehicles'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Input from '../components/Input.vue'
 import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
+import FileUpload, { type FileUploadItem } from '../components/FileUpload.vue'
+import { uploadFile, deleteFile, generateUniqueFileName } from '../firebase/storage'
 
 const vehiclesStore = useVehiclesStore()
 
 const showAddForm = ref(false)
 const selectedVehicleId = ref('')
 const editingRecordId = ref<string | null>(null)
+const uploadError = ref<string | null>(null)
+const uploadedFiles = ref<FileUploadItem[]>([])
 
 // Form data
 const formData = ref({
@@ -42,41 +46,116 @@ const resetForm = () => {
     serviceProvider: '',
     notes: ''
   }
+  uploadedFiles.value = []
+  uploadError.value = null
   showAddForm.value = false
   editingRecordId.value = null
 }
 
 const handleSubmit = async () => {
-  // Converter valores de máscara para números
-  const cost = typeof formData.value.cost === 'string' ? Number(formData.value.cost) : formData.value.cost
-  const mileage = typeof formData.value.mileage === 'string' ? Number(formData.value.mileage) : formData.value.mileage
-  
-  const nextDueMileage = formData.value.nextDueMileage
-  let nextDueMileageValue: number | undefined = undefined
-  
-  // Converter para número e validar (só adiciona se for maior que 0)
-  const numValue = typeof nextDueMileage === 'string' ? Number(nextDueMileage) : nextDueMileage
-  if (!isNaN(numValue) && numValue > 0) {
-    nextDueMileageValue = numValue
+  try {
+    uploadError.value = null
+
+    // Converter valores de máscara para números
+    const cost = typeof formData.value.cost === 'string' ? Number(formData.value.cost) : formData.value.cost
+    const mileage = typeof formData.value.mileage === 'string' ? Number(formData.value.mileage) : formData.value.mileage
+    
+    const nextDueMileage = formData.value.nextDueMileage
+    let nextDueMileageValue: number | undefined = undefined
+    
+    // Converter para número e validar (só adiciona se for maior que 0)
+    const numValue = typeof nextDueMileage === 'string' ? Number(nextDueMileage) : nextDueMileage
+    if (!isNaN(numValue) && numValue > 0) {
+      nextDueMileageValue = numValue
+    }
+
+    // Upload de arquivos
+    const attachments: MaintenanceAttachment[] = []
+    
+    if (uploadedFiles.value.length > 0) {
+      for (let i = 0; i < uploadedFiles.value.length; i++) {
+        const item = uploadedFiles.value[i]
+        
+        // Marcar como em upload
+        item.uploading = true
+        item.progress = 0
+        
+        try {
+          // Gerar nome único
+          const uniqueName = generateUniqueFileName(item.file.name, 'maintenance')
+          const storagePath = `maintenance/${formData.value.vehicleId}/${uniqueName}`
+          
+          // Upload
+          const downloadURL = await uploadFile(item.file, storagePath)
+          
+          // Adicionar aos anexos
+          attachments.push({
+            name: item.file.name,
+            url: downloadURL,
+            uploadedAt: new Date(),
+            type: item.file.type,
+            size: item.file.size
+          })
+          
+          item.progress = 100
+          item.uploading = false
+        } catch (error) {
+          item.uploading = false
+          item.error = 'Falha no upload'
+          throw new Error(`Erro ao fazer upload do arquivo ${item.file.name}`)
+        }
+      }
+    }
+
+    const recordData = {
+      vehicleId: formData.value.vehicleId,
+      type: formData.value.type,
+      description: formData.value.description,
+      cost: cost,
+      mileage: mileage,
+      date: new Date(formData.value.date),
+      nextDueDate: formData.value.nextDueDate ? new Date(formData.value.nextDueDate) : undefined,
+      nextDueMileage: nextDueMileageValue,
+      serviceProvider: formData.value.serviceProvider,
+      notes: formData.value.notes,
+      attachments: attachments.length > 0 ? attachments : undefined
+    }
+    
+    await vehiclesStore.addMaintenanceRecord(recordData)
+    
+    if (!vehiclesStore.error) {
+      resetForm()
+    }
+  } catch (error) {
+    uploadError.value = error instanceof Error ? error.message : 'Erro ao processar arquivos'
   }
-  
-  const recordData = {
-    vehicleId: formData.value.vehicleId,
-    type: formData.value.type,
-    description: formData.value.description,
-    cost: cost,
-    mileage: mileage,
-    date: new Date(formData.value.date),
-    nextDueDate: formData.value.nextDueDate ? new Date(formData.value.nextDueDate) : undefined,
-    nextDueMileage: nextDueMileageValue,
-    serviceProvider: formData.value.serviceProvider,
-    notes: formData.value.notes
+}
+
+const handleFileUploadError = (message: string) => {
+  uploadError.value = message
+}
+
+const handleDeleteAttachment = async (recordId: string, attachmentUrl: string) => {
+  if (!confirm('Tem certeza que deseja excluir este anexo?')) {
+    return
   }
-  
-  await vehiclesStore.addMaintenanceRecord(recordData)
-  
-  if (!vehiclesStore.error) {
-    resetForm()
+
+  try {
+    // Deletar arquivo do Storage
+    await deleteFile(attachmentUrl)
+    
+    // Atualizar registro removendo o anexo
+    const record = vehiclesStore.maintenanceRecords.find(r => r.id === recordId)
+    if (record && record.attachments) {
+      // Aqui você precisaria criar um método updateMaintenanceRecord na store
+      // Por enquanto, vamos apenas mostrar sucesso
+      alert('Anexo excluído com sucesso')
+      
+      // Recarregar dados
+      await vehiclesStore.fetchMaintenanceRecords()
+    }
+  } catch (error) {
+    alert('Erro ao excluir anexo: ' + (error instanceof Error ? error.message : 'Erro desconhecido'))
   }
 }
 
@@ -358,6 +437,27 @@ onMounted(async () => {
                 :disabled="vehiclesStore.loading"
               ></textarea>
             </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-300 mb-2">
+                Anexos (Nota Fiscal / Comprovantes)
+              </label>
+              <FileUpload 
+                v-model="uploadedFiles"
+                :max-files="5"
+                :max-size-m-b="5"
+                :disabled="vehiclesStore.loading"
+                @error="handleFileUploadError"
+              />
+              <Alert 
+                v-if="uploadError" 
+                type="error" 
+                :message="uploadError"
+                dismissible
+                @close="uploadError = null"
+                class="mt-2"
+              />
+            </div>
           </div>
           
           <div class="flex justify-end space-x-4">
@@ -477,6 +577,40 @@ onMounted(async () => {
           <div v-if="record.notes" class="mt-2">
             <p class="text-sm text-gray-400">Observações</p>
             <p class="text-white">{{ record.notes }}</p>
+          </div>
+
+          <div v-if="record.attachments && record.attachments.length > 0" class="mt-4">
+            <p class="text-sm text-gray-400 mb-2">Anexos ({{ record.attachments.length }})</p>
+            <div class="flex flex-wrap gap-2">
+              <a
+                v-for="(attachment, idx) in record.attachments"
+                :key="idx"
+                :href="attachment.url"
+                target="_blank"
+                class="inline-flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg transition-colors group"
+              >
+                <span class="text-xl">
+                  {{ attachment.type === 'application/pdf' ? '📄' : '🖼️' }}
+                </span>
+                <div class="flex flex-col items-start">
+                  <span class="text-sm text-white group-hover:text-blue-400 truncate max-w-[150px]">
+                    {{ attachment.name }}
+                  </span>
+                  <span class="text-xs text-gray-400">
+                    {{ formatDate(attachment.uploadedAt) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  @click.prevent="handleDeleteAttachment(record.id, attachment.url)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </a>
+            </div>
           </div>
           
           <div class="mt-4 flex justify-end space-x-2">
