@@ -7,11 +7,13 @@ import Button from '../components/Button.vue'
 import Input from '../components/Input.vue'
 import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
+import Navbar from '../components/Navbar.vue'
 
 const vehiclesStore = useVehiclesStore()
 
 const showAddForm = ref(false)
 const selectedVehicleId = ref('')
+const editingRecordId = ref<string | null>(null)
 
 // Form data
 const formData = ref({
@@ -41,6 +43,7 @@ const resetForm = () => {
     notes: ''
   }
   showAddForm.value = false
+  editingRecordId.value = null
 }
 
 const handleSubmit = async () => {
@@ -55,6 +58,12 @@ const handleSubmit = async () => {
   
   if (!vehiclesStore.error) {
     resetForm()
+  }
+}
+
+const handleDelete = async (id: string) => {
+  if (confirm('Tem certeza que deseja excluir esta manutenção?')) {
+    await vehiclesStore.deleteMaintenanceRecord(id)
   }
 }
 
@@ -106,13 +115,16 @@ const totalMaintenanceCost = computed(() => {
   return filteredMaintenanceRecords.value.reduce((total, record) => total + record.cost, 0)
 })
 
-onMounted(() => {
-  vehiclesStore.fetchVehicles()
+onMounted(async () => {
+  await vehiclesStore.fetchVehicles()
+  await vehiclesStore.fetchMaintenanceRecords()
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-900 py-8">
+  <div class="min-h-screen bg-gray-900">
+    <Navbar />
+    <div class="py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
@@ -172,6 +184,7 @@ onMounted(() => {
             v-if="vehiclesStore.error" 
             type="error" 
             :message="vehiclesStore.error"
+            dismissible
             @close="vehiclesStore.clearError"
           />
           
@@ -447,8 +460,23 @@ onMounted(() => {
             <p class="text-sm text-gray-400">Observações</p>
             <p class="text-white">{{ record.notes }}</p>
           </div>
+          
+          <div class="mt-4 flex justify-end space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              @click="handleDelete(record.id)"
+              :disabled="vehiclesStore.loading"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Excluir
+            </Button>
+          </div>
         </Card>
       </div>
+    </div>
     </div>
   </div>
 </template>

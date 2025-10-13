@@ -7,6 +7,7 @@ import Button from '../components/Button.vue'
 import Input from '../components/Input.vue'
 import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
+import Navbar from '../components/Navbar.vue'
 
 const vehiclesStore = useVehiclesStore()
 
@@ -101,7 +102,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-900 py-8">
+  <div class="min-h-screen bg-gray-900">
+    <Navbar />
+    <div class="py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
@@ -330,6 +333,7 @@ onMounted(() => {
           </div>
         </Card>
       </div>
+    </div>
     </div>
   </div>
 </template>

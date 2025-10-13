@@ -81,7 +81,33 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     return maintenanceRecords.value
       .filter(record => record.nextDueDate && record.nextDueDate > now)
       .sort((a, b) => (a.nextDueDate!.getTime() - b.nextDueDate!.getTime()))
-      .slice(0, 5)
+  })
+
+  const overdueMaintenance = computed(() => {
+    const now = new Date()
+    return maintenanceRecords.value
+      .filter(record => record.nextDueDate && record.nextDueDate < now)
+      .sort((a, b) => (a.nextDueDate!.getTime() - b.nextDueDate!.getTime()))
+  })
+
+  const totalMaintenanceCost = computed(() => {
+    return maintenanceRecords.value.reduce((total, record) => total + record.cost, 0)
+  })
+
+  const maintenanceStats = computed(() => {
+    const stats = {
+      total: maintenanceRecords.value.length,
+      totalCost: totalMaintenanceCost.value,
+      upcoming: upcomingMaintenance.value.length,
+      overdue: overdueMaintenance.value.length,
+      byType: {} as Record<string, number>
+    }
+
+    maintenanceRecords.value.forEach(record => {
+      stats.byType[record.type] = (stats.byType[record.type] || 0) + 1
+    })
+
+    return stats
   })
 
   // Actions
@@ -230,23 +256,111 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     }
   }
 
+  const fetchMaintenanceRecords = async () => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const maintenanceRef = collection(db, 'maintenance')
+      const q = query(
+        maintenanceRef,
+        where('userId', '==', authStore.user.id),
+        orderBy('date', 'desc')
+      )
+      
+      const querySnapshot = await getDocs(q)
+      const fetchedRecords: MaintenanceRecord[] = []
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        fetchedRecords.push({
+          id: doc.id,
+          vehicleId: data.vehicleId,
+          type: data.type,
+          description: data.description,
+          cost: data.cost,
+          mileage: data.mileage,
+          date: data.date?.toDate() || new Date(),
+          nextDueDate: data.nextDueDate?.toDate(),
+          nextDueMileage: data.nextDueMileage,
+          serviceProvider: data.serviceProvider,
+          notes: data.notes,
+          createdAt: data.createdAt?.toDate() || new Date()
+        })
+      })
+      
+      maintenanceRecords.value = fetchedRecords
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Falha ao buscar manutenções'
+      console.error('Error fetching maintenance records:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
   const addMaintenanceRecord = async (recordData: Omit<MaintenanceRecord, 'id' | 'createdAt'>) => {
     loading.value = true
     error.value = null
     
     try {
-      // TODO: Implement Firestore add
-      const newRecord: MaintenanceRecord = {
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const maintenanceRef = collection(db, 'maintenance')
+      const now = Timestamp.now()
+      
+      const newRecordData = {
         ...recordData,
-        id: Date.now().toString(),
-        createdAt: new Date()
+        userId: authStore.user.id,
+        date: recordData.date instanceof Date ? Timestamp.fromDate(recordData.date) : now,
+        nextDueDate: recordData.nextDueDate ? Timestamp.fromDate(recordData.nextDueDate) : null,
+        createdAt: now
       }
       
-      maintenanceRecords.value.push(newRecord)
+      const docRef = await addDoc(maintenanceRef, newRecordData)
+      
+      const newRecord: MaintenanceRecord = {
+        id: docRef.id,
+        ...recordData,
+        createdAt: now.toDate()
+      }
+      
+      maintenanceRecords.value.unshift(newRecord)
       return newRecord
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to add maintenance record'
-      return null
+      error.value = err instanceof Error ? err.message : 'Falha ao adicionar manutenção'
+      console.error('Error adding maintenance record:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteMaintenanceRecord = async (id: string) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const authStore = useAuthStore()
+      if (!authStore.user?.id) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      const recordRef = doc(db, 'maintenance', id)
+      await deleteDoc(recordRef)
+      
+      maintenanceRecords.value = maintenanceRecords.value.filter(r => r.id !== id)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Falha ao deletar manutenção'
+      console.error('Error deleting maintenance record:', err)
+      throw err
     } finally {
       loading.value = false
     }
@@ -268,12 +382,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     getVehicleById,
     getMaintenanceByVehicle,
     upcomingMaintenance,
+    overdueMaintenance,
+    totalMaintenanceCost,
+    maintenanceStats,
     // Actions
     fetchVehicles,
     addVehicle,
     updateVehicle,
     deleteVehicle,
+    fetchMaintenanceRecords,
     addMaintenanceRecord,
+    deleteMaintenanceRecord,
     clearError
   }
 })

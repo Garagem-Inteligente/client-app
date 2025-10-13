@@ -2,7 +2,7 @@
 type AlertType = 'info' | 'success' | 'warning' | 'error';
 
 interface Props {
-  message: string;
+  message?: string;
   type?: AlertType;
   dismissible?: boolean;
 }
@@ -23,10 +23,10 @@ const handleClose = () => {
 };
 
 const alertClasses: Record<AlertType, string> = {
-  info: 'bg-blue-100 border-blue-500 text-blue-800',
-  success: 'bg-green-100 border-green-500 text-green-800',
-  warning: 'bg-yellow-100 border-yellow-500 text-yellow-800',
-  error: 'bg-red-100 border-red-500 text-red-800'
+  info: 'bg-blue-900/20 border-blue-500 text-blue-200',
+  success: 'bg-green-900/20 border-green-500 text-green-200',
+  warning: 'bg-yellow-900/20 border-yellow-500 text-yellow-200',
+  error: 'bg-red-900/20 border-red-500 text-red-200'
 };
 
 const iconClasses: Record<AlertType, string> = {
@@ -62,8 +62,10 @@ const iconClasses: Record<AlertType, string> = {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <div>
-        <p class="font-medium">{{ props.message }}</p>
+      <div class="flex-1">
+        <slot>
+          <p class="font-medium">{{ props.message }}</p>
+        </slot>
       </div>
     </div>
     
@@ -71,7 +73,7 @@ const iconClasses: Record<AlertType, string> = {
     <button 
       v-if="props.dismissible" 
       @click="handleClose"
-      class="ml-auto -mr-1 -mt-1 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+      class="ml-auto -mr-1 -mt-1 p-1 rounded-full hover:bg-gray-800 transition-colors duration-200"
       :class="iconClasses[props.type]"
       aria-label="Fechar"
     >
