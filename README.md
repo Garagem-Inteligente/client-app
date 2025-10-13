@@ -19,7 +19,7 @@
 - 🔧 **Histórico de Manutenções**: Registre todas as manutenções com detalhes completos
 - � **Upload de Anexos**: Notas fiscais e recibos armazenados como Base64 (100% gratuito)
 - 🔄 **Transferência de Veículos**: Sistema de transferência com confirmação dupla
-- �📊 **Dashboard Inteligente**: Visualize estatísticas, custos e alertas em tempo real
+- 📊 **Dashboard Inteligente**: Visualize estatísticas, custos e alertas em tempo real
 - ⚠️ **Alertas Automáticos**: Notificações de manutenções atrasadas, urgentes e próximas
 - 💰 **Controle de Custos**: Acompanhe quanto gasta com cada veículo
 - 📱 **Design Responsivo**: Funciona perfeitamente em mobile, tablet e desktop
