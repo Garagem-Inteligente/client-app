@@ -250,11 +250,10 @@ onMounted(async () => {
               </label>
               <Input
                 id="cost"
-                v-model.number="formData.cost"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
+                v-model="formData.cost"
+                type="text"
+                mask="currency"
+                placeholder="R$ 0,00"
                 required
                 :disabled="vehiclesStore.loading"
               />
@@ -266,10 +265,10 @@ onMounted(async () => {
               </label>
               <Input
                 id="mileage"
-                v-model.number="formData.mileage"
-                type="number"
-                min="0"
-                placeholder="Km atual do veículo"
+                v-model="formData.mileage"
+                type="text"
+                mask="mileage"
+                placeholder="Ex: 50.000 km"
                 required
                 :disabled="vehiclesStore.loading"
               />
@@ -306,10 +305,10 @@ onMounted(async () => {
               </label>
               <Input
                 id="nextDueMileage"
-                v-model.number="formData.nextDueMileage"
-                type="number"
-                min="0"
-                placeholder="Quilometragem para próxima manutenção"
+                v-model="formData.nextDueMileage"
+                type="text"
+                mask="mileage"
+                placeholder="Ex: 55.000 km"
                 :disabled="vehiclesStore.loading"
               />
             </div>

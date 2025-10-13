@@ -2,18 +2,19 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { 
   collection, 
-  doc, 
-  getDocs, 
   addDoc, 
   updateDoc, 
   deleteDoc, 
+  getDocs, 
+  doc, 
   query, 
   where, 
-  orderBy, 
+  orderBy,
   Timestamp 
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
+import { translateFirebaseError } from '@/utils/errorMessages'
 
 export interface Vehicle {
   id: string
@@ -150,7 +151,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       vehicles.value = fetchedVehicles
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao buscar veículos'
+      error.value = translateFirebaseError(err, 'Falha ao buscar veículos')
       console.error('Error fetching vehicles:', err)
     } finally {
       loading.value = false
@@ -190,7 +191,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       vehicles.value.unshift(newVehicle)
       return newVehicle
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao adicionar veículo'
+      error.value = translateFirebaseError(err, 'Falha ao adicionar veículo')
       console.error('Error adding vehicle:', err)
       throw err
     } finally {
@@ -225,7 +226,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         }
       }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao atualizar veículo'
+      error.value = translateFirebaseError(err, 'Falha ao atualizar veículo')
       console.error('Error updating vehicle:', err)
       throw err
     } finally {
@@ -248,7 +249,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       vehicles.value = vehicles.value.filter(v => v.id !== id)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao deletar veículo'
+      error.value = translateFirebaseError(err, 'Falha ao deletar veículo')
       console.error('Error deleting vehicle:', err)
       throw err
     } finally {
@@ -266,23 +267,28 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         throw new Error('Usuário não autenticado')
       }
 
-      // Buscar todas as manutenções para os veículos do usuário
+      // Se não há veículos, não há manutenções para buscar
+      if (vehicles.value.length === 0) {
+        maintenanceRecords.value = []
+        return
+      }
+
+      // Buscar manutenções para cada veículo do usuário
       const maintenanceRef = collection(db, 'maintenance')
-      const q = query(
-        maintenanceRef,
-        orderBy('date', 'desc')
-      )
-      
-      const querySnapshot = await getDocs(q)
       const fetchedRecords: MaintenanceRecord[] = []
       
-      // Criar um Set com os IDs dos veículos do usuário para filtrar
-      const userVehicleIds = new Set(vehicles.value.map(v => v.id))
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        // Apenas adicionar manutenções dos veículos do usuário
-        if (userVehicleIds.has(data.vehicleId)) {
+      // Para cada veículo do usuário, buscar suas manutenções
+      for (const vehicle of vehicles.value) {
+        const q = query(
+          maintenanceRef,
+          where('vehicleId', '==', vehicle.id),
+          orderBy('date', 'desc')
+        )
+        
+        const querySnapshot = await getDocs(q)
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data()
           fetchedRecords.push({
             id: doc.id,
             vehicleId: data.vehicleId,
@@ -297,12 +303,15 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             notes: data.notes,
             createdAt: data.createdAt?.toDate() || new Date()
           })
-        }
-      })
+        })
+      }
+      
+      // Ordenar todas as manutenções por data (mais recentes primeiro)
+      fetchedRecords.sort((a, b) => b.date.getTime() - a.date.getTime())
       
       maintenanceRecords.value = fetchedRecords
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao buscar manutenções'
+      error.value = translateFirebaseError(err, 'Falha ao buscar manutenções')
       console.error('Error fetching maintenance records:', err)
     } finally {
       loading.value = false
@@ -340,7 +349,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       maintenanceRecords.value.unshift(newRecord)
       return newRecord
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao adicionar manutenção'
+      error.value = translateFirebaseError(err, 'Falha ao adicionar manutenção')
       console.error('Error adding maintenance record:', err)
       throw err
     } finally {
@@ -363,7 +372,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       maintenanceRecords.value = maintenanceRecords.value.filter(r => r.id !== id)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Falha ao deletar manutenção'
+      error.value = translateFirebaseError(err, 'Falha ao deletar manutenção')
       console.error('Error deleting maintenance record:', err)
       throw err
     } finally {

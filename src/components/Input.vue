@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { 
+  maskCurrency, 
+  unmaskCurrency, 
+  maskMileage, 
+  unmaskMileage,
+  maskPlate,
+  maskDate,
+  maskPhone,
+  maskYear
+} from '@/utils/masks';
 
 interface Props {
   modelValue?: string | number;
@@ -12,6 +22,7 @@ interface Props {
   helperText?: string;
   ariaLabel?: string;
   autocomplete?: string;
+  mask?: 'currency' | 'mileage' | 'plate' | 'date' | 'phone' | 'year';
 }
 
 interface Emits {
@@ -28,15 +39,83 @@ const props = withDefaults(defineProps<Props>(), {
   error: '',
   helperText: '',
   ariaLabel: '',
-  autocomplete: ''
+  autocomplete: '',
+  mask: undefined
 });
 
 const emit = defineEmits<Emits>();
 
-const inputValue = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-});
+// Valor interno para exibição com máscara
+const displayValue = ref('');
+
+// Aplica máscara inicial
+if (props.modelValue) {
+  displayValue.value = applyMask(props.modelValue.toString());
+}
+
+// Aplica a máscara apropriada
+function applyMask(value: string): string {
+  if (!props.mask || !value) return value;
+  
+  switch (props.mask) {
+    case 'currency':
+      return maskCurrency(value);
+    case 'mileage':
+      return maskMileage(value);
+    case 'plate':
+      return maskPlate(value);
+    case 'date':
+      return maskDate(value);
+    case 'phone':
+      return maskPhone(value);
+    case 'year':
+      return maskYear(value);
+    default:
+      return value;
+  }
+}
+
+// Remove a máscara para obter o valor real
+function removeMask(value: string): string | number {
+  if (!props.mask || !value) return value;
+  
+  switch (props.mask) {
+    case 'currency':
+      return unmaskCurrency(value);
+    case 'mileage':
+      return unmaskMileage(value);
+    case 'plate':
+    case 'date':
+    case 'phone':
+    case 'year':
+      return value.replace(/\D/g, '');
+    default:
+      return value;
+  }
+}
+
+// Handler de input
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const rawValue = target.value;
+  
+  if (props.mask) {
+    // Aplica a máscara
+    const maskedValue = applyMask(rawValue);
+    displayValue.value = maskedValue;
+    
+    // Atualiza o input com o valor mascarado
+    target.value = maskedValue;
+    
+    // Emite o valor sem máscara (valor real)
+    const unmaskedValue = removeMask(rawValue);
+    emit('update:modelValue', unmaskedValue);
+  } else {
+    // Sem máscara, emite o valor diretamente
+    displayValue.value = rawValue;
+    emit('update:modelValue', rawValue);
+  }
+}
 
 const inputId = ref(`input-${Math.random().toString(36).substring(2, 9)}`);
 
@@ -61,7 +140,8 @@ const hasError = computed(() => props.error !== '');
     <input 
       :id="inputId"
       :type="type"
-      v-model="inputValue"
+      :value="displayValue || modelValue"
+      @input="handleInput"
       :placeholder="placeholder"
       :disabled="disabled"
       :required="required"

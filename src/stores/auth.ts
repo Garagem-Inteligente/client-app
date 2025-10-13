@@ -10,6 +10,7 @@ import {
   type User as FirebaseUser
 } from 'firebase/auth'
 import { auth } from '@/firebase/config'
+import { translateFirebaseError } from '@/utils/errorMessages'
 
 export interface User {
   id: string
@@ -66,29 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       return true
     } catch (err: any) {
-      let errorMessage = 'Erro ao fazer login'
-      
-      switch (err.code) {
-        case 'auth/user-not-found':
-          errorMessage = 'Usuário não encontrado'
-          break
-        case 'auth/wrong-password':
-          errorMessage = 'Senha incorreta'
-          break
-        case 'auth/invalid-email':
-          errorMessage = 'Email inválido'
-          break
-        case 'auth/user-disabled':
-          errorMessage = 'Usuário desabilitado'
-          break
-        case 'auth/too-many-requests':
-          errorMessage = 'Muitas tentativas. Tente novamente mais tarde'
-          break
-        default:
-          errorMessage = err.message || 'Erro ao fazer login'
-      }
-      
-      error.value = errorMessage
+      error.value = translateFirebaseError(err, 'Erro ao fazer login')
       return false
     } finally {
       loading.value = false
@@ -117,26 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       return true
     } catch (err: any) {
-      let errorMessage = 'Erro ao criar conta'
-      
-      switch (err.code) {
-        case 'auth/email-already-in-use':
-          errorMessage = 'Este email já está em uso'
-          break
-        case 'auth/invalid-email':
-          errorMessage = 'Email inválido'
-          break
-        case 'auth/weak-password':
-          errorMessage = 'A senha deve ter pelo menos 6 caracteres'
-          break
-        case 'auth/operation-not-allowed':
-          errorMessage = 'Operação não permitida'
-          break
-        default:
-          errorMessage = err.message || 'Erro ao criar conta'
-      }
-      
-      error.value = errorMessage
+      error.value = translateFirebaseError(err, 'Erro ao criar conta')
       return false
     } finally {
       loading.value = false

@@ -7,11 +7,6 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // Função para verificar se o usuário é o dono do recurso
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-    
     // Regras para a coleção de veículos
     match /vehicles/{vehicleId} {
       // Permitir leitura apenas dos próprios veículos
@@ -40,13 +35,20 @@ service cloud.firestore {
                get(/databases/$(database)/documents/vehicles/$(vehicleId)).data.userId == request.auth.uid;
       }
       
+      // Função para validar campos obrigatórios na criação
+      function hasRequiredFields() {
+        let newData = request.resource.data;
+        return newData.keys().hasAll(['vehicleId', 'type', 'description', 'cost', 'mileage', 'date', 'createdAt']);
+      }
+      
       // Permitir leitura se o veículo pertence ao usuário
       allow read: if vehicleBelongsToUser(resource.data.vehicleId);
       
-      // Permitir criação se o veículo pertence ao usuário
+      // Permitir criação se o veículo pertence ao usuário e tem campos obrigatórios
+      // Campos opcionais: nextDueDate, nextDueMileage, serviceProvider, notes
       allow create: if isAuthenticated() && 
                        vehicleBelongsToUser(request.resource.data.vehicleId) &&
-                       request.resource.data.keys().hasAll(['vehicleId', 'type', 'description', 'cost', 'mileage', 'date', 'createdAt']);
+                       hasRequiredFields();
       
       // Permitir atualização se o veículo pertence ao usuário
       allow update: if isAuthenticated() && 
