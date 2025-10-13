@@ -68,28 +68,28 @@ const isOpen = (id: number) => {
 </script>
 
 <template>
-  <section class="py-20 bg-gray-900 relative overflow-hidden">
+  <section class="py-12 sm:py-16 md:py-20 bg-gray-900 relative overflow-hidden">
     <!-- Background decorations -->
     <div class="absolute inset-0 overflow-hidden z-0 opacity-30">
-      <div class="absolute top-1/4 right-1/4 w-72 h-72 bg-blue-600 rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-1/3 left-1/3 w-96 h-96 bg-green-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/4 right-1/4 w-48 h-48 sm:w-72 sm:h-72 bg-blue-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/3 left-1/3 w-64 h-64 sm:w-96 sm:h-96 bg-green-600 rounded-full filter blur-3xl"></div>
     </div>
     
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Section header -->
-      <div class="text-center mb-16">
+      <div class="text-center mb-12 sm:mb-16">
         <Badge variant="info" size="lg" rounded class="mb-4">FAQ</Badge>
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
           Perguntas <span class="text-blue-500">Frequentes</span>
         </h2>
-        <p class="text-gray-300 max-w-2xl mx-auto">
+        <p class="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-4">
           Tire suas dúvidas sobre o AutoCare e descubra como revolucionar o cuidado com seu veículo.
         </p>
       </div>
       
       <!-- FAQ Items -->
       <div class="max-w-4xl mx-auto">
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           <div 
             v-for="faq in faqs" 
             :key="faq.id"
@@ -100,11 +100,11 @@ const isOpen = (id: number) => {
               @click="toggleFAQ(faq.id)"
               :aria-expanded="isOpen(faq.id)"
               :aria-controls="`faq-content-${faq.id}`"
-              class="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+              class="w-full px-4 sm:px-6 py-4 sm:py-5 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
             >
-              <h3 class="text-lg font-semibold text-white pr-4">{{ faq.question }}</h3>
+              <h3 class="text-base sm:text-lg font-semibold text-white pr-3 sm:pr-4 break-words min-w-0 flex-1">{{ faq.question }}</h3>
               <div class="flex-shrink-0 transition-transform duration-300" :class="{ 'rotate-180': isOpen(faq.id) }">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -117,9 +117,9 @@ const isOpen = (id: number) => {
               class="overflow-hidden transition-all duration-300"
               :class="isOpen(faq.id) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
             >
-              <div class="px-6 pb-5">
-                <div class="border-t border-gray-700 pt-4">
-                  <p class="text-gray-300 leading-relaxed">{{ faq.answer }}</p>
+              <div class="px-4 sm:px-6 pb-4 sm:pb-5">
+                <div class="border-t border-gray-700 pt-3 sm:pt-4">
+                  <p class="text-sm sm:text-base text-gray-300 leading-relaxed">{{ faq.answer }}</p>
                 </div>
               </div>
             </div>
@@ -128,16 +128,16 @@ const isOpen = (id: number) => {
       </div>
       
       <!-- Contact CTA -->
-      <div class="text-center mt-16">
-        <div class="bg-gradient-to-r from-blue-900/50 to-green-900/50 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
-          <h3 class="text-2xl font-bold text-white mb-4">Ainda tem dúvidas?</h3>
-          <p class="text-gray-300 mb-6">
+      <div class="text-center mt-12 sm:mt-16">
+        <div class="bg-gradient-to-r from-blue-900/50 to-green-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto">
+          <h3 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Ainda tem dúvidas?</h3>
+          <p class="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6">
             Nossa equipe está pronta para ajudar! Entre em contato conosco e tire todas as suas dúvidas sobre o AutoCare.
           </p>
-          <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+          <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <a 
               href="mailto:contato@autocare.app" 
-              class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-300"
+              class="inline-flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors duration-300"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

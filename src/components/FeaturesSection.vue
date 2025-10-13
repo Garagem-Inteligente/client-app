@@ -66,17 +66,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="py-20 bg-gray-900 relative overflow-hidden">
+  <section class="py-12 sm:py-16 md:py-20 bg-gray-900 relative overflow-hidden">
     <!-- Background decorations -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20">
-      <div class="absolute top-1/3 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-1/3 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/3 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
     </div>
     
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Section header -->
       <div 
-        class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
+        class="text-center mb-12 sm:mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
         <Badge variant="info" size="lg" rounded class="mb-4">RECURSOS</Badge>
@@ -85,47 +85,47 @@ onMounted(() => {
       </div>
       
       <!-- Features tabs and content -->
-      <div class="flex flex-col lg:flex-row gap-12 items-start lg:items-start">
+      <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         <!-- Feature tabs (left side on desktop) -->
         <div 
-          class="lg:w-1/2 space-y-4 transform translate-x-10 opacity-0 transition-all duration-1000 delay-300 w-full" 
+          class="w-full lg:w-1/2 space-y-3 sm:space-y-4 transform translate-x-10 opacity-0 transition-all duration-1000 delay-300" 
           :class="{ 'translate-x-0 opacity-100': isVisible }"
         >
           <div 
             v-for="feature in features" 
             :key="feature.id"
             @click="setActiveFeature(feature)"
-            class="bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-4 cursor-pointer transition-all duration-300 hover:bg-gray-700"
+            class="bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:bg-gray-700"
             :class="{ 'border-l-4': activeFeature.id === feature.id }"
             :style="{ borderColor: activeFeature.id === feature.id ? `var(--color-${feature.color}-500)` : 'transparent' }"
           >
-            <div class="flex items-start space-x-4">
-              <!-- Bell Icon -->
+            <div class="flex items-start space-x-3 sm:space-x-4">
+              <!-- Icon Container -->
               <div class="flex-shrink-0 mt-1 p-2 rounded-lg" :class="`bg-${feature.color}-900`">
                 <!-- Transfer Icon -->
-                <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
                 <!-- Bell Icon -->
-                <svg v-else-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else-if="feature.icon === 'bell'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 <!-- Document Icon -->
-                <svg v-else-if="feature.icon === 'document'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else-if="feature.icon === 'document'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <!-- Chart Icon -->
-                <svg v-else-if="feature.icon === 'chart'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else-if="feature.icon === 'chart'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 <!-- Calendar Icon -->
-                <svg v-else-if="feature.icon === 'calendar'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else-if="feature.icon === 'calendar'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" :class="`text-${feature.color}-400`" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <h3 class="text-white font-medium text-lg">{{ feature.title }}</h3>
-                <p class="text-gray-400 text-sm mt-1">{{ feature.description }}</p>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-white font-medium text-base sm:text-lg break-words">{{ feature.title }}</h3>
+                <p class="text-gray-400 text-xs sm:text-sm mt-1">{{ feature.description }}</p>
               </div>
             </div>
           </div>
@@ -133,51 +133,51 @@ onMounted(() => {
         
         <!-- Feature showcase (right side on desktop) -->
         <div 
-          class="lg:w-1/2 transform translate-x-10 opacity-0 transition-all duration-1000 delay-500 w-full flex justify-center" 
+          class="w-full lg:w-1/2 transform translate-x-10 opacity-0 transition-all duration-1000 delay-500 flex justify-center" 
           :class="{ 'translate-x-0 opacity-100': isVisible }"
         >
-          <div class="relative">
+          <div class="relative scale-90 sm:scale-100">
             <!-- Phone frame -->
-            <div class="w-72 h-[580px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
-              <div class="bg-gray-800 w-full h-full rounded-[32px] overflow-hidden">
+            <div class="w-64 sm:w-72 h-[520px] sm:h-[580px] bg-gray-900 rounded-[32px] sm:rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
+              <div class="bg-gray-800 w-full h-full rounded-[24px] sm:rounded-[32px] overflow-hidden">
                 <!-- App screenshot based on active feature -->
-                <div class="bg-gradient-to-b from-gray-900 to-gray-800 w-full h-full pt-6 px-3 relative">
+                <div class="bg-gradient-to-b from-gray-900 to-gray-800 w-full h-full pt-4 sm:pt-6 px-2 sm:px-3 relative">
                   <!-- Status bar -->
-                  <div class="flex justify-between items-center mb-6 px-2">
-                    <div class="text-xs text-white">9:41</div>
+                  <div class="flex justify-between items-center mb-4 sm:mb-6 px-1 sm:px-2">
+                    <div class="text-[10px] sm:text-xs text-white">9:41</div>
                     <div class="flex space-x-1">
-                      <div class="w-4 h-2 bg-white rounded-sm"></div>
-                      <div class="w-4 h-2 bg-white rounded-sm"></div>
-                      <div class="w-4 h-2 bg-white rounded-sm"></div>
-                      <div class="w-4 h-2 bg-white rounded-sm"></div>
+                      <div class="w-3 h-1.5 sm:w-4 sm:h-2 bg-white rounded-sm"></div>
+                      <div class="w-3 h-1.5 sm:w-4 sm:h-2 bg-white rounded-sm"></div>
+                      <div class="w-3 h-1.5 sm:w-4 sm:h-2 bg-white rounded-sm"></div>
+                      <div class="w-3 h-1.5 sm:w-4 sm:h-2 bg-white rounded-sm"></div>
                     </div>
                   </div>
                   
                   <!-- App header -->
-                  <div class="flex justify-between items-center mb-6 px-2">
+                  <div class="flex justify-between items-center mb-4 sm:mb-6 px-1 sm:px-2">
                     <div class="flex items-center space-x-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 10-2.636 6.364M16.5 12V8.25" />
                       </svg>
-                      <span class="text-white font-medium">AutoCare</span>
+                      <span class="text-white font-medium text-sm sm:text-base">AutoCare</span>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
                   </div>
                   
                   <!-- Feature specific content -->
-                  <div class="px-2">
+                  <div class="px-1 sm:px-2">
                     <!-- Transfer Feature -->
-                    <div v-if="activeFeature.id === 1" class="space-y-4">
-                      <h3 class="text-white font-medium">Registro do Veículo</h3>
+                    <div v-if="activeFeature.id === 1" class="space-y-3 sm:space-y-4">
+                      <h3 class="text-white font-medium text-sm sm:text-base">Registro do Veículo</h3>
                       
                       <!-- Vehicle info card -->
-                      <div class="bg-purple-900/30 border border-purple-500/50 rounded-xl p-4 mb-3">
-                        <div class="flex items-center justify-between mb-3">
-                          <h5 class="text-white text-sm font-medium">Honda Civic 2020</h5>
-                          <span class="text-xs bg-purple-500 text-white px-2 py-1 rounded-full">Transferível</span>
+                      <div class="bg-purple-900/30 border border-purple-500/50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-2 sm:mb-3">
+                        <div class="flex items-center justify-between mb-2 sm:mb-3">
+                          <h5 class="text-white text-xs sm:text-sm font-medium">Honda Civic 2020</h5>
+                          <span class="text-[10px] sm:text-xs bg-purple-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">Transferível</span>
                         </div>
                         <div class="space-y-2">
                           <div class="flex justify-between text-xs">

@@ -123,76 +123,76 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="py-20 bg-gray-800 relative overflow-hidden">
+  <section class="py-12 sm:py-16 md:py-20 bg-gray-800 relative overflow-hidden">
     <!-- Background decorations -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20">
-      <div class="absolute top-1/3 left-1/3 w-96 h-96 bg-green-600 rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-1/3 right-1/3 w-96 h-96 bg-orange-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/3 left-1/3 w-64 h-64 sm:w-96 sm:h-96 bg-green-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/3 right-1/3 w-64 h-64 sm:w-96 sm:h-96 bg-orange-600 rounded-full filter blur-3xl"></div>
     </div>
     
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Section header -->
       <div 
-        class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
+        class="text-center mb-12 sm:mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
         <Badge variant="success" size="lg" rounded class="mb-4">COMPARATIVO</Badge>
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Por que escolher o <span class="text-green-500">AutoCare</span>?</h2>
-        <p class="text-gray-300 max-w-2xl mx-auto">Veja como o AutoCare revoluciona o cuidado com seu veículo em comparação aos métodos tradicionais.</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">Por que escolher o <span class="text-green-500">AutoCare</span>?</h2>
+        <p class="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-4">Veja como o AutoCare revoluciona o cuidado com seu veículo em comparação aos métodos tradicionais.</p>
       </div>
       
       <!-- Comparison table -->
       <div 
-        class="max-w-5xl mx-auto mb-20 transform translate-y-10 opacity-0 transition-all duration-1000 delay-300" 
+        class="max-w-5xl mx-auto mb-12 sm:mb-16 md:mb-20 transform translate-y-10 opacity-0 transition-all duration-1000 delay-300" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
-        <div class="bg-gray-900 bg-opacity-50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl">
+        <div class="bg-gray-900 bg-opacity-50 backdrop-blur-sm rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
           <!-- Table header -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 md:p-6 border-b border-gray-700">
-            <div class="text-center order-1 md:order-1">
-              <h3 class="text-base md:text-lg font-medium text-gray-400">Recursos</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 md:p-6 border-b border-gray-700">
+            <div class="text-center order-1">
+              <h3 class="text-sm sm:text-base md:text-lg font-medium text-gray-400">Recursos</h3>
             </div>
-            <div class="text-center order-2 md:order-2">
-              <div class="inline-flex items-center space-x-2 bg-green-900/50 px-3 md:px-4 py-2 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="text-center order-2">
+              <div class="inline-flex items-center space-x-2 bg-green-900/50 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                <h3 class="text-base md:text-lg font-bold text-green-400">AutoCare</h3>
+                <h3 class="text-sm sm:text-base md:text-lg font-bold text-green-400">AutoCare</h3>
               </div>
             </div>
-            <div class="text-center order-3 md:order-3">
-              <h3 class="text-base md:text-lg font-medium text-gray-400">Método Tradicional</h3>
+            <div class="text-center order-3">
+              <h3 class="text-sm sm:text-base md:text-lg font-medium text-gray-400">Método Tradicional</h3>
             </div>
           </div>
           
           <!-- Table rows -->
           <div class="divide-y divide-gray-700">
-            <div v-for="feature in features.slice(0, 5)" :key="feature.id" class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 hover:bg-gray-800/50 transition-colors">
-              <div class="flex items-center justify-center md:justify-start order-1 md:order-1">
-                <h4 class="text-white font-medium text-center md:text-left">{{ feature.title }}</h4>
+            <div v-for="feature in features.slice(0, 5)" :key="feature.id" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-gray-800/50 transition-colors">
+              <div class="flex items-center justify-center sm:justify-start order-1">
+                <h4 class="text-white font-medium text-sm sm:text-base text-center sm:text-left break-words">{{ feature.title }}</h4>
               </div>
-              <div class="flex justify-center items-center order-2 md:order-2">
-                <div v-if="feature.autocare" class="flex items-center space-x-2 text-green-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="flex justify-center items-center order-2">
+                <div v-if="feature.autocare" class="flex items-center space-x-1.5 sm:space-x-2 text-green-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span class="text-sm font-medium">Incluído</span>
+                  <span class="text-xs sm:text-sm font-medium">Incluído</span>
                 </div>
-                <div v-else class="flex items-center space-x-2 text-red-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div v-else class="flex items-center space-x-1.5 sm:space-x-2 text-red-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span class="text-sm font-medium">Não disponível</span>
+                  <span class="text-xs sm:text-sm font-medium">Não disponível</span>
                 </div>
               </div>
-              <div class="flex justify-center items-center order-3 md:order-3">
-                <div v-if="feature.traditional" class="flex items-center space-x-2 text-yellow-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="flex justify-center items-center order-3">
+                <div v-if="feature.traditional" class="flex items-center space-x-1.5 sm:space-x-2 text-yellow-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
-                  <span class="text-sm font-medium">Limitado</span>
+                  <span class="text-xs sm:text-sm font-medium">Limitado</span>
                 </div>
-                <div v-else class="flex items-center space-x-2 text-red-400">
+                <div v-else class="flex items-center space-x-1.5 sm:space-x-2 text-red-400">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>

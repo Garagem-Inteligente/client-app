@@ -272,11 +272,11 @@ onMounted(() => {
           />
 
           <!-- Info alert -->
-          <Alert v-if="!editingVehicle" type="info">
+          <Alert v-if="!editingVehicle" type="info" class="text-sm">
             Use os campos de busca abaixo para encontrar seu veículo na tabela FIPE
           </Alert>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <!-- Brand Select with FIPE -->
             <div v-if="!editingVehicle">
               <SearchableSelect
@@ -467,27 +467,27 @@ onMounted(() => {
       </div>
       
       <!-- Vehicles Grid -->
-      <div v-else-if="!showAddForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else-if="!showAddForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card 
           v-for="vehicle in vehiclesStore.vehicles" 
           :key="vehicle.id"
           :title="`${vehicle.make} ${vehicle.model}`"
           class="hover:border-gray-600 transition-colors"
         >
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <!-- Header -->
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="text-sm text-gray-400">Ano</p>
+            <div class="flex justify-between items-start mb-3 sm:mb-4 gap-2">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs sm:text-sm text-gray-400">Ano</p>
                 <p class="font-medium text-white">{{ vehicle.year }}</p>
               </div>
-              <Badge :variant="getFuelTypeBadgeVariant(vehicle.fuelType)" size="sm">
+              <Badge :variant="getFuelTypeBadgeVariant(vehicle.fuelType)" size="sm" class="flex-shrink-0">
                 {{ getFuelTypeLabel(vehicle.fuelType) }}
               </Badge>
             </div>
             
             <!-- Details -->
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3">
               <div class="flex justify-between">
                 <span class="text-sm text-gray-400">Placa</span>
                 <span class="font-medium text-white">{{ vehicle.plate }}</span>
@@ -505,12 +505,12 @@ onMounted(() => {
             </div>
             
             <!-- Actions -->
-            <div class="flex gap-2 pt-4 border-t border-gray-700">
+            <div class="flex flex-col sm:flex-row gap-2 pt-3 sm:pt-4 border-t border-gray-700">
               <Button 
                 @click="startEdit(vehicle)" 
                 variant="outline" 
                 size="sm"
-                class="flex-1"
+                class="flex-1 w-full sm:w-auto"
               >
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -521,7 +521,7 @@ onMounted(() => {
                 @click="handleDelete(vehicle)" 
                 variant="outline"
                 size="sm"
-                class="flex-1 !text-red-400 !border-red-400/30 hover:!bg-red-400/10"
+                class="flex-1 w-full sm:w-auto !text-red-400 !border-red-400/30 hover:!bg-red-400/10"
               >
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

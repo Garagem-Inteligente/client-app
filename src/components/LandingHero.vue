@@ -15,6 +15,7 @@ const appFeatures = [
 ];
 
 const isAnimated = ref(false);
+const mobileMenuOpen = ref(false);
 
 setTimeout(() => {
   isAnimated.value = true;
@@ -22,45 +23,70 @@ setTimeout(() => {
 
 const handleNavigation = (page: string) => {
   emit('navigate', page);
+  mobileMenuOpen.value = false;
 };
 </script>
 
 <template>
   <div class="w-full min-h-[600px] md:min-h-[700px] lg:min-h-[750px] bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
     <!-- Navbar -->
-    <nav class="container mx-auto px-6 py-4 flex justify-between items-center relative z-20">
-      <div class="flex items-center space-x-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 10-2.636 6.364M16.5 12V8.25" />
-        </svg>
-        <span class="text-white text-xl font-bold">AutoCare</span>
+    <nav class="container mx-auto px-4 sm:px-6 py-4 relative z-20">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 10-2.636 6.364M16.5 12V8.25" />
+          </svg>
+          <span class="text-white text-xl font-bold">AutoCare</span>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center space-x-6">
+          <button @click="handleNavigation('home')" class="text-gray-300 hover:text-white transition-colors duration-300">Início</button>
+          <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
+          <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
+          <button @click="handleNavigation('support')" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</button>
+          <router-link to="/login" class="text-gray-300 hover:text-white transition-colors duration-300">Login</router-link>
+          <router-link to="/register" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</router-link>
+          <Button variant="primary" size="sm">Baixar App</Button>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-white p-2 hover:bg-purple-900/30 rounded-lg transition-colors">
+          <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      <div class="hidden md:flex items-center space-x-6">
-        <button @click="handleNavigation('home')" class="text-gray-300 hover:text-white transition-colors duration-300">Início</button>
-        <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
-        <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
-        <button @click="handleNavigation('support')" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</button>
-        <router-link to="/login" class="text-gray-300 hover:text-white transition-colors duration-300">Login</router-link>
-        <router-link to="/register" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</router-link>
-        <Button variant="primary">Baixar App</Button>
+      
+      <!-- Mobile Menu -->
+      <div v-if="mobileMenuOpen" class="md:hidden absolute top-full left-0 right-0 bg-gray-900/95 backdrop-blur-lg border-t border-purple-900/50 shadow-xl">
+        <div class="container mx-auto px-4 py-4 space-y-3">
+          <button @click="handleNavigation('home')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Início</button>
+          <button @click="handleNavigation('features')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Recursos</button>
+          <button @click="handleNavigation('pricing')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Preços</button>
+          <button @click="handleNavigation('support')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Suporte</button>
+          <router-link to="/login" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Login</router-link>
+          <router-link to="/register" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Registro</router-link>
+          <div class="pt-2">
+            <Button variant="primary" class="w-full">Baixar App</Button>
+          </div>
+        </div>
       </div>
-      <button class="md:hidden text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
     </nav>
 
     <!-- Hero Section -->
-    <div class="container mx-auto px-6 py-8 md:py-12 pb-16 md:pb-20 flex flex-col md:flex-row items-center justify-center min-h-[calc(100%-80px)] relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 py-8 md:py-12 pb-12 md:pb-20 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 relative z-10">
       <!-- Left Content -->
-      <div class="md:w-1/2 flex flex-col items-center space-y-6 md:space-y-8 mb-8 md:mb-16 text-center">
+      <div class="w-full lg:w-1/2 flex flex-col items-center lg:items-start space-y-6 text-center lg:text-left">
         <Badge 
           variant="info" 
           size="lg" 
           rounded 
-          class="mb-2 opacity-0 animate-fade-in" 
+          class="opacity-0 animate-fade-in" 
           :class="{ 'opacity-100': isAnimated }"
         >
           NOVO APP
@@ -70,11 +96,11 @@ const handleNavigation = (page: string) => {
           class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight transform translate-y-4 opacity-0 transition-all duration-700 delay-100" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          Cuide do seu carro <span class="text-purple-500">sem complicações</span>
+          Cuide do seu carro <span class="text-purple-500 block sm:inline">sem complicações</span>
         </h1>
         
         <p 
-          class="text-lg text-gray-300 max-w-lg transform translate-y-4 opacity-0 transition-all duration-700 delay-200" 
+          class="text-base sm:text-lg text-gray-300 max-w-2xl transform translate-y-4 opacity-0 transition-all duration-700 delay-200" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
           Crie um registro digital completo do seu veículo que pode ser transferido para o próximo dono, 
@@ -82,19 +108,19 @@ const handleNavigation = (page: string) => {
         </p>
         
         <div 
-          class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-300 relative z-20" 
+          class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-300 relative z-20" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          <Button variant="primary" size="lg" @click="handleNavigation('features')">Baixar Agora</Button>
-          <Button variant="outline" size="lg" @click="handleNavigation('features')">Saiba Mais</Button>
+          <Button variant="primary" size="lg" class="w-full sm:w-auto" @click="handleNavigation('features')">Baixar Agora</Button>
+          <Button variant="outline" size="lg" class="w-full sm:w-auto" @click="handleNavigation('features')">Saiba Mais</Button>
         </div>
         
         <div 
-          class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-8 mx-auto transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
+          class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl transform translate-y-4 opacity-0 transition-all duration-700 delay-400" 
           :class="{ 'translate-y-0 opacity-100': isAnimated }"
         >
-          <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-center space-x-2">
-            <div class="flex-shrink-0 bg-purple-900 rounded-full p-1">
+          <div v-for="(feature, index) in appFeatures" :key="index" class="flex items-start space-x-3">
+            <div class="flex-shrink-0 bg-purple-900 rounded-full p-1.5 mt-0.5">
               <!-- Transfer Icon -->
               <svg v-if="feature.icon === 'transfer'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -112,19 +138,19 @@ const handleNavigation = (page: string) => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <span class="text-sm text-gray-300">{{ feature.text }}</span>
+            <span class="text-xs sm:text-sm text-gray-300 leading-tight">{{ feature.text }}</span>
           </div>
         </div>
       </div>
       
       <!-- Right Content (Phone Mockup) -->
       <div 
-        class="md:w-1/2 relative flex justify-center transform translate-y-8 opacity-0 transition-all duration-1000 delay-500" 
+        class="w-full lg:w-1/2 relative flex justify-center transform translate-y-8 opacity-0 transition-all duration-1000 delay-500" 
         :class="{ 'translate-y-0 opacity-100': isAnimated }"
       >
-        <div class="relative">
+        <div class="relative scale-90 sm:scale-100">
           <!-- Phone frame -->
-          <div class="w-56 h-[480px] sm:w-64 sm:h-[530px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
+          <div class="w-64 h-[530px] sm:w-72 sm:h-[580px] bg-gray-900 rounded-[40px] p-2 shadow-2xl border-4 border-gray-800 relative z-10">
             <div class="bg-gray-800 w-full h-full rounded-[32px] overflow-hidden">
               <!-- App screenshot -->
               <div class="bg-gradient-to-b from-purple-900 to-gray-900 w-full h-full pt-6 px-3">

@@ -119,84 +119,84 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <section class="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
+  <section class="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
     <!-- Background decorations -->
     <div class="absolute inset-0 overflow-hidden z-0">
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-green-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
-      <div class="absolute top-3/4 left-3/4 w-64 h-64 bg-purple-600 rounded-full filter blur-3xl opacity-15 animate-pulse" style="animation-delay: 2s;"></div>
+      <div class="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-green-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-blue-600 rounded-full filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+      <div class="absolute top-3/4 left-3/4 w-48 h-48 sm:w-64 sm:h-64 bg-purple-600 rounded-full filter blur-3xl opacity-15 animate-pulse" style="animation-delay: 2s;"></div>
     </div>
     
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Section header -->
-      <div class="text-center mb-16">
+      <div class="text-center mb-12 sm:mb-16">
         <Badge variant="info" size="lg" rounded class="mb-4">LISTA DE ESPERA</Badge>
-        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 px-4">
           Seja o primeiro a <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">revolucionar</span> 
-          <br>o cuidado com seu veículo
+          <br class="hidden sm:block">o cuidado com seu veículo
         </h2>
-        <p class="text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">
+        <p class="text-sm sm:text-base md:text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
           O AutoCare está chegando! Cadastre-se na nossa lista de espera e garanta acesso antecipado, 
           desconto exclusivo e muito mais.
         </p>
       </div>
       
-      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
         <!-- Benefits section -->
-        <div class="space-y-8">
+        <div class="space-y-6 sm:space-y-8">
           <div>
-            <h3 class="text-2xl font-bold text-white mb-6">Vantagens exclusivas para quem se cadastrar:</h3>
-            <div class="space-y-6">
-              <div v-for="benefit in benefits" :key="benefit.icon" class="flex items-start space-x-4">
+            <h3 class="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Vantagens exclusivas para quem se cadastrar:</h3>
+            <div class="space-y-4 sm:space-y-6">
+              <div v-for="benefit in benefits" :key="benefit.icon" class="flex items-start space-x-3 sm:space-x-4">
                 <div class="flex-shrink-0">
                   <!-- Early Access Icon -->
-                  <div v-if="benefit.icon === 'early-access'" class="w-12 h-12 bg-green-900/50 rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-if="benefit.icon === 'early-access'" class="w-10 h-10 sm:w-12 sm:h-12 bg-green-900/50 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
                   <!-- Discount Icon -->
-                  <div v-else-if="benefit.icon === 'discount'" class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-else-if="benefit.icon === 'discount'" class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                   </div>
                   <!-- Priority Icon -->
-                  <div v-else-if="benefit.icon === 'priority'" class="w-12 h-12 bg-purple-900/50 rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-else-if="benefit.icon === 'priority'" class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-900/50 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                     </svg>
                   </div>
                   <!-- Updates Icon -->
-                  <div v-else-if="benefit.icon === 'updates'" class="w-12 h-12 bg-orange-900/50 rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-else-if="benefit.icon === 'updates'" class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-900/50 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-6H4v6zM16 3h5v5h-5V3zM4 3h6v6H4V3z" />
                     </svg>
                   </div>
                 </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-white mb-2">{{ benefit.title }}</h4>
-                  <p class="text-gray-400">{{ benefit.description }}</p>
+                <div class="min-w-0 flex-1">
+                  <h4 class="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2 break-words">{{ benefit.title }}</h4>
+                  <p class="text-sm sm:text-base text-gray-400">{{ benefit.description }}</p>
                 </div>
               </div>
             </div>
           </div>
           
           <!-- Stats -->
-          <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6">
-            <h4 class="text-lg font-semibold text-white mb-4">Junte-se a milhares de pessoas interessadas:</h4>
-            <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6">
+            <h4 class="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Junte-se a milhares de pessoas interessadas:</h4>
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 text-center">
               <div>
-                <div class="text-2xl font-bold text-green-400">2.847</div>
-                <div class="text-sm text-gray-400">Cadastrados</div>
+                <div class="text-xl sm:text-2xl font-bold text-green-400">2.847</div>
+                <div class="text-xs sm:text-sm text-gray-400 break-words">Cadastrados</div>
               </div>
               <div>
-                <div class="text-2xl font-bold text-blue-400">156</div>
-                <div class="text-sm text-gray-400">Oficinas Parceiras</div>
+                <div class="text-xl sm:text-2xl font-bold text-blue-400">156</div>
+                <div class="text-xs sm:text-sm text-gray-400 break-words">Oficinas Parceiras</div>
               </div>
               <div>
-                <div class="text-2xl font-bold text-purple-400">23</div>
-                <div class="text-sm text-gray-400">Cidades</div>
+                <div class="text-xl sm:text-2xl font-bold text-purple-400">23</div>
+                <div class="text-xs sm:text-sm text-gray-400">Cidades</div>
               </div>
             </div>
           </div>

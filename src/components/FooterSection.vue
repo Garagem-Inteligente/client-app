@@ -106,26 +106,26 @@ const subscribeNewsletter = async () => {
 <template>
   <footer class="bg-gray-900 border-t border-gray-800">
     <!-- Main footer content -->
-    <div class="container mx-auto px-6 py-16">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+    <div class="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
         <!-- Brand section -->
-        <div class="lg:col-span-1">
-          <div class="flex items-center space-x-3 mb-6">
-            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center space-x-3 mb-4 sm:mb-6">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
             </div>
-            <span class="text-2xl font-bold text-white">AutoCare</span>
+            <span class="text-xl sm:text-2xl font-bold text-white">AutoCare</span>
           </div>
           
-          <p class="text-gray-400 mb-6 leading-relaxed">
+          <p class="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 leading-relaxed">
             Revolucionando o cuidado automotivo com tecnologia inteligente. 
             Mantenha seu veículo sempre em perfeito estado com o AutoCare.
           </p>
           
           <!-- Social links -->
-          <div class="flex space-x-4">
+          <div class="flex space-x-3 sm:space-x-4">
             <a 
               v-for="social in socialLinks" 
               :key="social.name"
@@ -159,11 +159,11 @@ const subscribeNewsletter = async () => {
         </div>
         
         <!-- Links sections -->
-        <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="sm:col-span-2 lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           <!-- Product -->
           <div>
-            <h3 class="text-white font-semibold mb-4">Produto</h3>
-            <ul class="space-y-3">
+            <h3 class="text-white text-sm sm:text-base font-semibold mb-3 sm:mb-4">Produto</h3>
+            <ul class="space-y-2 sm:space-y-3">
               <li v-for="link in footerLinks.product" :key="link.name">
                 <button 
                   v-if="link.url === 'features'"

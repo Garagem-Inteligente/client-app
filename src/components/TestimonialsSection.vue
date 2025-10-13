@@ -106,39 +106,39 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="py-20 bg-gray-900 relative overflow-hidden">
+  <section class="py-12 sm:py-16 md:py-20 bg-gray-900 relative overflow-hidden">
     <!-- Background decorations -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20">
-      <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute top-1/4 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
     </div>
     
-    <div class="container mx-auto px-6 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
       <!-- Section header -->
       <div 
-        class="text-center mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
+        class="text-center mb-12 sm:mb-16 transform translate-y-10 opacity-0 transition-all duration-1000" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
         <Badge variant="info" size="lg" rounded class="mb-4">DEPOIMENTOS</Badge>
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">O que nossos <span class="text-blue-500">usuários dizem</span></h2>
-        <p class="text-gray-300 max-w-2xl mx-auto">Milhares de motoristas já transformaram a forma como cuidam de seus veículos com o AutoCare. Confira algumas histórias reais.</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">O que nossos <span class="text-blue-500">usuários dizem</span></h2>
+        <p class="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-4">Milhares de motoristas já transformaram a forma como cuidam de seus veículos com o AutoCare. Confira algumas histórias reais.</p>
       </div>
       
       <!-- Testimonials carousel -->
       <div 
-        class="max-w-4xl mx-auto mb-20 transform translate-y-10 opacity-0 transition-all duration-1000 delay-300" 
+        class="max-w-4xl mx-auto mb-12 sm:mb-16 md:mb-20 transform translate-y-10 opacity-0 transition-all duration-1000 delay-300" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
-        <div class="relative bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
+        <div class="relative bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl">
           <!-- Quote icon -->
-          <div class="absolute -top-6 left-10 text-blue-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+          <div class="absolute -top-4 sm:-top-6 left-4 sm:left-10 text-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12 opacity-50" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
             </svg>
           </div>
           
           <!-- Testimonial content -->
-          <div class="relative overflow-hidden" style="min-height: 280px;">
+          <div class="relative overflow-hidden" style="min-height: 250px;">
             <div 
               v-for="(testimonial, index) in testimonials" 
               :key="testimonial.id"
@@ -149,34 +149,34 @@ onMounted(() => {
                 '-translate-x-full opacity-0 z-0': index < activeTestimonialIndex
               }"
             >
-              <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+              <div class="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6">
                 <!-- Avatar -->
                 <div class="flex-shrink-0">
-                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 p-1">
-                    <div class="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-white font-bold text-xl">
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 p-1">
+                    <div class="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-white font-bold text-lg sm:text-xl">
                       {{ testimonial.name.charAt(0) }}
                     </div>
                   </div>
                 </div>
                 
                 <!-- Content -->
-                <div class="flex-1">
-                  <p class="text-gray-300 text-lg italic mb-6">"{{ testimonial.content }}"</p>
+                <div class="flex-1 min-w-0">
+                  <p class="text-gray-300 text-sm sm:text-base md:text-lg italic mb-4 sm:mb-6">"{{ testimonial.content }}"</p>
                   
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between">
-                    <div>
-                      <h4 class="text-white font-medium text-lg">{{ testimonial.name }}</h4>
-                      <div class="flex items-center mt-1">
-                        <span class="text-gray-400 text-sm">{{ testimonial.role }}</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                    <div class="min-w-0">
+                      <h4 class="text-white font-medium text-base sm:text-lg break-words">{{ testimonial.name }}</h4>
+                      <div class="flex items-center mt-1 flex-wrap">
+                        <span class="text-gray-400 text-xs sm:text-sm">{{ testimonial.role }}</span>
                         <span class="mx-2 text-gray-600">•</span>
-                        <span class="text-gray-400 text-sm">{{ testimonial.carModel }}</span>
+                        <span class="text-gray-400 text-xs sm:text-sm break-words">{{ testimonial.carModel }}</span>
                       </div>
                     </div>
                     
                     <!-- Rating -->
-                    <div class="flex mt-4 sm:mt-0">
+                    <div class="flex mt-2 sm:mt-0">
                       <div v-for="star in 5" :key="star" class="text-yellow-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="star <= testimonial.rating ? 'text-yellow-500' : 'text-gray-600'" fill="currentColor" viewBox="0 0 24 24">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" :class="star <= testimonial.rating ? 'text-yellow-500' : 'text-gray-600'" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
                         </svg>
                       </div>
@@ -228,35 +228,35 @@ onMounted(() => {
       
       <!-- Stats section -->
       <div 
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transform translate-y-10 opacity-0 transition-all duration-1000 delay-500" 
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 transform translate-y-10 opacity-0 transition-all duration-1000 delay-500" 
         :class="{ 'translate-y-0 opacity-100': isVisible }"
       >
         <div 
           v-for="stat in stats" 
           :key="stat.id"
-          class="bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-gray-700 transition-colors duration-300"
+          class="bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-4 sm:p-6 text-center hover:bg-gray-700 transition-colors duration-300"
         >
-          <!-- Users Icon -->
-          <div class="mx-auto w-12 h-12 rounded-full bg-blue-900/50 flex items-center justify-center mb-4">
-            <svg v-if="stat.icon === 'users'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <!-- Icon -->
+          <div class="mx-auto w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-900/50 flex items-center justify-center mb-3 sm:mb-4">
+            <svg v-if="stat.icon === 'users'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             <!-- Star Icon -->
-            <svg v-else-if="stat.icon === 'star'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-else-if="stat.icon === 'star'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
             </svg>
             <!-- Money Icon -->
-            <svg v-else-if="stat.icon === 'money'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-else-if="stat.icon === 'money'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <!-- Support Icon -->
-            <svg v-else-if="stat.icon === 'support'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-else-if="stat.icon === 'support'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
           
-          <h3 class="text-3xl font-bold text-white mb-2">{{ stat.value }}</h3>
-          <p class="text-gray-400">{{ stat.label }}</p>
+          <h3 class="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">{{ stat.value }}</h3>
+          <p class="text-sm sm:text-base text-gray-400">{{ stat.label }}</p>
         </div>
       </div>
       

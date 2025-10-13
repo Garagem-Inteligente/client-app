@@ -13,24 +13,24 @@ const props = withDefaults(defineProps<Props>(), {
 
 <template>
   <article 
-    class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 transition-colors duration-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
     role="article"
   >
     <component 
       :is="props.headingLevel" 
-      class="text-xl font-semibold text-gray-800 dark:text-white mb-2"
+      class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white mb-2 break-words"
     >
       {{ props.title }}
     </component>
     <p 
       v-if="props.content" 
-      class="text-gray-600 dark:text-gray-300"
+      class="text-sm sm:text-base text-gray-600 dark:text-gray-300"
     >
       {{ props.content }}
     </p>
     <div 
       v-if="$slots.default" 
-      class="mt-4"
+      class="mt-3 sm:mt-4"
     >
       <slot></slot>
     </div>
