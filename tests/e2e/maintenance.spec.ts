@@ -85,11 +85,11 @@ test.describe('Maintenance Records', () => {
     await page.waitForSelector('.maintenance-card, [data-testid="maintenance-card"]', { timeout: 5000 })
     
     // Look for attachment links
-    const attachmentLink = page.locator('a[href*="firebase"]:has-text("📄"), a[href*="firebase"]:has-text("🖼️")').first()
+    const attachmentButton = page.locator('button:has-text("📄"), button:has-text("🖼️")').first()
     
-    if (await attachmentLink.isVisible()) {
+    if (await attachmentButton.isVisible()) {
       // Attachment exists, verify it's clickable
-      await expect(attachmentLink).toHaveAttribute('target', '_blank')
+      await expect(attachmentButton).toBeEnabled()
     }
   })
 
