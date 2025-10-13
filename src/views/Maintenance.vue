@@ -47,11 +47,30 @@ const resetForm = () => {
 }
 
 const handleSubmit = async () => {
+  // Converter valores de máscara para números
+  const cost = typeof formData.value.cost === 'string' ? Number(formData.value.cost) : formData.value.cost
+  const mileage = typeof formData.value.mileage === 'string' ? Number(formData.value.mileage) : formData.value.mileage
+  
+  const nextDueMileage = formData.value.nextDueMileage
+  let nextDueMileageValue: number | undefined = undefined
+  
+  // Converter para número e validar (só adiciona se for maior que 0)
+  const numValue = typeof nextDueMileage === 'string' ? Number(nextDueMileage) : nextDueMileage
+  if (!isNaN(numValue) && numValue > 0) {
+    nextDueMileageValue = numValue
+  }
+  
   const recordData = {
-    ...formData.value,
+    vehicleId: formData.value.vehicleId,
+    type: formData.value.type,
+    description: formData.value.description,
+    cost: cost,
+    mileage: mileage,
     date: new Date(formData.value.date),
     nextDueDate: formData.value.nextDueDate ? new Date(formData.value.nextDueDate) : undefined,
-    nextDueMileage: formData.value.nextDueMileage || undefined
+    nextDueMileage: nextDueMileageValue,
+    serviceProvider: formData.value.serviceProvider,
+    notes: formData.value.notes
   }
   
   await vehiclesStore.addMaintenanceRecord(recordData)

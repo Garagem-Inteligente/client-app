@@ -331,11 +331,32 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       const maintenanceRef = collection(db, 'maintenance')
       const now = Timestamp.now()
       
-      const newRecordData = {
-        ...recordData,
+      // Preparar dados removendo campos undefined
+      const newRecordData: any = {
+        vehicleId: recordData.vehicleId,
+        type: recordData.type,
+        description: recordData.description,
+        cost: recordData.cost,
+        mileage: recordData.mileage,
         date: recordData.date instanceof Date ? Timestamp.fromDate(recordData.date) : now,
-        nextDueDate: recordData.nextDueDate ? Timestamp.fromDate(recordData.nextDueDate) : null,
         createdAt: now
+      }
+      
+      // Adicionar campos opcionais apenas se tiverem valor
+      if (recordData.nextDueDate) {
+        newRecordData.nextDueDate = Timestamp.fromDate(recordData.nextDueDate)
+      }
+      
+      if (recordData.nextDueMileage !== undefined && recordData.nextDueMileage !== null && recordData.nextDueMileage !== 0) {
+        newRecordData.nextDueMileage = recordData.nextDueMileage
+      }
+      
+      if (recordData.serviceProvider) {
+        newRecordData.serviceProvider = recordData.serviceProvider
+      }
+      
+      if (recordData.notes) {
+        newRecordData.notes = recordData.notes
       }
       
       const docRef = await addDoc(maintenanceRef, newRecordData)
