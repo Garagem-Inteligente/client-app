@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { validateFile } from '@/firebase/storage'
+import { validateFile, fileToBase64, compressImage } from '@/utils/fileUtils'
 
 export interface FileUploadItem {
   file: File
   preview?: string
+  base64?: string
   uploading: boolean
   progress: number
   error?: string
@@ -16,13 +17,15 @@ interface Props {
   maxSizeMB?: number
   allowedTypes?: string[]
   disabled?: boolean
+  autoCompress?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   maxFiles: 5,
-  maxSizeMB: 5,
+  maxSizeMB: 1, // Reduzido para 1MB (limite Firestore)
   allowedTypes: () => ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'],
-  disabled: false
+  disabled: false,
+  autoCompress: true
 })
 
 const emit = defineEmits<{
@@ -64,7 +67,7 @@ function handleDrop(event: DragEvent) {
   }
 }
 
-function addFiles(newFiles: File[]) {
+async function addFiles(newFiles: File[]) {
   if (!canAddMore.value) {
     emit('error', `Máximo de ${props.maxFiles} arquivos permitido`)
     return
@@ -73,28 +76,41 @@ function addFiles(newFiles: File[]) {
   const remainingSlots = props.maxFiles - files.value.length
   const filesToAdd = newFiles.slice(0, remainingSlots)
 
-  for (const file of filesToAdd) {
-    // Validar arquivo
-    if (!validateFile(file, props.maxSizeMB, props.allowedTypes)) {
-      emit('error', `Arquivo ${file.name} inválido. Tipos permitidos: ${allowedTypesText.value}. Tamanho máximo: ${props.maxSizeMB}MB`)
-      continue
-    }
+  for (let file of filesToAdd) {
+    try {
+      // Validar arquivo
+      validateFile(file, props.maxSizeMB, props.allowedTypes)
 
-    // Criar preview se for imagem
-    let preview: string | undefined
-    if (file.type.startsWith('image/')) {
-      preview = URL.createObjectURL(file)
-    }
-
-    files.value = [
-      ...files.value,
-      {
-        file,
-        preview,
-        uploading: false,
-        progress: 0
+      // Comprimir imagem se habilitado e necessário
+      if (props.autoCompress && file.type.startsWith('image/')) {
+        if (file.size > props.maxSizeMB * 1024 * 1024) {
+          emit('error', `Comprimindo ${file.name}...`)
+          file = await compressImage(file, 1920, 1080, 0.7)
+        }
       }
-    ]
+
+      // Converter para Base64
+      const base64 = await fileToBase64(file)
+
+      // Criar preview se for imagem
+      let preview: string | undefined
+      if (file.type.startsWith('image/')) {
+        preview = base64 // Usar o próprio Base64 como preview
+      }
+
+      files.value = [
+        ...files.value,
+        {
+          file,
+          preview,
+          base64,
+          uploading: false,
+          progress: 0
+        }
+      ]
+    } catch (error) {
+      emit('error', error instanceof Error ? error.message : `Erro ao processar ${file.name}`)
+    }
   }
 }
 

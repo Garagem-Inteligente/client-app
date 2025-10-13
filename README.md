@@ -17,11 +17,14 @@
 - 🔐 **Autenticação Segura**: Sistema completo de login/registro com Firebase Auth
 - 🚗 **Gestão de Veículos**: Adicione, edite e gerencie múltiplos veículos
 - 🔧 **Histórico de Manutenções**: Registre todas as manutenções com detalhes completos
-- 📊 **Dashboard Inteligente**: Visualize estatísticas, custos e alertas em tempo real
+- � **Upload de Anexos**: Notas fiscais e recibos armazenados como Base64 (100% gratuito)
+- 🔄 **Transferência de Veículos**: Sistema de transferência com confirmação dupla
+- �📊 **Dashboard Inteligente**: Visualize estatísticas, custos e alertas em tempo real
 - ⚠️ **Alertas Automáticos**: Notificações de manutenções atrasadas, urgentes e próximas
 - 💰 **Controle de Custos**: Acompanhe quanto gasta com cada veículo
 - 📱 **Design Responsivo**: Funciona perfeitamente em mobile, tablet e desktop
 - 🌑 **Tema Escuro**: Interface moderna inspirada no design da Rocketseat
+- 🧪 **Testes E2E**: Suíte completa com Playwright
 - 📄 **Landing Page Marketing**: Capte leads com lista de espera
 
 ## �️ Tecnologias

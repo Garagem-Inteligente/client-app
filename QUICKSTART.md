@@ -1,6 +1,8 @@
 # 🚀 Guia Rápido - Transferência de Veículos
 
-## ⚡ Setup Rápido (5 minutos)
+> 🎉 **Novo**: Agora 100% gratuito! Anexos são armazenados como Base64 no Firestore (sem Firebase Storage). Veja [BASE64_MIGRATION.md](BASE64_MIGRATION.md) para detalhes.
+
+## ⚡ Setup Rápido (3 minutos)
 
 ### 1. Criar Contas de Teste
 
@@ -21,19 +23,7 @@ Acesse `http://localhost:5173` e crie duas contas:
    - Senha: `Test@123`
    - Nome: `New Owner`
 
-### 2. Ativar Firebase Storage
-
-⚠️ **OBRIGATÓRIO** para upload de arquivos:
-
-1. Acesse: https://console.firebase.google.com/project/autocare-platform/storage
-2. Clique em "Get Started" / "Começar"
-3. Siga o wizard (aceite as configurações padrão)
-4. Deploy regras:
-   ```bash
-   firebase deploy --only storage:rules
-   ```
-
-### 3. Criar Veículo de Teste
+### 2. Criar Veículo de Teste
 
 1. Login como `test@autocare.com`
 2. Vá para **Veículos** → **Adicionar Veículo**

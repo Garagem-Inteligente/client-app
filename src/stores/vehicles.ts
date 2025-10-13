@@ -42,7 +42,7 @@ export interface VehicleInput {
 
 export interface MaintenanceAttachment {
   name: string
-  url: string
+  data: string // Base64 string (ex: "data:image/jpeg;base64,...")
   uploadedAt: Date
   type: string
   size: number

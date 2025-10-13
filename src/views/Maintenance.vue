@@ -9,7 +9,7 @@ import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
 import FileUpload, { type FileUploadItem } from '../components/FileUpload.vue'
-import { uploadFile, deleteFile, generateUniqueFileName } from '../firebase/storage'
+import { downloadBase64File } from '../utils/fileUtils'
 
 const vehiclesStore = useVehiclesStore()
 
@@ -69,29 +69,27 @@ const handleSubmit = async () => {
       nextDueMileageValue = numValue
     }
 
-    // Upload de arquivos
+    // Processar arquivos (Base64 já convertido no FileUpload)
     const attachments: MaintenanceAttachment[] = []
     
     if (uploadedFiles.value.length > 0) {
       for (let i = 0; i < uploadedFiles.value.length; i++) {
         const item = uploadedFiles.value[i]
         
-        // Marcar como em upload
+        // Marcar como em processamento
         item.uploading = true
-        item.progress = 0
+        item.progress = 50
         
         try {
-          // Gerar nome único
-          const uniqueName = generateUniqueFileName(item.file.name, 'maintenance')
-          const storagePath = `maintenance/${formData.value.vehicleId}/${uniqueName}`
+          // Verificar se Base64 foi gerado
+          if (!item.base64) {
+            throw new Error('Arquivo não foi processado corretamente')
+          }
           
-          // Upload
-          const downloadURL = await uploadFile(item.file, storagePath)
-          
-          // Adicionar aos anexos
+          // Adicionar aos anexos com Base64
           attachments.push({
             name: item.file.name,
-            url: downloadURL,
+            data: item.base64, // Armazenar Base64 diretamente
             uploadedAt: new Date(),
             type: item.file.type,
             size: item.file.size
@@ -101,8 +99,8 @@ const handleSubmit = async () => {
           item.uploading = false
         } catch (error) {
           item.uploading = false
-          item.error = 'Falha no upload'
-          throw new Error(`Erro ao fazer upload do arquivo ${item.file.name}`)
+          item.error = 'Falha ao processar'
+          throw new Error(`Erro ao processar arquivo ${item.file.name}`)
         }
       }
     }
@@ -135,27 +133,29 @@ const handleFileUploadError = (message: string) => {
   uploadError.value = message
 }
 
-const handleDeleteAttachment = async (recordId: string, attachmentUrl: string) => {
+const handleDeleteAttachment = async (recordId: string, _attachmentIndex: number) => {
   if (!confirm('Tem certeza que deseja excluir este anexo?')) {
     return
   }
 
   try {
-    // Deletar arquivo do Storage
-    await deleteFile(attachmentUrl)
-    
-    // Atualizar registro removendo o anexo
     const record = vehiclesStore.maintenanceRecords.find(r => r.id === recordId)
     if (record && record.attachments) {
-      // Aqui você precisaria criar um método updateMaintenanceRecord na store
-      // Por enquanto, vamos apenas mostrar sucesso
-      alert('Anexo excluído com sucesso')
+      // TODO: Implementar método updateMaintenanceRecord na store
+      // Por enquanto apenas notifica o usuário
+      alert('Função de exclusão de anexo individual será implementada em breve.')
       
       // Recarregar dados
       await vehiclesStore.fetchMaintenanceRecords()
     }
   } catch (error) {
     alert('Erro ao excluir anexo: ' + (error instanceof Error ? error.message : 'Erro desconhecido'))
+  }
+}
+
+const handleDownloadAttachment = (attachment: MaintenanceAttachment) => {
+  if (attachment.data) {
+    downloadBase64File(attachment.data, attachment.name)
   }
 }
 
@@ -582,12 +582,12 @@ onMounted(async () => {
           <div v-if="record.attachments && record.attachments.length > 0" class="mt-4">
             <p class="text-sm text-gray-400 mb-2">Anexos ({{ record.attachments.length }})</p>
             <div class="flex flex-wrap gap-2">
-              <a
+              <button
                 v-for="(attachment, idx) in record.attachments"
                 :key="idx"
-                :href="attachment.url"
-                target="_blank"
+                type="button"
                 class="inline-flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg transition-colors group"
+                @click="handleDownloadAttachment(attachment)"
               >
                 <span class="text-xl">
                   {{ attachment.type === 'application/pdf' ? '📄' : '🖼️' }}
@@ -603,13 +603,13 @@ onMounted(async () => {
                 <button
                   type="button"
                   class="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  @click.prevent="handleDeleteAttachment(record.id, attachment.url)"
+                  @click.stop="handleDeleteAttachment(record.id, idx)"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-              </a>
+              </button>
             </div>
           </div>
           

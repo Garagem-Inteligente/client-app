@@ -53,19 +53,12 @@ firebase firestore:export gs://autocare-platform.appspot.com/backups/$(date +%Y%
 firebase firestore:import gs://autocare-platform.appspot.com/backups/20251013
 ```
 
-### Storage
+### Storage (Não mais usado - Base64 no Firestore)
 ```bash
-# Listar arquivos
-firebase storage:list
-
-# Upload arquivo
-firebase storage:upload local.pdf gs://autocare-platform.appspot.com/test/file.pdf
-
-# Download arquivo
-firebase storage:download gs://autocare-platform.appspot.com/test/file.pdf local.pdf
-
-# Deletar arquivo
-firebase storage:delete gs://autocare-platform.appspot.com/test/file.pdf
+# ❌ Storage não é mais necessário!
+# ✅ Anexos são armazenados como Base64 diretamente no Firestore
+# ✅ Zero custos, zero configuração
+# Veja: BASE64_MIGRATION.md
 ```
 
 ### Logs
