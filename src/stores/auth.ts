@@ -21,8 +21,9 @@ export interface User {
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<User | null>(null)
-  const loading = ref(false)
+  const loading = ref(true) // Start as true to wait for Firebase
   const error = ref<string | null>(null)
+  const initialized = ref(false)
 
   // Getters
   const isAuthenticated = computed(() => !!user.value)
@@ -43,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
       }
       loading.value = false
+      initialized.value = true
     })
   }
 
@@ -195,6 +197,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     error,
+    initialized,
     // Getters
     isAuthenticated,
     userName,

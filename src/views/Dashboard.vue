@@ -108,56 +108,71 @@ const formatCurrency = (value: number) => {
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Veículos Card -->
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-white/20 rounded-lg">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-xl p-6 hover:border-blue-500/50 transition-all duration-300">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-1">Total de Veículos</p>
+              <div class="text-3xl font-bold text-white">{{ vehiclesStore.vehicleCount }}</div>
+            </div>
+            <div class="p-3 bg-blue-500/20 rounded-lg">
+              <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 11l-2 0 0-1c0-.5.2-1.1.5-1.5l1.8-2.2c.4-.4 1-.7 1.7-.7l13 0c.7 0 1.3.3 1.7.7l1.8 2.2c.3.4.5 1 .5 1.5l0 1-2 0 0-1c0-.3-.1-.5-.3-.7l-1.8-2.2c-.2-.2-.4-.3-.7-.3l-13 0c-.3 0-.5.1-.7.3l-1.8 2.2c-.2.2-.3.4-.3.7l0 1zm-.5 1c-.3 0-.5.2-.5.5l0 2.5 0 2.5c0 .3.2.5.5.5l.5 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5 10 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5.5 0c.3 0 .5-.2.5-.5l0-2.5 0-2.5c0-.3-.2-.5-.5-.5zm2 1.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm11 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/>
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ vehiclesStore.vehicleCount }}</div>
-          <p class="text-blue-100 text-sm">Veículos cadastrados</p>
+          <p class="text-xs text-gray-500">Veículos na sua garagem</p>
         </div>
 
         <!-- Manutenções Card -->
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-white/20 rounded-lg">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-xl p-6 hover:border-green-500/50 transition-all duration-300">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-1">Manutenções</p>
+              <div class="text-3xl font-bold text-white">{{ vehiclesStore.totalMaintenanceRecords }}</div>
+            </div>
+            <div class="p-3 bg-green-500/20 rounded-lg">
+              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ vehiclesStore.totalMaintenanceRecords }}</div>
-          <p class="text-green-100 text-sm">Total de manutenções</p>
+          <p class="text-xs text-gray-500">Registros no histórico</p>
         </div>
 
         <!-- Custo Total Card -->
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-white/20 rounded-lg">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-xl p-6 hover:border-purple-500/50 transition-all duration-300">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-1">Custo Total</p>
+              <div class="text-2xl font-bold text-white">{{ formatCurrency(totalCost) }}</div>
+            </div>
+            <div class="p-3 bg-purple-500/20 rounded-lg">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ formatCurrency(totalCost) }}</div>
-          <p class="text-purple-100 text-sm">Investido em manutenções</p>
+          <p class="text-xs text-gray-500">Investido em manutenções</p>
         </div>
 
         <!-- Próximas Manutenções Card -->
-        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-white/20 rounded-lg">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-300">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-1">Agendadas</p>
+              <div class="text-3xl font-bold text-white">{{ vehiclesStore.upcomingMaintenance.length }}</div>
+            </div>
+            <div class="p-3 bg-yellow-500/20 rounded-lg">
+              <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <Badge :variant="overdueCount > 0 ? 'error' : 'warning'">{{ overdueCount > 0 ? overdueCount + ' atrasadas' : 'OK' }}</Badge>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ vehiclesStore.upcomingMaintenance.length }}</div>
-          <p class="text-yellow-100 text-sm">Manutenções agendadas</p>
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-gray-500">Próximas manutenções</p>
+            <Badge v-if="overdueCount > 0" variant="error" size="sm">{{ overdueCount }} atrasadas</Badge>
+          </div>
         </div>
       </div>
       
@@ -215,10 +230,8 @@ const formatCurrency = (value: number) => {
         </div>
       </div>
       
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        
-        <!-- Recent Vehicles -->
-        <Card title="Meus Veículos" class="hover:shadow-xl transition-shadow duration-300">
+      <!-- Meus Veículos - Full Width -->
+      <Card title="Meus Veículos" class="mb-8 hover:shadow-xl transition-shadow duration-300">
           <div v-if="vehiclesStore.vehicles.length === 0" class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -275,7 +288,6 @@ const formatCurrency = (value: number) => {
             </router-link>
           </div>
         </Card>
-      </div>
       
       <!-- Manutenções Atrasadas -->
       <Card v-if="overdueCount > 0" title="⚠️ Manutenções Atrasadas" class="mb-8 border-2 border-red-500/50">

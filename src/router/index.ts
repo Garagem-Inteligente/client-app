@@ -90,9 +90,13 @@ router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   
   // Wait for auth state to be initialized
-  if (authStore.loading) {
-    // Wait a bit for auth state to initialize
-    await new Promise(resolve => setTimeout(resolve, 100))
+  if (!authStore.initialized) {
+    // Wait for Firebase auth to initialize
+    let attempts = 0
+    while (!authStore.initialized && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+      attempts++
+    }
   }
   
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
