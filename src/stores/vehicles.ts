@@ -351,6 +351,16 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         createdAt: now
       }
       
+      // Persist attachments if present, mapping uploadedAt to Timestamp
+      if (recordData.attachments && Array.isArray(recordData.attachments)) {
+        newRecordData.attachments = recordData.attachments.map(att => ({
+          ...att,
+          uploadedAt: att.uploadedAt instanceof Date
+            ? Timestamp.fromDate(att.uploadedAt)
+            : att.uploadedAt
+        }))
+      }
+      
       // Adicionar campos opcionais apenas se tiverem valor
       if (recordData.nextDueDate) {
         newRecordData.nextDueDate = Timestamp.fromDate(recordData.nextDueDate)
