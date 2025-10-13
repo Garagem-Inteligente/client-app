@@ -125,11 +125,28 @@ autocare-landing-page/
 └── package.json
 ```
 
-## 📚 Documentação Adicional
+## 📚 Documentação Completa
 
-- **[PLANO_DE_ACAO.md](./PLANO_DE_ACAO.md)** - Análise completa, roadmap e próximos passos
-- **[FIREBASE_SETUP.md](./FIREBASE_SETUP.md)** - Configuração Firebase e deploy
-- **[.github/copilot-instructions.md](./.github/copilot-instructions.md)** - Instruções para AI agents
+Toda a documentação do projeto está organizada em **[`docs/`](./docs/)**:
+
+### 🎯 Início Rápido
+- **[docs/setup/QUICKSTART.md](./docs/setup/QUICKSTART.md)** - Configure o projeto em 3 minutos
+- **[docs/setup/FIREBASE_SETUP.md](./docs/setup/FIREBASE_SETUP.md)** - Configuração Firebase e deploy
+- **[docs/testing/QUICK_TEST.md](./docs/testing/QUICK_TEST.md)** - Teste o sistema em 2 minutos
+
+### 📖 Documentação por Categoria
+- **[docs/architecture/](./docs/architecture/)** - Arquitetura do sistema, comandos e padrões
+- **[docs/migration/](./docs/migration/)** - Documentação de migrações (Base64, etc)
+- **[docs/planning/](./docs/planning/)** - Roadmap, plano de ação e resumos
+- **[docs/project/](./docs/project/)** - Contexto do projeto e ideias
+- **[docs/testing/](./docs/testing/)** - Guias de teste e QA
+
+### 🤖 Para Desenvolvedores
+- **[docs/COPILOT_INSTRUCTIONS.md](./docs/COPILOT_INSTRUCTIONS.md)** - Instruções para GitHub Copilot
+- **[docs/COPILOT_WORKFLOW.md](./docs/COPILOT_WORKFLOW.md)** - Workflow de documentação
+- **[docs/git/COMMIT_MESSAGE.md](./docs/git/COMMIT_MESSAGE.md)** - Padrões de commit
+
+👉 **Veja o índice completo em [docs/README.md](./docs/README.md)**
 
 ## 🔒 Segurança
 
