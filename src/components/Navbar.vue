@@ -69,6 +69,17 @@ const isActivePath = (path: string) => {
             <div class="text-sm text-gray-300">
               Olá, <span class="font-medium text-white">{{ authStore.userName }}</span>
             </div>
+            <router-link 
+              to="/profile"
+              class="text-gray-300 hover:text-white transition-colors"
+            >
+              <Button variant="outline" size="sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Perfil
+              </Button>
+            </router-link>
             <Button variant="outline" size="sm" @click="handleLogout">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -120,6 +131,16 @@ const isActivePath = (path: string) => {
           <div class="text-sm font-medium text-gray-400">{{ authStore.userEmail }}</div>
         </div>
         <div class="px-2 space-y-1">
+          <router-link
+            to="/profile"
+            @click="mobileMenuOpen = false"
+            class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center space-x-2"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Meu Perfil</span>
+          </router-link>
           <button
             @click="handleLogout"
             class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
