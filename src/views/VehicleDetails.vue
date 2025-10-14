@@ -54,9 +54,9 @@ const upcomingMaintenance = computed(() => {
 })
 
 const completedMaintenance = computed(() => {
-  return maintenanceHistory.value.filter(
-    record => !record.nextDueDate || record.nextDueDate <= new Date()
-  )
+  // Todas as manutenções são "completadas" por padrão
+  // O histórico completo deve mostrar todas as manutenções realizadas
+  return maintenanceHistory.value
 })
 
 const totalMaintenanceCost = computed(() => {
