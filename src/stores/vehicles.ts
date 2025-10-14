@@ -99,6 +99,11 @@ export type MaintenanceType =
   | 'general_inspection'
   | 'other'
 
+export interface WarrantyInfo {
+  months: number // Prazo da garantia em meses
+  expiryDate: Date // Data de expiração calculada
+}
+
 export interface MaintenanceRecord {
   id: string
   vehicleId: string
@@ -107,6 +112,8 @@ export interface MaintenanceRecord {
   cost: number // Total cost (kept for backward compatibility)
   partsCost?: number // Cost of parts/materials
   laborCost?: number // Cost of labor/service
+  warrantyParts?: WarrantyInfo // Garantia das peças
+  warrantyLabor?: WarrantyInfo // Garantia da mão de obra
   mileage: number
   date: Date
   nextDueDate?: Date
