@@ -11,11 +11,17 @@ import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
 import SearchableSelect from '../components/SearchableSelect.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
 
 const vehiclesStore = useVehiclesStore()
 
 const showAddForm = ref(false)
 const editingVehicle = ref<Vehicle | null>(null)
+
+// Modal de confirmação
+const showDeleteModal = ref(false)
+const vehicleToDelete = ref<Vehicle | null>(null)
+const deletingVehicle = ref(false)
 
 // FIPE API State
 const vehicleType = ref<VehicleType>('cars')
@@ -203,14 +209,29 @@ const startEdit = (vehicle: Vehicle) => {
   // Don't load FIPE data when editing, user can change manually
 }
 
-const handleDelete = async (vehicle: Vehicle) => {
-  if (confirm(`Tem certeza que deseja excluir o veículo ${vehicle.make} ${vehicle.model}?`)) {
-    try {
-      await vehiclesStore.deleteVehicle(vehicle.id)
-    } catch (error) {
-      console.error('Error deleting vehicle:', error)
-    }
+const handleDelete = (vehicle: Vehicle) => {
+  vehicleToDelete.value = vehicle
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!vehicleToDelete.value) return
+  
+  try {
+    deletingVehicle.value = true
+    await vehiclesStore.deleteVehicle(vehicleToDelete.value.id)
+    showDeleteModal.value = false
+    vehicleToDelete.value = null
+  } catch (error) {
+    console.error('Error deleting vehicle:', error)
+  } finally {
+    deletingVehicle.value = false
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  vehicleToDelete.value = null
 }
 
 const getFuelTypeLabel = (type: FuelType) => {
@@ -544,4 +565,18 @@ onMounted(() => {
     </div>
     </div>
   </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  <ConfirmModal
+    :isOpen="showDeleteModal"
+    @update:isOpen="showDeleteModal = $event"
+    @confirm="confirmDelete"
+    @cancel="cancelDelete"
+    title="Excluir Veículo"
+    :message="`Tem certeza que deseja excluir o veículo ${vehicleToDelete?.make} ${vehicleToDelete?.model}?`"
+    confirmText="Excluir"
+    cancelText="Cancelar"
+    variant="danger"
+    :loading="deletingVehicle"
+  />
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'warning' | 'success';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
@@ -33,7 +33,10 @@ const getVariantClasses = () => {
     primary: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white disabled:bg-blue-400',
     secondary: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-500 text-white disabled:bg-gray-500',
     outline: 'border border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white focus:ring-gray-500 disabled:border-gray-700 disabled:text-gray-500',
-    ghost: 'text-gray-300 hover:bg-gray-800 hover:text-white focus:ring-gray-500 disabled:text-gray-500'
+    ghost: 'text-gray-300 hover:bg-gray-800 hover:text-white focus:ring-gray-500 disabled:text-gray-500',
+    danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white disabled:bg-red-400',
+    warning: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500 text-white disabled:bg-yellow-400',
+    success: 'bg-green-600 hover:bg-green-700 focus:ring-green-500 text-white disabled:bg-green-400'
   };
   return variants[props.variant];
 };
