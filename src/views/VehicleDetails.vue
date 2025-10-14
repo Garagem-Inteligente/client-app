@@ -6,6 +6,7 @@ import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Badge from '../components/Badge.vue'
+import Input from '../components/Input.vue'
 import Navbar from '../components/Navbar.vue'
 import TransferModal from '../components/TransferModal.vue'
 import Tabs from '../components/Tabs.vue'
@@ -177,18 +178,17 @@ const cancelEditing = () => {
   isEditing.value = false
 }
 
-// TODO: Implementar edição inline na aba Info
-// const saveEditing = async () => {
-//   if (!vehicle.value) return
-//   
-//   try {
-//     await vehiclesStore.updateVehicle(vehicleId, editForm.value)
-//     isEditing.value = false
-//   } catch (error) {
-//     console.error('Erro ao atualizar veículo:', error)
-//     alert('Erro ao atualizar veículo. Tente novamente.')
-//   }
-// }
+const saveEditing = async () => {
+  if (!vehicle.value) return
+  
+  try {
+    await vehiclesStore.updateVehicle(vehicleId, editForm.value)
+    isEditing.value = false
+  } catch (error) {
+    console.error('Erro ao atualizar veículo:', error)
+    alert('Erro ao atualizar veículo. Tente novamente.')
+  }
+}
 
 const handleEdit = () => {
   activeTab.value = 'info'
@@ -374,7 +374,8 @@ onMounted(async () => {
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Informações do Veículo -->
             <Card title="Informações do Veículo">
-              <div class="space-y-4">
+              <!-- Modo Visualização -->
+              <div v-if="!isEditing" class="space-y-4">
                 <div class="flex justify-between py-3 border-b border-gray-700">
                   <span class="text-gray-400">Marca</span>
                   <span class="font-medium text-white">{{ vehicle.make }}</span>
@@ -416,6 +417,76 @@ onMounted(async () => {
                   <span class="font-medium text-white">
                     {{ formatCurrency(averageMaintenanceCost) }}
                   </span>
+                </div>
+                
+                <div class="pt-4">
+                  <Button variant="outline" size="sm" class="w-full" @click="startEditing">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Editar Informações
+                  </Button>
+                </div>
+              </div>
+
+              <!-- Modo Edição -->
+              <div v-else class="space-y-4">
+                <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg mb-4">
+                  <p class="text-sm text-blue-300">
+                    ✏️ Modo de edição ativado. Faça as alterações e clique em "Salvar" para confirmar.
+                  </p>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Marca</label>
+                  <Input v-model="editForm.make" placeholder="Ex: Toyota" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Modelo</label>
+                  <Input v-model="editForm.model" placeholder="Ex: Corolla" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Ano</label>
+                  <Input v-model.number="editForm.year" type="number" placeholder="Ex: 2023" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Placa</label>
+                  <Input v-model="editForm.plate" placeholder="Ex: ABC1234" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Cor (Opcional)</label>
+                  <Input v-model="editForm.color" placeholder="Ex: Prata" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2">Quilometragem Atual</label>
+                  <Input v-model.number="editForm.mileage" type="number" placeholder="Ex: 45000" />
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                  <Button 
+                    variant="primary" 
+                    class="flex-1"
+                    @click="saveEditing"
+                    :disabled="vehiclesStore.loading"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {{ vehiclesStore.loading ? 'Salvando...' : 'Salvar Alterações' }}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    class="flex-1"
+                    @click="cancelEditing"
+                    :disabled="vehiclesStore.loading"
+                  >
+                    Cancelar
+                  </Button>
                 </div>
               </div>
             </Card>
