@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useVehiclesStore } from '../stores/vehicles'
 import Card from '../components/Card.vue'
@@ -8,6 +9,7 @@ import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const vehiclesStore = useVehiclesStore()
 
@@ -82,6 +84,85 @@ const formatCurrency = (value: number) => {
         <p class="mt-2 text-gray-400">
           Gerencie seus veículos e acompanhe as manutenções
         </p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Registrar Manutenção -->
+        <button
+          @click="router.push('/maintenance')"
+          class="group relative bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-xl p-6 hover:border-blue-500/50 hover:from-blue-500/20 hover:to-blue-600/20 transition-all duration-300 text-left"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-3 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors">
+              <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <svg class="w-5 h-5 text-blue-400/50 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-1">Registrar Manutenção</h3>
+          <p class="text-sm text-gray-400">Adicione um novo registro</p>
+        </button>
+
+        <!-- Adicionar Veículo -->
+        <button
+          @click="router.push('/vehicles')"
+          class="group relative bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-xl p-6 hover:border-green-500/50 hover:from-green-500/20 hover:to-green-600/20 transition-all duration-300 text-left"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-3 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors">
+              <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 11l-2 0 0-1c0-.5.2-1.1.5-1.5l1.8-2.2c.4-.4 1-.7 1.7-.7l13 0c.7 0 1.3.3 1.7.7l1.8 2.2c.3.4.5 1 .5 1.5l0 1-2 0 0-1c0-.3-.1-.5-.3-.7l-1.8-2.2c-.2-.2-.4-.3-.7-.3l-13 0c-.3 0-.5.1-.7.3l-1.8 2.2c-.2.2-.3.4-.3.7l0 1zm-.5 1c-.3 0-.5.2-.5.5l0 2.5 0 2.5c0 .3.2.5.5.5l.5 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5 10 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5.5 0c.3 0 .5-.2.5-.5l0-2.5 0-2.5c0-.3-.2-.5-.5-.5zm2 1.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm11 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/>
+              </svg>
+            </div>
+            <svg class="w-5 h-5 text-green-400/50 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-1">Adicionar Veículo</h3>
+          <p class="text-sm text-gray-400">Cadastre um novo veículo</p>
+        </button>
+
+        <!-- Ver Histórico -->
+        <button
+          @click="router.push('/maintenance')"
+          class="group relative bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-xl p-6 hover:border-purple-500/50 hover:from-purple-500/20 hover:to-purple-600/20 transition-all duration-300 text-left"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-3 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <svg class="w-5 h-5 text-purple-400/50 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-1">Ver Histórico</h3>
+          <p class="text-sm text-gray-400">Consulte suas manutenções</p>
+        </button>
+
+        <!-- Meus Veículos -->
+        <button
+          @click="router.push('/vehicles')"
+          class="group relative bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 rounded-xl p-6 hover:border-orange-500/50 hover:from-orange-500/20 hover:to-orange-600/20 transition-all duration-300 text-left"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-3 bg-orange-500/20 rounded-lg group-hover:bg-orange-500/30 transition-colors">
+              <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <svg class="w-5 h-5 text-orange-400/50 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-1">Meus Veículos</h3>
+          <p class="text-sm text-gray-400">Gerencie sua garagem</p>
+        </button>
       </div>
       
       <!-- Alertas de Manutenções Atrasadas -->
