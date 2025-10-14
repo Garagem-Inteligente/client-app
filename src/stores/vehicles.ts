@@ -69,10 +69,37 @@ export interface MaintenanceAttachment {
   size: number
 }
 
+export type MaintenanceType = 
+  | 'oil_change'
+  | 'oil_filter'
+  | 'air_filter'
+  | 'fuel_filter'
+  | 'cabin_filter'
+  | 'tire_rotation'
+  | 'tire_replacement'
+  | 'wheel_alignment'
+  | 'wheel_balancing'
+  | 'brake_pads'
+  | 'brake_discs'
+  | 'brake_fluid'
+  | 'battery'
+  | 'spark_plugs'
+  | 'timing_belt'
+  | 'serpentine_belt'
+  | 'coolant'
+  | 'transmission_fluid'
+  | 'power_steering_fluid'
+  | 'windshield_wipers'
+  | 'air_conditioning'
+  | 'suspension'
+  | 'exhaust_system'
+  | 'general_inspection'
+  | 'other'
+
 export interface MaintenanceRecord {
   id: string
   vehicleId: string
-  type: 'oil_change' | 'tire_rotation' | 'brake_service' | 'general_inspection' | 'other'
+  type: MaintenanceType
   description: string
   cost: number
   mileage: number

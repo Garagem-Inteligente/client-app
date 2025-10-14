@@ -11,6 +11,7 @@ import Navbar from '../components/Navbar.vue'
 import FileUpload, { type FileUploadItem } from '../components/FileUpload.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { downloadBase64File } from '../utils/fileUtils'
+import { MAINTENANCE_TYPE_OPTIONS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 
 const vehiclesStore = useVehiclesStore()
 
@@ -28,7 +29,7 @@ const deletingMaintenance = ref(false)
 // Form data
 const formData = ref({
   vehicleId: '',
-  type: 'oil_change' as 'oil_change' | 'tire_rotation' | 'brake_service' | 'general_inspection' | 'other',
+  type: 'oil_change' as import('@/stores/vehicles').MaintenanceType,
   description: '',
   cost: 0,
   mileage: 0,
@@ -191,25 +192,24 @@ const cancelDelete = () => {
 }
 
 const getMaintenanceTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    oil_change: 'Troca de Óleo',
-    tire_rotation: 'Rodízio de Pneus',
-    brake_service: 'Serviço de Freios',
-    general_inspection: 'Inspeção Geral',
-    other: 'Outros'
-  }
-  return labels[type] || type
+  return MAINTENANCE_TYPE_LABELS[type as import('@/stores/vehicles').MaintenanceType] || type
 }
 
 const getMaintenanceTypeBadgeVariant = (type: string) => {
-  const variants: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
-    oil_change: 'warning',
-    tire_rotation: 'default',
-    brake_service: 'error',
-    general_inspection: 'success',
-    other: 'default'
+  // Óleo e filtros = warning (laranja)
+  if (['oil_change', 'oil_filter', 'air_filter', 'fuel_filter', 'cabin_filter'].includes(type)) {
+    return 'warning'
   }
-  return variants[type] || 'default'
+  // Freios = error (vermelho)
+  if (['brake_pads', 'brake_discs', 'brake_fluid'].includes(type)) {
+    return 'error'
+  }
+  // Revisão geral = success (verde)
+  if (['general_inspection'].includes(type)) {
+    return 'success'
+  }
+  // Pneus, motor, outros = default (azul)
+  return 'default'
 }
 
 const formatDate = (date: Date) => {
@@ -345,11 +345,19 @@ onMounted(async () => {
                 required
                 :disabled="vehiclesStore.loading"
               >
-                <option value="oil_change">Troca de Óleo</option>
-                <option value="tire_rotation">Rodízio de Pneus</option>
-                <option value="brake_service">Serviço de Freios</option>
-                <option value="general_inspection">Inspeção Geral</option>
-                <option value="other">Outros</option>
+                <optgroup 
+                  v-for="group in MAINTENANCE_TYPE_OPTIONS" 
+                  :key="group.category" 
+                  :label="group.category"
+                >
+                  <option 
+                    v-for="option in group.options" 
+                    :key="option.value" 
+                    :value="option.value"
+                  >
+                    {{ option.emoji }} {{ option.label }}
+                  </option>
+                </optgroup>
               </select>
             </div>
             

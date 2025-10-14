@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVehiclesStore } from '../stores/vehicles'
-import { FUEL_TYPE_LABELS } from '@/constants/vehicles'
+import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Badge from '../components/Badge.vue'
@@ -71,14 +71,7 @@ const isInsuranceExpiringSoon = computed(() => {
 })
 
 const getMaintenanceTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    oil_change: 'Troca de Óleo',
-    tire_rotation: 'Rodízio de Pneus',
-    brake_service: 'Serviço de Freios',
-    general_inspection: 'Inspeção Geral',
-    other: 'Outros'
-  }
-  return labels[type] || type
+  return MAINTENANCE_TYPE_LABELS[type as import('@/stores/vehicles').MaintenanceType] || type
 }
 
 const formatDate = (date: Date) => {
