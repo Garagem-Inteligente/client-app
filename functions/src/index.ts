@@ -12,11 +12,9 @@ import {defineSecret} from "firebase-functions/params";
 // Configuração global
 setGlobalOptions({maxInstances: 10});
 
-// Definir secret do SendGrid
+// Definir secrets do SendGrid
 const sendgridApiKey = defineSecret("SENDGRID_API_KEY");
-
-// Configuração de email
-const FROM_EMAIL = "noreply@autocare.com";
+const sendgridFromEmail = defineSecret("SENDGRID_FROM_EMAIL");
 
 // Interfaces
 interface SendTransferEmailData {
@@ -47,10 +45,11 @@ interface SendWelcomeEmailData {
 
 // Função: Enviar email de transferência de veículo
 export const sendTransferEmail = onCall(
-  {secrets: [sendgridApiKey]},
+  {secrets: [sendgridApiKey, sendgridFromEmail]},
   async (request) => {
     // Configurar SendGrid com a API Key do secret
     sgMail.setApiKey(sendgridApiKey.value());
+    const FROM_EMAIL = sendgridFromEmail.value();
 
     const data = request.data as SendTransferEmailData;
     const {
@@ -157,9 +156,10 @@ export const sendTransferEmail = onCall(
 
 // Função: Enviar alerta de manutenção
 export const sendMaintenanceAlert = onCall(
-  {secrets: [sendgridApiKey]},
+  {secrets: [sendgridApiKey, sendgridFromEmail]},
   async (request) => {
     sgMail.setApiKey(sendgridApiKey.value());
+    const FROM_EMAIL = sendgridFromEmail.value();
     const data = request.data as SendMaintenanceAlertData;
     const {
       to,
@@ -246,9 +246,10 @@ export const sendMaintenanceAlert = onCall(
 
 // Função: Enviar email de boas-vindas
 export const sendWelcomeEmail = onCall(
-  {secrets: [sendgridApiKey]},
+  {secrets: [sendgridApiKey, sendgridFromEmail]},
   async (request) => {
     sgMail.setApiKey(sendgridApiKey.value());
+    const FROM_EMAIL = sendgridFromEmail.value();
     const data = request.data as SendWelcomeEmailData;
     const {to, userName} = data;
 
