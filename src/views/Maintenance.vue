@@ -694,7 +694,7 @@ onMounted(async () => {
               type="submit" 
               variant="primary"
               :loading="vehiclesStore.loading"
-              :disabled="!formData.vehicleId || !formData.description || !formData.cost"
+              :disabled="!formData.vehicleId || !formData.description || totalCost <= 0"
             >
               Registrar
             </Button>
