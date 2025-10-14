@@ -197,7 +197,7 @@ onMounted(() => {
                 @click="setActiveTestimonial(index)"
                 class="w-2.5 h-2.5 rounded-full transition-all duration-300"
                 :class="index === activeTestimonialIndex ? 'bg-blue-500 scale-125' : 'bg-gray-600 hover:bg-gray-500'"
-                aria-label="Go to testimonial"
+                aria-label="Ir para depoimento"
               ></button>
             </div>
             
@@ -206,7 +206,7 @@ onMounted(() => {
               <button 
                 @click="prevTestimonial"
                 class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
-                aria-label="Previous testimonial"
+                aria-label="Depoimento anterior"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -215,7 +215,7 @@ onMounted(() => {
               <button 
                 @click="nextTestimonial"
                 class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
-                aria-label="Next testimonial"
+                aria-label="Próximo depoimento"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

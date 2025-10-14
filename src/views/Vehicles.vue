@@ -203,7 +203,7 @@ const handleSubmit = async () => {
     }
     resetForm()
   } catch (error) {
-    console.error('Error saving vehicle:', error)
+    console.error('Erro ao salvar veículo:', error)
   }
 }
 
