@@ -108,72 +108,80 @@ const formatCurrency = (value: number) => {
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <!-- Veículos Card -->
-        <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-xl p-4 sm:p-6 hover:border-blue-500/50 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div>
-              <p class="text-xs sm:text-sm text-gray-400 mb-1">Total de Veículos</p>
-              <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.vehicleCount }}</div>
+        <router-link to="/vehicles">
+          <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-xl p-4 sm:p-6 hover:border-blue-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+              <div>
+                <p class="text-xs sm:text-sm text-gray-400 mb-1">Total de Veículos</p>
+                <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.vehicleCount }}</div>
+              </div>
+              <div class="p-2 sm:p-3 bg-blue-500/20 rounded-lg flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 11l-2 0 0-1c0-.5.2-1.1.5-1.5l1.8-2.2c.4-.4 1-.7 1.7-.7l13 0c.7 0 1.3.3 1.7.7l1.8 2.2c.3.4.5 1 .5 1.5l0 1-2 0 0-1c0-.3-.1-.5-.3-.7l-1.8-2.2c-.2-.2-.4-.3-.7-.3l-13 0c-.3 0-.5.1-.7.3l-1.8 2.2c-.2.2-.3.4-.3.7l0 1zm-.5 1c-.3 0-.5.2-.5.5l0 2.5 0 2.5c0 .3.2.5.5.5l.5 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5 10 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5.5 0c.3 0 .5-.2.5-.5l0-2.5 0-2.5c0-.3-.2-.5-.5-.5zm2 1.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm11 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/>
+                </svg>
+              </div>
             </div>
-            <div class="p-2 sm:p-3 bg-blue-500/20 rounded-lg flex-shrink-0">
-              <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M5 11l-2 0 0-1c0-.5.2-1.1.5-1.5l1.8-2.2c.4-.4 1-.7 1.7-.7l13 0c.7 0 1.3.3 1.7.7l1.8 2.2c.3.4.5 1 .5 1.5l0 1-2 0 0-1c0-.3-.1-.5-.3-.7l-1.8-2.2c-.2-.2-.4-.3-.7-.3l-13 0c-.3 0-.5.1-.7.3l-1.8 2.2c-.2.2-.3.4-.3.7l0 1zm-.5 1c-.3 0-.5.2-.5.5l0 2.5 0 2.5c0 .3.2.5.5.5l.5 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5 10 0 0 1.5c0 .3.2.5.5.5l2 0c.3 0 .5-.2.5-.5l0-1.5.5 0c.3 0 .5-.2.5-.5l0-2.5 0-2.5c0-.3-.2-.5-.5-.5zm2 1.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm11 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/>
-              </svg>
-            </div>
+            <p class="text-xs text-gray-500">Veículos na sua garagem</p>
           </div>
-          <p class="text-xs text-gray-500">Veículos na sua garagem</p>
-        </div>
+        </router-link>
 
         <!-- Manutenções Card -->
-        <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-xl p-4 sm:p-6 hover:border-green-500/50 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div>
-              <p class="text-xs sm:text-sm text-gray-400 mb-1">Manutenções</p>
-              <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.totalMaintenanceRecords }}</div>
+        <router-link to="/maintenance">
+          <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-xl p-4 sm:p-6 hover:border-green-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+              <div>
+                <p class="text-xs sm:text-sm text-gray-400 mb-1">Manutenções</p>
+                <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.totalMaintenanceRecords }}</div>
+              </div>
+              <div class="p-2 sm:p-3 bg-green-500/20 rounded-lg flex-shrink-0">
+                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
             </div>
-            <div class="p-2 sm:p-3 bg-green-500/20 rounded-lg flex-shrink-0">
-              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
+            <p class="text-xs text-gray-500">Registros no histórico</p>
           </div>
-          <p class="text-xs text-gray-500">Registros no histórico</p>
-        </div>
+        </router-link>
 
         <!-- Custo Total Card -->
-        <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-xl p-4 sm:p-6 hover:border-purple-500/50 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div class="min-w-0 flex-1 pr-2">
-              <p class="text-xs sm:text-sm text-gray-400 mb-1">Custo Total</p>
-              <div class="text-xl sm:text-2xl font-bold text-white truncate">{{ formatCurrency(totalCost) }}</div>
+        <router-link to="/maintenance">
+          <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-xl p-4 sm:p-6 hover:border-purple-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+              <div class="min-w-0 flex-1 pr-2">
+                <p class="text-xs sm:text-sm text-gray-400 mb-1">Custo Total</p>
+                <div class="text-xl sm:text-2xl font-bold text-white truncate">{{ formatCurrency(totalCost) }}</div>
+              </div>
+              <div class="p-2 sm:p-3 bg-purple-500/20 rounded-lg flex-shrink-0">
+                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
-            <div class="p-2 sm:p-3 bg-purple-500/20 rounded-lg flex-shrink-0">
-              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <p class="text-xs text-gray-500">Investido em manutenções</p>
           </div>
-          <p class="text-xs text-gray-500">Investido em manutenções</p>
-        </div>
+        </router-link>
 
         <!-- Próximas Manutenções Card -->
-        <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-xl p-4 sm:p-6 hover:border-yellow-500/50 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div>
-              <p class="text-xs sm:text-sm text-gray-400 mb-1">Agendadas</p>
-              <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.upcomingMaintenance.length }}</div>
+        <router-link to="/maintenance">
+          <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-xl p-4 sm:p-6 hover:border-yellow-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+              <div>
+                <p class="text-xs sm:text-sm text-gray-400 mb-1">Agendadas</p>
+                <div class="text-2xl sm:text-3xl font-bold text-white">{{ vehiclesStore.upcomingMaintenance.length }}</div>
+              </div>
+              <div class="p-2 sm:p-3 bg-yellow-500/20 rounded-lg flex-shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
             </div>
-            <div class="p-2 sm:p-3 bg-yellow-500/20 rounded-lg flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <p class="text-xs text-gray-500">Próximas manutenções</p>
+              <Badge v-if="overdueCount > 0" variant="error" size="sm" class="w-fit">{{ overdueCount }} atrasadas</Badge>
             </div>
           </div>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p class="text-xs text-gray-500">Próximas manutenções</p>
-            <Badge v-if="overdueCount > 0" variant="error" size="sm" class="w-fit">{{ overdueCount }} atrasadas</Badge>
-          </div>
-        </div>
+        </router-link>
       </div>
       
       <!-- Quick Actions -->
