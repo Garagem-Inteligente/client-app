@@ -31,6 +31,11 @@ const editForm = ref({
   mileage: 0
 })
 
+// Documentos
+const documentCRLV = ref('')
+const documentInsurancePolicy = ref('')
+const uploadingDoc = ref(false)
+
 const vehicle = computed(() => vehiclesStore.getVehicleById(vehicleId))
 
 const maintenanceHistory = computed(() => {
@@ -216,12 +221,95 @@ const handleTabChange = (tabId: string) => {
   }
 }
 
+const handleDocumentUpload = async (docType: 'crlv' | 'insurance', event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  
+  if (!file) return
+  
+  // Validar tamanho (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Arquivo muito grande. Máximo: 5MB')
+    return
+  }
+  
+  uploadingDoc.value = true
+  
+  try {
+    // Converter para Base64
+    const reader = new window.FileReader()
+    
+    reader.onload = async (evt: ProgressEvent<FileReader>) => {
+      try {
+        const base64 = evt.target?.result as string
+        
+        const updateData: any = {}
+        
+        if (docType === 'crlv') {
+          updateData.documentCRLV = base64
+          documentCRLV.value = base64
+        } else {
+          updateData.documentInsurancePolicy = base64
+          documentInsurancePolicy.value = base64
+        }
+        
+        await vehiclesStore.updateVehicle(vehicleId, updateData)
+        
+        alert('Documento enviado com sucesso!')
+      } catch (error) {
+        console.error('Erro ao fazer upload:', error)
+        alert('Erro ao enviar documento. Tente novamente.')
+      } finally {
+        uploadingDoc.value = false
+      }
+    }
+    
+    reader.onerror = () => {
+      alert('Erro ao ler o arquivo.')
+      uploadingDoc.value = false
+    }
+    
+    reader.readAsDataURL(file)
+  } catch (error) {
+    console.error('Erro ao processar arquivo:', error)
+    alert('Erro ao processar arquivo.')
+    uploadingDoc.value = false
+  }
+}
+
+const deleteDocument = async (docType: 'crlv' | 'insurance') => {
+  if (!confirm('Tem certeza que deseja excluir este documento?')) return
+  
+  uploadingDoc.value = true
+  try {
+    const updateData: any = {}
+    if (docType === 'crlv') {
+      updateData.documentCRLV = null
+      documentCRLV.value = ''
+    } else {
+      updateData.documentInsurancePolicy = null
+      documentInsurancePolicy.value = ''
+    }
+    
+    await vehiclesStore.updateVehicle(vehicleId, updateData)
+  } catch (error) {
+    console.error('Erro ao excluir documento:', error)
+    alert('Erro ao excluir documento. Tente novamente.')
+  } finally {
+    uploadingDoc.value = false
+  }
+}
+
 onMounted(async () => {
   await vehiclesStore.fetchVehicles()
   await vehiclesStore.fetchMaintenanceRecords()
   
   if (!vehicle.value) {
     router.push('/vehicles')
+  } else {
+    // Carregar documentos existentes
+    documentCRLV.value = vehicle.value.documentCRLV || ''
+    documentInsurancePolicy.value = vehicle.value.documentInsurancePolicy || ''
   }
 })
 </script>
@@ -735,46 +823,192 @@ onMounted(async () => {
               <!-- TAB: Documentos -->
               <TabPanel tab-id="documents">
                 <div class="space-y-6">
-                  <Card title="Documentos do Veículo">
-                    <div class="text-center py-12">
-                      <div class="mx-auto w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
+                  <!-- Info Header -->
+                  <div class="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                    <div class="flex items-start gap-3">
+                      <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <h4 class="font-semibold text-blue-300 mb-1">📄 Guarde seus Documentos Digitalmente</h4>
+                        <p class="text-sm text-blue-200">
+                          Faça upload de documentos importantes como CRLV e apólice de seguro. Máximo 5MB por arquivo.
+                        </p>
                       </div>
-                      <h3 class="text-lg font-medium text-white mb-2">Upload de Documentos</h3>
-                      <p class="text-gray-400 mb-6">
-                        Em breve você poderá fazer upload de documentos como CRLV, apólice de seguro, notas fiscais, etc.
+                    </div>
+                  </div>
+
+                  <!-- CRLV -->
+                  <Card title="📄 CRLV (Certificado de Registro e Licenciamento)">
+                    <div v-if="!documentCRLV" class="space-y-4">
+                      <p class="text-gray-400 text-sm">
+                        Adicione uma cópia digital do seu CRLV para ter acesso rápido quando necessário.
                       </p>
-                      <Badge variant="warning">Em Desenvolvimento</Badge>
+                      
+                      <div class="border-2 border-dashed border-gray-700 rounded-lg p-8">
+                        <div class="text-center">
+                          <div class="mx-auto w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            @change="(e) => handleDocumentUpload('crlv', e)"
+                            class="hidden"
+                            id="crlv-upload"
+                            :disabled="uploadingDoc"
+                          />
+                          <label 
+                            for="crlv-upload"
+                            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                            :class="{ 'opacity-50 cursor-not-allowed': uploadingDoc }"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {{ uploadingDoc ? 'Enviando...' : 'Selecionar Arquivo' }}
+                          </label>
+                          <p class="text-xs text-gray-500 mt-2">
+                            JPG, PNG ou PDF • Máximo 5MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-else class="space-y-4">
+                      <div class="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                        <div class="flex items-center gap-3">
+                          <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span class="text-green-300 font-medium">Documento Enviado</span>
+                        </div>
+                        <Badge variant="success" size="sm">Completo</Badge>
+                      </div>
+
+                      <!-- Preview -->
+                      <div class="border border-gray-700 rounded-lg overflow-hidden">
+                        <img 
+                          v-if="documentCRLV.startsWith('data:image')"
+                          :src="documentCRLV" 
+                          alt="CRLV" 
+                          class="w-full h-64 object-contain bg-gray-800"
+                        />
+                        <div v-else class="p-8 bg-gray-800 text-center">
+                          <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <p class="text-gray-400">Documento PDF</p>
+                        </div>
+                      </div>
+
+                      <div class="flex gap-3">
+                        <a 
+                          :href="documentCRLV" 
+                          download="CRLV.pdf"
+                          class="flex-1 text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                          Baixar Documento
+                        </a>
+                        <Button 
+                          variant="outline"
+                          class="!text-red-400 !border-red-400/30 hover:!bg-red-400/10"
+                          @click="deleteDocument('crlv')"
+                          :disabled="uploadingDoc"
+                        >
+                          Excluir
+                        </Button>
+                      </div>
                     </div>
                   </Card>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card title="📄 CRLV">
-                      <div class="space-y-3 text-sm">
-                        <div class="flex justify-between py-2 border-b border-gray-700">
-                          <span class="text-gray-400">Status</span>
-                          <Badge variant="warning" size="sm">Pendente</Badge>
+                  <!-- Apólice de Seguro -->
+                  <Card title="📋 Apólice de Seguro">
+                    <div v-if="!documentInsurancePolicy" class="space-y-4">
+                      <p class="text-gray-400 text-sm">
+                        Mantenha uma cópia digital da sua apólice de seguro sempre disponível.
+                      </p>
+                      
+                      <div class="border-2 border-dashed border-gray-700 rounded-lg p-8">
+                        <div class="text-center">
+                          <div class="mx-auto w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            @change="(e) => handleDocumentUpload('insurance', e)"
+                            class="hidden"
+                            id="insurance-upload"
+                            :disabled="uploadingDoc"
+                          />
+                          <label 
+                            for="insurance-upload"
+                            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                            :class="{ 'opacity-50 cursor-not-allowed': uploadingDoc }"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {{ uploadingDoc ? 'Enviando...' : 'Selecionar Arquivo' }}
+                          </label>
+                          <p class="text-xs text-gray-500 mt-2">
+                            JPG, PNG ou PDF • Máximo 5MB
+                          </p>
                         </div>
-                        <p class="text-gray-500 text-xs">
-                          Adicione o documento do seu veículo para ter acesso rápido quando necessário.
-                        </p>
                       </div>
-                    </Card>
+                    </div>
 
-                    <Card title="📋 Apólice de Seguro">
-                      <div class="space-y-3 text-sm">
-                        <div class="flex justify-between py-2 border-b border-gray-700">
-                          <span class="text-gray-400">Status</span>
-                          <Badge variant="warning" size="sm">Pendente</Badge>
+                    <div v-else class="space-y-4">
+                      <div class="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                        <div class="flex items-center gap-3">
+                          <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span class="text-green-300 font-medium">Documento Enviado</span>
                         </div>
-                        <p class="text-gray-500 text-xs">
-                          Mantenha uma cópia digital da sua apólice de seguro sempre disponível.
-                        </p>
+                        <Badge variant="success" size="sm">Completo</Badge>
                       </div>
-                    </Card>
-                  </div>
+
+                      <!-- Preview -->
+                      <div class="border border-gray-700 rounded-lg overflow-hidden">
+                        <img 
+                          v-if="documentInsurancePolicy.startsWith('data:image')"
+                          :src="documentInsurancePolicy" 
+                          alt="Apólice" 
+                          class="w-full h-64 object-contain bg-gray-800"
+                        />
+                        <div v-else class="p-8 bg-gray-800 text-center">
+                          <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <p class="text-gray-400">Documento PDF</p>
+                        </div>
+                      </div>
+
+                      <div class="flex gap-3">
+                        <a 
+                          :href="documentInsurancePolicy" 
+                          download="Apolice-Seguro.pdf"
+                          class="flex-1 text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                          Baixar Documento
+                        </a>
+                        <Button 
+                          variant="outline"
+                          class="!text-red-400 !border-red-400/30 hover:!bg-red-400/10"
+                          @click="deleteDocument('insurance')"
+                          :disabled="uploadingDoc"
+                        >
+                          Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
                 </div>
               </TabPanel>
 

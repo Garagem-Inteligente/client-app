@@ -40,6 +40,9 @@ export interface Vehicle {
   insurancePolicyNumber?: string
   insuranceExpiryDate?: Date
   insuranceValue?: number
+  // Documentos
+  documentCRLV?: string // Base64 do CRLV
+  documentInsurancePolicy?: string // Base64 da apólice
   createdAt: Date
   updatedAt: Date
 }
