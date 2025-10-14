@@ -111,6 +111,8 @@ export interface MaintenanceRecord {
   serviceProvider?: string
   notes?: string
   attachments?: MaintenanceAttachment[]
+  beforePhoto?: string // Base64 encoded image of part before maintenance
+  afterPhoto?: string // Base64 encoded image of part after maintenance
   createdAt: Date
 }
 

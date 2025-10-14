@@ -10,6 +10,7 @@ import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
 import FileUpload, { type FileUploadItem } from '../components/FileUpload.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
+import ImageCompare from '../components/ImageCompare.vue'
 import { downloadBase64File } from '../utils/fileUtils'
 import { MAINTENANCE_TYPE_OPTIONS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 
@@ -39,7 +40,9 @@ const formData = ref({
   nextDueDate: '',
   nextDueMileage: 0,
   serviceProvider: '',
-  notes: ''
+  notes: '',
+  beforePhoto: '',
+  afterPhoto: ''
 })
 
 const resetForm = () => {
@@ -55,7 +58,9 @@ const resetForm = () => {
     nextDueDate: '',
     nextDueMileage: 0,
     serviceProvider: '',
-    notes: ''
+    notes: '',
+    beforePhoto: '',
+    afterPhoto: ''
   }
   uploadedFiles.value = []
   uploadError.value = null
@@ -141,7 +146,9 @@ const handleSubmit = async () => {
       nextDueMileage: nextDueMileageValue,
       serviceProvider: formData.value.serviceProvider,
       notes: formData.value.notes,
-      attachments: attachments.length > 0 ? attachments : undefined
+      attachments: attachments.length > 0 ? attachments : undefined,
+      beforePhoto: formData.value.beforePhoto || undefined,
+      afterPhoto: formData.value.afterPhoto || undefined
     }
     
     await vehiclesStore.addMaintenanceRecord(recordData)
@@ -156,6 +163,67 @@ const handleSubmit = async () => {
 
 const handleFileUploadError = (message: string) => {
   uploadError.value = message
+}
+
+// Handle photo uploads with Base64 conversion
+const handleBeforePhotoUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  // Validate file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    uploadError.value = 'A foto deve ter no máximo 2MB'
+    input.value = ''
+    return
+  }
+
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    uploadError.value = 'Apenas imagens são permitidas'
+    input.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    formData.value.beforePhoto = e.target?.result as string
+    uploadError.value = null
+  }
+  reader.onerror = () => {
+    uploadError.value = 'Erro ao carregar imagem'
+  }
+  reader.readAsDataURL(file)
+}
+
+const handleAfterPhotoUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  // Validate file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    uploadError.value = 'A foto deve ter no máximo 2MB'
+    input.value = ''
+    return
+  }
+
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    uploadError.value = 'Apenas imagens são permitidas'
+    input.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    formData.value.afterPhoto = e.target?.result as string
+    uploadError.value = null
+  }
+  reader.onerror = () => {
+    uploadError.value = 'Erro ao carregar imagem'
+  }
+  reader.readAsDataURL(file)
 }
 
 const handleDeleteAttachment = async (recordId: string, _attachmentIndex: number) => {
@@ -512,6 +580,85 @@ onMounted(async () => {
               ></textarea>
             </div>
 
+            <!-- Fotos Antes/Depois -->
+            <div class="md:col-span-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/30 rounded-lg p-4">
+              <div class="flex items-center space-x-2 mb-4">
+                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-sm font-medium text-purple-300">📸 Fotos Antes/Depois (Opcional)</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before Photo -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Foto ANTES da Manutenção
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleBeforePhotoUpload"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-500 file:text-white hover:file:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    :disabled="vehiclesStore.loading"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Estado da peça/problema antes do reparo</p>
+                  
+                  <!-- Preview Before -->
+                  <div v-if="formData.beforePhoto" class="mt-3 relative group">
+                    <img 
+                      :src="formData.beforePhoto" 
+                      alt="Preview antes"
+                      class="w-full h-32 object-cover rounded border-2 border-red-500"
+                    />
+                    <button
+                      type="button"
+                      @click="formData.beforePhoto = ''"
+                      class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- After Photo -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Foto DEPOIS da Manutenção
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleAfterPhotoUpload"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-500 file:text-white hover:file:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    :disabled="vehiclesStore.loading"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Estado da peça após o reparo concluído</p>
+                  
+                  <!-- Preview After -->
+                  <div v-if="formData.afterPhoto" class="mt-3 relative group">
+                    <img 
+                      :src="formData.afterPhoto" 
+                      alt="Preview depois"
+                      class="w-full h-32 object-cover rounded border-2 border-green-500"
+                    />
+                    <button
+                      type="button"
+                      @click="formData.afterPhoto = ''"
+                      class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-300 mb-2">
                 Anexos (Nota Fiscal / Comprovantes)
@@ -659,6 +806,23 @@ onMounted(async () => {
           <div v-if="record.notes" class="mt-2">
             <p class="text-sm text-gray-400">Observações</p>
             <p class="text-white">{{ record.notes }}</p>
+          </div>
+
+          <!-- Before/After Photos -->
+          <div v-if="record.beforePhoto || record.afterPhoto" class="mt-4">
+            <p class="text-sm text-gray-400 mb-3 flex items-center space-x-2">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Fotos Antes/Depois</span>
+            </p>
+            <ImageCompare 
+              :before-image="record.beforePhoto"
+              :after-image="record.afterPhoto"
+              before-label="Antes da Manutenção"
+              after-label="Depois da Manutenção"
+            />
           </div>
 
           <div v-if="record.attachments && record.attachments.length > 0" class="mt-4">
