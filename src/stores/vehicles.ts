@@ -16,28 +16,49 @@ import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
 import { translateFirebaseError } from '@/utils/errorMessages'
 
+// Tipos de veículos disponíveis no Brasil
+export type VehicleType = 'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'
+
+// Tipos de combustível disponíveis no Brasil
+export type FuelType = 'flex' | 'gasoline' | 'ethanol' | 'diesel' | 'electric' | 'hybrid-plugin' | 'hybrid-mild' | 'gnv'
+
 export interface Vehicle {
   id: string
   userId: string
+  vehicleType: VehicleType
   make: string
   model: string
   year: number
   plate: string
   color?: string
   mileage: number
-  fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
+  fuelType: FuelType
+  imageUrl?: string // Base64 da imagem do veículo
+  // Dados do Seguro
+  insuranceCompany?: string
+  insurancePhone?: string
+  insurancePolicyNumber?: string
+  insuranceExpiryDate?: Date
+  insuranceValue?: number
   createdAt: Date
   updatedAt: Date
 }
 
 export interface VehicleInput {
+  vehicleType: VehicleType
   make: string
   model: string
   year: number
   plate: string
   color?: string
   mileage: number
-  fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
+  fuelType: FuelType
+  imageUrl?: string
+  insuranceCompany?: string
+  insurancePhone?: string
+  insurancePolicyNumber?: string
+  insuranceExpiryDate?: Date
+  insuranceValue?: number
 }
 
 export interface MaintenanceAttachment {
@@ -146,13 +167,20 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         fetchedVehicles.push({
           id: doc.id,
           userId: data.userId,
+          vehicleType: data.vehicleType || 'car', // Migração: padrão carro
           make: data.make,
           model: data.model,
           year: data.year,
           plate: data.plate,
           color: data.color,
           mileage: data.mileage,
-          fuelType: data.fuelType,
+          fuelType: data.fuelType || 'flex', // Migração: padrão flex
+          imageUrl: data.imageUrl,
+          insuranceCompany: data.insuranceCompany,
+          insurancePhone: data.insurancePhone,
+          insurancePolicyNumber: data.insurancePolicyNumber,
+          insuranceExpiryDate: data.insuranceExpiryDate?.toDate(),
+          insuranceValue: data.insuranceValue,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date()
         })

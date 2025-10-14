@@ -75,22 +75,39 @@
           />
         </div>
 
+        <!-- Tipo de Veículo -->
+        <div>
+          <label for="vehicleType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Tipo de Veículo *
+          </label>
+          <select
+            id="vehicleType"
+            v-model="form.vehicleType"
+            required
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Selecione o tipo de veículo</option>
+            <option v-for="option in VEHICLE_TYPE_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
         <!-- Tipo de Combustível -->
         <div>
-          <label for="fuelType" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="fuelType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Tipo de Combustível *
           </label>
           <select
             id="fuelType"
             v-model="form.fuelType"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Selecione o tipo de combustível</option>
-            <option value="gasoline">Gasolina</option>
-            <option value="diesel">Diesel</option>
-            <option value="electric">Elétrico</option>
-            <option value="hybrid">Híbrido</option>
+            <option v-for="option in FUEL_TYPE_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </div>
 
@@ -133,6 +150,7 @@ import Button from './Button.vue'
 import Alert from './Alert.vue'
 import Input from './Input.vue'
 import type { Vehicle, VehicleInput } from '@/stores/vehicles'
+import { VEHICLE_TYPE_OPTIONS, FUEL_TYPE_OPTIONS } from '@/constants/vehicles'
 
 interface Props {
   vehicle?: Vehicle
@@ -153,26 +171,31 @@ const emit = defineEmits<Emits>()
 const error = ref('')
 
 const form = ref<VehicleInput>({
+  vehicleType: 'car',
   make: '',
   model: '',
   year: new Date().getFullYear(),
   plate: '',
   color: '',
   mileage: 0,
-  fuelType: 'gasoline'
+  fuelType: 'flex'
 })
 
 const isEditing = computed(() => !!props.vehicle)
 
 const isFormValid = computed(() => {
+  const validVehicleTypes = ['car', 'motorcycle', 'van', 'truck', 'bus', 'pickup']
+  const validFuelTypes = ['flex', 'gasoline', 'ethanol', 'diesel', 'electric', 'hybrid-plugin', 'hybrid-mild', 'gnv']
+  
   return (
+    validVehicleTypes.includes(form.value.vehicleType) &&
     form.value.make.trim() !== '' &&
     form.value.model.trim() !== '' &&
     form.value.year > 1900 &&
     form.value.year <= new Date().getFullYear() + 1 &&
     form.value.plate.trim() !== '' &&
     form.value.mileage >= 0 &&
-    ['gasoline', 'diesel', 'electric', 'hybrid'].includes(form.value.fuelType)
+    validFuelTypes.includes(form.value.fuelType)
   )
 })
 
@@ -182,13 +205,20 @@ watch(
   (vehicle) => {
     if (vehicle) {
       form.value = {
+        vehicleType: vehicle.vehicleType,
         make: vehicle.make,
         model: vehicle.model,
         year: vehicle.year,
         plate: vehicle.plate,
         color: vehicle.color || '',
         mileage: vehicle.mileage,
-        fuelType: vehicle.fuelType
+        fuelType: vehicle.fuelType,
+        imageUrl: vehicle.imageUrl,
+        insuranceCompany: vehicle.insuranceCompany,
+        insurancePhone: vehicle.insurancePhone,
+        insurancePolicyNumber: vehicle.insurancePolicyNumber,
+        insuranceExpiryDate: vehicle.insuranceExpiryDate,
+        insuranceValue: vehicle.insuranceValue
       }
     }
   },
@@ -216,13 +246,14 @@ const handleSubmit = () => {
 // Limpar formulário
 const resetForm = () => {
   form.value = {
+    vehicleType: 'car',
     make: '',
     model: '',
     year: new Date().getFullYear(),
     plate: '',
     color: '',
     mileage: 0,
-    fuelType: 'gasoline'
+    fuelType: 'flex'
   }
   error.value = ''
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useVehiclesStore } from '../stores/vehicles'
-import type { Vehicle } from '../stores/vehicles'
+import type { Vehicle, FuelType, VehicleType as AppVehicleType } from '../stores/vehicles'
+import { FUEL_TYPE_LABELS } from '@/constants/vehicles'
 import { fipeApi, type VehicleType } from '../services/fipeApi'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
@@ -28,13 +29,14 @@ const loadingYears = ref(false)
 
 // Form data
 const formData = ref({
+  vehicleType: 'car' as AppVehicleType,
   make: '',
   model: '',
   year: new Date().getFullYear(),
   plate: '',
   color: '',
   mileage: 0,
-  fuelType: 'gasoline' as 'gasoline' | 'diesel' | 'electric' | 'hybrid',
+  fuelType: 'flex' as FuelType,
   // FIPE data
   brandCode: '',
   modelCode: '',
@@ -124,22 +126,29 @@ const handleYearSelect = (option: { code: string; name: string }) => {
     formData.value.fuelType = 'diesel'
   } else if (nameLower.includes('elétrico') || nameLower.includes('eletrico')) {
     formData.value.fuelType = 'electric'
+  } else if (nameLower.includes('etanol') || nameLower.includes('álcool')) {
+    formData.value.fuelType = 'ethanol'
+  } else if (nameLower.includes('flex')) {
+    formData.value.fuelType = 'flex'
   } else if (nameLower.includes('híbrido') || nameLower.includes('hibrido')) {
-    formData.value.fuelType = 'hybrid'
-  } else if (nameLower.includes('gasolina') || nameLower.includes('flex')) {
+    formData.value.fuelType = nameLower.includes('plugin') ? 'hybrid-plugin' : 'hybrid-mild'
+  } else if (nameLower.includes('gnv')) {
+    formData.value.fuelType = 'gnv'
+  } else if (nameLower.includes('gasolina')) {
     formData.value.fuelType = 'gasoline'
   }
 }
 
 const resetForm = () => {
   formData.value = {
+    vehicleType: 'car',
     make: '',
     model: '',
     year: new Date().getFullYear(),
     plate: '',
     color: '',
     mileage: 0,
-    fuelType: 'gasoline',
+    fuelType: 'flex',
     brandCode: '',
     modelCode: '',
     yearCode: ''
@@ -154,6 +163,7 @@ const resetForm = () => {
 const handleSubmit = async () => {
   try {
     const vehicleData = {
+      vehicleType: formData.value.vehicleType,
       make: formData.value.make,
       model: formData.value.model,
       year: formData.value.year,
@@ -177,6 +187,7 @@ const handleSubmit = async () => {
 const startEdit = (vehicle: Vehicle) => {
   editingVehicle.value = vehicle
   formData.value = {
+    vehicleType: vehicle.vehicleType,
     make: vehicle.make,
     model: vehicle.model,
     year: vehicle.year,
@@ -202,22 +213,20 @@ const handleDelete = async (vehicle: Vehicle) => {
   }
 }
 
-const getFuelTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    gasoline: 'Gasolina',
-    diesel: 'Diesel',
-    electric: 'Elétrico',
-    hybrid: 'Híbrido'
-  }
-  return labels[type] || type
+const getFuelTypeLabel = (type: FuelType) => {
+  return FUEL_TYPE_LABELS[type] || type
 }
 
-const getFuelTypeBadgeVariant = (type: string) => {
-  const variants: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+const getFuelTypeBadgeVariant = (type: FuelType) => {
+  const variants: Record<FuelType, 'default' | 'success' | 'warning' | 'error'> = {
+    flex: 'default',
     gasoline: 'default',
+    ethanol: 'success',
     diesel: 'warning',
     electric: 'success',
-    hybrid: 'default'
+    'hybrid-plugin': 'success',
+    'hybrid-mild': 'success',
+    gnv: 'warning'
   }
   return variants[type] || 'default'
 }
