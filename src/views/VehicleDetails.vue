@@ -307,13 +307,6 @@ onMounted(async () => {
   await vehiclesStore.fetchVehicles()
   await vehiclesStore.fetchMaintenanceRecords()
   
-  console.log('🔍 DEBUG - Vehicle Details:')
-  console.log('Vehicle ID:', vehicleId)
-  console.log('Vehicle:', vehicle.value)
-  console.log('All maintenance records:', vehiclesStore.maintenanceRecords)
-  console.log('Filtered maintenance history:', maintenanceHistory.value)
-  console.log('Completed maintenance:', completedMaintenance.value)
-  
   if (!vehicle.value) {
     router.push('/vehicles')
   } else {

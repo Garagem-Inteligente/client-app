@@ -156,6 +156,45 @@
         </div>
       </Card>
     </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <ConfirmModal
+      :is-open="showDeleteModal"
+      title="⚠️ Excluir Conta Permanentemente"
+      message="Esta ação é irreversível. Todos os seus dados, incluindo veículos, histórico de manutenções e documentos, serão permanentemente excluídos e não poderão ser recuperados. Tem certeza absoluta que deseja continuar?"
+      confirm-text="Sim, Excluir Tudo"
+      cancel-text="Cancelar"
+      variant="danger"
+      @confirm="handleDeleteConfirm"
+      @cancel="showDeleteModal = false"
+      @update:is-open="showDeleteModal = $event"
+    />
+
+    <!-- Password Prompt Modal -->
+    <ConfirmModal
+      :is-open="showPasswordPromptModal"
+      title="🔒 Confirme sua Senha"
+      message="Para sua segurança, digite sua senha para confirmar a exclusão da conta:"
+      confirm-text="Confirmar Exclusão"
+      cancel-text="Cancelar"
+      variant="danger"
+      :loading="deletingAccount"
+      @confirm="handlePasswordPromptConfirm"
+      @cancel="showPasswordPromptModal = false; deleteAccountPassword = ''"
+      @update:is-open="showPasswordPromptModal = $event"
+    >
+      <template #default>
+        <div class="mt-4">
+          <Input 
+            v-model="deleteAccountPassword" 
+            type="password" 
+            placeholder="Digite sua senha"
+            :disabled="deletingAccount"
+            @keyup.enter="handlePasswordPromptConfirm"
+          />
+        </div>
+      </template>
+    </ConfirmModal>
   </div>
 </template>
 
@@ -175,6 +214,7 @@ import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Input from '../components/Input.vue'
 import Navbar from '../components/Navbar.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -194,6 +234,12 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const changingPassword = ref(false)
+
+// Delete account state
+const showDeleteModal = ref(false)
+const showPasswordPromptModal = ref(false)
+const deleteAccountPassword = ref('')
+const deletingAccount = ref(false)
 
 // Photo upload
 const handlePhotoUpload = async (event: Event) => {
@@ -341,62 +387,54 @@ const changePassword = async () => {
 }
 
 // Delete account
-const confirmDeleteAccount = async () => {
-  const confirmation1 = confirm(
-    '⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!\n\n' +
-    'Todos os seus dados serão permanentemente excluídos:\n' +
-    '• Veículos cadastrados\n' +
-    '• Histórico de manutenções\n' +
-    '• Documentos e fotos\n' +
-    '• Configurações de conta\n\n' +
-    'Deseja realmente continuar?'
-  )
-  
-  if (!confirmation1) return
-  
-  const confirmation2 = confirm(
-    'ÚLTIMA CONFIRMAÇÃO\n\n' +
-    'Tem ABSOLUTA CERTEZA que deseja excluir sua conta?\n\n' +
-    'Esta ação NÃO PODE ser desfeita!'
-  )
-  
-  if (!confirmation2) return
-  
-  // Solicitar senha para reautenticação
-  const password = prompt('Digite sua senha para confirmar a exclusão:')
-  
-  if (!password) {
-    alert('Exclusão cancelada.')
+const handlePasswordPromptConfirm = async () => {
+  if (!deleteAccountPassword.value) {
+    alert('❌ Digite sua senha para confirmar.')
     return
   }
   
   try {
-    if (!currentUser.value || !currentUser.value.email) return
+    deletingAccount.value = true
     
-    // Reautenticar
-    const credential = EmailAuthProvider.credential(
-      currentUser.value.email,
-      password
-    )
+    const user = auth.currentUser
+    if (!user || !user.email) {
+      throw new Error('Usuário não autenticado')
+    }
     
-    await reauthenticateWithCredential(currentUser.value, credential)
+    // Reautenticar usuário antes de excluir
+    const credential = EmailAuthProvider.credential(user.email, deleteAccountPassword.value)
+    await reauthenticateWithCredential(user, credential)
     
     // Excluir conta
-    await deleteUser(currentUser.value)
+    await deleteUser(user)
     
-    // Deslogar e redirecionar
+    // Fazer logout e redirecionar
     await authStore.logout()
     router.push('/')
     
-    alert('Conta excluída com sucesso. Sentiremos sua falta! 😢')
+    alert('✅ Sua conta foi excluída com sucesso.')
   } catch (error: any) {
     console.error('Erro ao excluir conta:', error)
-    
     if (error.code === 'auth/wrong-password') {
-      alert('Senha incorreta. Exclusão cancelada.')
+      alert('❌ Senha incorreta. Tente novamente.')
+    } else if (error.code === 'auth/too-many-requests') {
+      alert('❌ Muitas tentativas. Tente novamente mais tarde.')
     } else {
-      alert('Erro ao excluir conta. Tente novamente.')
+      alert('❌ Erro ao excluir conta: ' + error.message)
     }
+  } finally {
+    deletingAccount.value = false
+    showPasswordPromptModal.value = false
+    deleteAccountPassword.value = ''
   }
+}
+
+const confirmDeleteAccount = () => {
+  showDeleteModal.value = true
+}
+
+const handleDeleteConfirm = () => {
+  showDeleteModal.value = false
+  showPasswordPromptModal.value = true
 }
 </script>
