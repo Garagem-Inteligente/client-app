@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVehiclesStore } from '../stores/vehicles'
+import { FUEL_TYPE_LABELS } from '@/constants/vehicles'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Badge from '../components/Badge.vue'
@@ -55,6 +56,20 @@ const nextMaintenanceDate = computed(() => {
   return upcomingMaintenance.value[0].nextDueDate
 })
 
+// Verificações de seguro
+const isInsuranceExpired = computed(() => {
+  if (!vehicle.value?.insuranceExpiryDate) return false
+  return new Date(vehicle.value.insuranceExpiryDate) < new Date()
+})
+
+const isInsuranceExpiringSoon = computed(() => {
+  if (!vehicle.value?.insuranceExpiryDate) return false
+  const expiryDate = new Date(vehicle.value.insuranceExpiryDate)
+  const today = new Date()
+  const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  return daysUntilExpiry > 0 && daysUntilExpiry <= 30
+})
+
 const getMaintenanceTypeLabel = (type: string) => {
   const labels: Record<string, string> = {
     oil_change: 'Troca de Óleo',
@@ -82,21 +97,19 @@ const formatCurrency = (value: number) => {
 }
 
 const getFuelTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    gasoline: 'Gasolina / Flex',
-    diesel: 'Diesel',
-    electric: 'Elétrico',
-    hybrid: 'Híbrido'
-  }
-  return labels[type] || type
+  return FUEL_TYPE_LABELS[type as keyof typeof FUEL_TYPE_LABELS] || type
 }
 
 const getFuelTypeBadgeVariant = (type: string) => {
   const variants: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+    flex: 'default',
     gasoline: 'default',
+    ethanol: 'success',
     diesel: 'warning',
     electric: 'success',
-    hybrid: 'default'
+    'hybrid-plugin': 'success',
+    'hybrid-mild': 'success',
+    gnv: 'warning'
   }
   return variants[type] || 'default'
 }
@@ -314,6 +327,64 @@ onMounted(async () => {
                   <span class="font-medium text-white">
                     {{ formatCurrency(averageMaintenanceCost) }}
                   </span>
+                </div>
+              </div>
+            </Card>
+
+            <!-- Dados do Seguro -->
+            <Card v-if="vehicle.insuranceCompany || vehicle.insurancePolicyNumber" 
+                  title="Dados do Seguro" 
+                  class="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-blue-600/5">
+              <div class="space-y-4">
+                <div v-if="vehicle.insuranceCompany" class="flex items-start justify-between py-3 border-b border-gray-700">
+                  <span class="text-gray-400">Seguradora</span>
+                  <span class="font-medium text-white">{{ vehicle.insuranceCompany }}</span>
+                </div>
+                
+                <div v-if="vehicle.insurancePolicyNumber" class="flex items-start justify-between py-3 border-b border-gray-700">
+                  <span class="text-gray-400">Número da Apólice</span>
+                  <span class="font-medium text-white">{{ vehicle.insurancePolicyNumber }}</span>
+                </div>
+                
+                <div v-if="vehicle.insuranceExpiryDate" class="flex items-start justify-between py-3 border-b border-gray-700">
+                  <span class="text-gray-400">Vencimento</span>
+                  <div class="text-right">
+                    <span class="font-medium text-white">{{ formatDate(vehicle.insuranceExpiryDate) }}</span>
+                    <Badge 
+                      v-if="isInsuranceExpiringSoon" 
+                      variant="warning" 
+                      size="sm" 
+                      class="ml-2"
+                    >
+                      Renovar em breve
+                    </Badge>
+                    <Badge 
+                      v-else-if="isInsuranceExpired" 
+                      variant="error" 
+                      size="sm" 
+                      class="ml-2"
+                    >
+                      Vencido
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div v-if="vehicle.insuranceValue" class="flex items-start justify-between py-3 border-b border-gray-700">
+                  <span class="text-gray-400">Valor Anual</span>
+                  <span class="font-medium text-emerald-400">{{ formatCurrency(vehicle.insuranceValue) }}</span>
+                </div>
+                
+                <div v-if="vehicle.insurancePhone" class="pt-2">
+                  <a 
+                    :href="`tel:${vehicle.insurancePhone}`"
+                    class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    Ligar para Seguradora
+                    <span class="text-sm text-green-100">{{ vehicle.insurancePhone }}</span>
+                  </a>
                 </div>
               </div>
             </Card>

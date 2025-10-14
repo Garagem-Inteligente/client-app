@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useVehiclesStore } from '../stores/vehicles'
-import type { MaintenanceAttachment } from '../stores/vehicles'
+import type { MaintenanceAttachment, MaintenanceRecord } from '../stores/vehicles'
 import Card from '../components/Card.vue'
 import Button from '../components/Button.vue'
 import Input from '../components/Input.vue'
@@ -9,6 +9,7 @@ import Badge from '../components/Badge.vue'
 import Alert from '../components/Alert.vue'
 import Navbar from '../components/Navbar.vue'
 import FileUpload, { type FileUploadItem } from '../components/FileUpload.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
 import { downloadBase64File } from '../utils/fileUtils'
 
 const vehiclesStore = useVehiclesStore()
@@ -18,6 +19,11 @@ const selectedVehicleId = ref('')
 const editingRecordId = ref<string | null>(null)
 const uploadError = ref<string | null>(null)
 const uploadedFiles = ref<FileUploadItem[]>([])
+
+// Modal de confirmação
+const showDeleteModal = ref(false)
+const maintenanceToDelete = ref<MaintenanceRecord | null>(null)
+const deletingMaintenance = ref(false)
 
 // Form data
 const formData = ref({
@@ -159,10 +165,29 @@ const handleDownloadAttachment = (attachment: MaintenanceAttachment) => {
   }
 }
 
-const handleDelete = async (id: string) => {
-  if (confirm('Tem certeza que deseja excluir esta manutenção?')) {
-    await vehiclesStore.deleteMaintenanceRecord(id)
+const handleDelete = (record: MaintenanceRecord) => {
+  maintenanceToDelete.value = record
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!maintenanceToDelete.value) return
+  
+  try {
+    deletingMaintenance.value = true
+    await vehiclesStore.deleteMaintenanceRecord(maintenanceToDelete.value.id)
+    showDeleteModal.value = false
+    maintenanceToDelete.value = null
+  } catch (error) {
+    console.error('Error deleting maintenance:', error)
+  } finally {
+    deletingMaintenance.value = false
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  maintenanceToDelete.value = null
 }
 
 const getMaintenanceTypeLabel = (type: string) => {
@@ -617,7 +642,7 @@ onMounted(async () => {
             <Button 
               variant="outline" 
               size="sm"
-              @click="handleDelete(record.id)"
+              @click="handleDelete(record)"
               :disabled="vehiclesStore.loading"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -631,4 +656,18 @@ onMounted(async () => {
     </div>
     </div>
   </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  <ConfirmModal
+    :isOpen="showDeleteModal"
+    @update:isOpen="showDeleteModal = $event"
+    @confirm="confirmDelete"
+    @cancel="cancelDelete"
+    title="Excluir Manutenção"
+    :message="`Tem certeza que deseja excluir o registro de ${getMaintenanceTypeLabel(maintenanceToDelete?.type || '')}?`"
+    confirmText="Excluir"
+    cancelText="Cancelar"
+    variant="danger"
+    :loading="deletingMaintenance"
+  />
 </template>
