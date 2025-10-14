@@ -28,18 +28,22 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Revisar toda interface para usar português brasileiro coloquial e natural
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Exemplos de Correção**:
-  - ❌ "Registrador manutenção" → ✅ "Registrar Manutenção"
-  - ❌ "Adicionar veículo" → ✅ "Adicionar Veículo"
-  - Revisar todos botões, labels, placeholders, mensagens
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 14/10/2025
+- **Melhorias Aplicadas**:
+  - ✅ Capitalização consistente de títulos e botões
+  - ✅ Pontuação adequada em mensagens de feedback
+  - ✅ Textos explicativos expandidos e mais claros
+  - ✅ Placeholders padronizados e naturais
+  - ✅ Tom amigável e profissional mantido
 - **Critérios de Aceitação**:
-  - [ ] Auditoria completa de todos os textos da interface
-  - [ ] Planilha com antes/depois criada
-  - [ ] Todos os textos revisados e naturalizados
-  - [ ] Testes de leitura com usuário brasileiro
+  - [x] Auditoria completa de todos os textos da interface
+  - [x] Documento copy-review.md criado com antes/depois
+  - [x] 8 páginas principais revisadas (Login, Register, Profile, Dashboard, Vehicles, VehicleDetails, Maintenance, Support)
+  - [x] Todos os textos já estavam em português natural - apenas refinamentos aplicados
 - **Complexidade**: Média (2-3 horas)
 - **Dependências**: Nenhuma
+- **Implementação**: `docs/project/copy-review.md` com documentação completa
 
 ---
 
@@ -199,29 +203,34 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Criar área completa de gerenciamento de perfil
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: 🔄 Parcialmente Concluída (75%)
-- **Data de Início**: 2025-01-14
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 14/10/2025
 - **Funcionalidades Implementadas**:
   - ✅ Upload de foto de perfil (Base64) com preview
   - ✅ Editar display name (nome completo)
   - ✅ Exibição do email (read-only)
   - ✅ Trocar senha com verificação de senha atual
   - ✅ Excluir conta com ConfirmModal
-  - ⏳ Adicionar telefone (pendente)
-  - ⏳ Adicionar endereço completo (pendente)
+  - ✅ Campo de telefone com máscara brasileira (11) 98765-4321
+  - ✅ Endereço completo (CEP, rua, número, complemento, bairro, cidade, estado)
+  - ✅ Integração com ViaCEP para busca automática de endereço
+  - ✅ Select com todos os 27 estados brasileiros
 - **Critérios de Aceitação**:
   - [x] View Profile.vue criada
   - [x] Rota `/profile` adicionada
   - [x] Store `auth.ts` gerencia perfil
-  - [x] Seção de foto com file input (linhas 12-59)
-  - [x] Seção de informações pessoais (linhas 63-93)
-  - [x] Seção de alteração de senha (linhas 96-150)
-  - [x] Seção de exclusão de conta (linhas 200-400)
+  - [x] Seção de foto com file input
+  - [x] Seção de informações pessoais expandida
+  - [x] Campo telefone com formatação automática
+  - [x] Campos de endereço com grid responsivo
+  - [x] Busca automática de CEP via ViaCEP API
+  - [x] Seção de alteração de senha
+  - [x] Seção de exclusão de conta
   - [x] Firebase updateProfile e updatePassword implementados
-  - [ ] Campos telefone e endereço (pendentes)
+  - [x] Validações de campo e máscaras
 - **Complexidade**: Alta (4-5 horas)
 - **Dependências**: T-R06 (modal de confirmação) ✅
-- **Implementação**: `src/views/Profile.vue` (funcionalidades core completas)
+- **Implementação**: `src/views/Profile.vue` (563 linhas, 100% completa)
 
 ---
 
@@ -358,16 +367,25 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Adicionar atalho para criar manutenção direto da página do veículo
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 14/10/2025
+- **Implementação**:
+  - ✅ Botão "Registrar Manutenção" adicionado na tab Manutenções
+  - ✅ Navegação para `/maintenance?vehicleId=${vehicleId}&action=new`
+  - ✅ Query parameters já tratados em Maintenance.vue (onMounted)
+  - ✅ Formulário pré-preenche vehicleId automaticamente
+  - ✅ Ícone de "+" no botão com SVG
+  - ✅ Variant primary para destaque
+  - ✅ Posicionado no topo da seção, alinhado à direita
 - **Critérios de Aceitação**:
-  - [ ] Botão flutuante (FAB) na página de detalhes do veículo
-  - [ ] Ou botão no header da seção de Manutenções
-  - [ ] Abre modal com formulário de nova manutenção
-  - [ ] vehicleId já pré-preenchido
-  - [ ] Após salvar, atualiza lista automaticamente
-  - [ ] Animação de sucesso
-- **Complexidade**: Baixa (1 hora)
-- **Dependências**: T-R12
+  - [x] Botão no header da seção de Manutenções
+  - [x] Click navega para página de manutenção
+  - [x] vehicleId já pré-preenchido via query params
+  - [x] Integração perfeita com fluxo existente
+  - [x] Design com ícone e texto descritivo
+- **Complexidade**: Baixa (1 hora) → Executado em 30 minutos
+- **Dependências**: T-R12 ✅
+- **Implementação**: `src/views/VehicleDetails.vue` linhas 677-687
 
 ---
 

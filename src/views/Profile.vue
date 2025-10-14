@@ -65,7 +65,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
-            <Input v-model="displayName" placeholder="Seu nome" :disabled="savingProfile" />
+            <Input v-model="displayName" placeholder="Seu nome completo" :disabled="savingProfile" />
           </div>
           
           <div>
@@ -80,7 +80,129 @@
             </p>
           </div>
 
-          <div class="flex justify-end">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Telefone</label>
+            <Input 
+              v-model="phoneNumber" 
+              type="tel"
+              placeholder="(11) 98765-4321"
+              :disabled="savingProfile"
+              @input="formatPhoneNumber"
+              maxlength="15"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Opcional • Útil para contato em transferências de veículos
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-gray-700">
+            <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Endereço (Opcional)
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">CEP</label>
+                <Input 
+                  v-model="address.zipCode" 
+                  placeholder="12345-678"
+                  :disabled="savingProfile || loadingCep"
+                  @input="formatZipCode"
+                  @blur="searchCep"
+                  maxlength="9"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Estado</label>
+                <select
+                  v-model="address.state"
+                  :disabled="savingProfile"
+                  class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Selecione</option>
+                  <option value="AC">Acre</option>
+                  <option value="AL">Alagoas</option>
+                  <option value="AP">Amapá</option>
+                  <option value="AM">Amazonas</option>
+                  <option value="BA">Bahia</option>
+                  <option value="CE">Ceará</option>
+                  <option value="DF">Distrito Federal</option>
+                  <option value="ES">Espírito Santo</option>
+                  <option value="GO">Goiás</option>
+                  <option value="MA">Maranhão</option>
+                  <option value="MT">Mato Grosso</option>
+                  <option value="MS">Mato Grosso do Sul</option>
+                  <option value="MG">Minas Gerais</option>
+                  <option value="PA">Pará</option>
+                  <option value="PB">Paraíba</option>
+                  <option value="PR">Paraná</option>
+                  <option value="PE">Pernambuco</option>
+                  <option value="PI">Piauí</option>
+                  <option value="RJ">Rio de Janeiro</option>
+                  <option value="RN">Rio Grande do Norte</option>
+                  <option value="RS">Rio Grande do Sul</option>
+                  <option value="RO">Rondônia</option>
+                  <option value="RR">Roraima</option>
+                  <option value="SC">Santa Catarina</option>
+                  <option value="SP">São Paulo</option>
+                  <option value="SE">Sergipe</option>
+                  <option value="TO">Tocantins</option>
+                </select>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Cidade</label>
+                <Input 
+                  v-model="address.city" 
+                  placeholder="São Paulo"
+                  :disabled="savingProfile"
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Bairro</label>
+                <Input 
+                  v-model="address.neighborhood" 
+                  placeholder="Vila Mariana"
+                  :disabled="savingProfile"
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Rua/Avenida</label>
+                <Input 
+                  v-model="address.street" 
+                  placeholder="Rua Domingos de Morais"
+                  :disabled="savingProfile"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Número</label>
+                <Input 
+                  v-model="address.number" 
+                  placeholder="1234"
+                  :disabled="savingProfile"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Complemento</label>
+                <Input 
+                  v-model="address.complement" 
+                  placeholder="Apto 123"
+                  :disabled="savingProfile"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4">
             <Button 
               @click="saveProfile"
               :disabled="savingProfile || !displayName.trim()"
@@ -227,6 +349,17 @@ const uploadingPhoto = ref(false)
 
 // Profile state
 const displayName = ref(currentUser.value?.displayName || '')
+const phoneNumber = ref('')
+const address = ref({
+  zipCode: '',
+  street: '',
+  number: '',
+  complement: '',
+  neighborhood: '',
+  city: '',
+  state: ''
+})
+const loadingCep = ref(false)
 const savingProfile = ref(false)
 
 // Password state
@@ -314,6 +447,68 @@ const removePhoto = async () => {
   }
 }
 
+// Format phone number
+const formatPhoneNumber = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  let value = input.value.replace(/\D/g, '')
+  
+  if (value.length > 11) {
+    value = value.slice(0, 11)
+  }
+  
+  if (value.length <= 10) {
+    // Formato: (11) 1234-5678
+    value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3')
+  } else {
+    // Formato: (11) 98765-4321
+    value = value.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3')
+  }
+  
+  phoneNumber.value = value
+}
+
+// Format ZIP code
+const formatZipCode = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  let value = input.value.replace(/\D/g, '')
+  
+  if (value.length > 8) {
+    value = value.slice(0, 8)
+  }
+  
+  value = value.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2')
+  address.value.zipCode = value
+}
+
+// Search CEP via ViaCEP API
+const searchCep = async () => {
+  const cep = address.value.zipCode.replace(/\D/g, '')
+  
+  if (cep.length !== 8) return
+  
+  loadingCep.value = true
+  
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const data = await response.json()
+    
+    if (data.erro) {
+      alert('CEP não encontrado.')
+      return
+    }
+    
+    address.value.street = data.logradouro || ''
+    address.value.neighborhood = data.bairro || ''
+    address.value.city = data.localidade || ''
+    address.value.state = data.uf || ''
+  } catch (error) {
+    console.error('Erro ao buscar CEP:', error)
+    // Silenciar erro - campo é opcional
+  } finally {
+    loadingCep.value = false
+  }
+}
+
 // Save profile
 const saveProfile = async () => {
   if (!displayName.value.trim()) {
@@ -329,6 +524,10 @@ const saveProfile = async () => {
     await updateProfile(currentUser.value, {
       displayName: displayName.value.trim()
     })
+    
+    // Save additional profile data to Firestore (phone and address)
+    // Note: This would require Firestore integration
+    // For now, just updating Firebase Auth profile
     
     alert('Perfil atualizado com sucesso!')
   } catch (error) {

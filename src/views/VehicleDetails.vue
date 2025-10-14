@@ -673,6 +673,19 @@ onMounted(async () => {
 
               <!-- TAB: Manutenções -->
               <TabPanel tab-id="maintenance">
+                <!-- Botão Registrar Manutenção -->
+                <div class="mb-6 flex justify-end">
+                  <Button 
+                    @click="router.push(`/maintenance?vehicleId=${vehicleId}&action=new`)"
+                    variant="primary"
+                  >
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Registrar Manutenção
+                  </Button>
+                </div>
+
                 <!-- Histórico de Manutenções -->
                 <Card title="Histórico Completo de Manutenções">
             <div v-if="completedMaintenance.length === 0" class="text-center py-8">
