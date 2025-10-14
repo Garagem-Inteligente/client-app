@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import { MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -38,7 +39,11 @@ const chartData = computed(() => {
     typeData[record.type] += record.cost
   })
   
-  const labels = Object.keys(typeData)
+  // Traduzir labels para português
+  const labels = Object.keys(typeData).map(key => {
+    const maintenanceKey = key as keyof typeof MAINTENANCE_TYPE_LABELS
+    return MAINTENANCE_TYPE_LABELS[maintenanceKey] || key
+  })
   const data = Object.values(typeData)
   
   // Cores para cada tipo
