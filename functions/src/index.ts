@@ -7,20 +7,16 @@ import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as sgMail from "@sendgrid/mail";
+import {defineSecret} from "firebase-functions/params";
 
 // Configuração global
 setGlobalOptions({maxInstances: 10});
 
-// Configurar SendGrid API Key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || "";
-const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@autocare.com";
+// Definir secret do SendGrid
+const sendgridApiKey = defineSecret("SENDGRID_API_KEY");
 
-if (!SENDGRID_API_KEY) {
-  logger.warn("⚠️ SENDGRID_API_KEY não configurada!");
-} else {
-  sgMail.setApiKey(SENDGRID_API_KEY);
-  logger.info("✅ SendGrid configurado com sucesso");
-}
+// Configuração de email
+const FROM_EMAIL = "noreply@autocare.com";
 
 // Interfaces
 interface SendTransferEmailData {
@@ -50,32 +46,37 @@ interface SendWelcomeEmailData {
 }
 
 // Função: Enviar email de transferência de veículo
-export const sendTransferEmail = onCall(async (request) => {
-  const data = request.data as SendTransferEmailData;
-  const {
-    to,
-    ownerName,
-    vehicleMake,
-    vehicleModel,
-    vehicleYear,
-    transferCode,
-    isOwner,
-  } = data;
+export const sendTransferEmail = onCall(
+  {secrets: [sendgridApiKey]},
+  async (request) => {
+    // Configurar SendGrid com a API Key do secret
+    sgMail.setApiKey(sendgridApiKey.value());
 
-  if (!to || !transferCode) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Email e código de transferência são obrigatórios"
-    );
-  }
+    const data = request.data as SendTransferEmailData;
+    const {
+      to,
+      ownerName,
+      vehicleMake,
+      vehicleModel,
+      vehicleYear,
+      transferCode,
+      isOwner,
+    } = data;
 
-  try {
-    const subject = isOwner ?
-      `🚗 Código de Transferência - ${vehicleMake} ${vehicleModel}` :
-      `🚗 Você Recebeu um Veículo - ${vehicleMake} ${vehicleModel}`;
+    if (!to || !transferCode) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Email e código de transferência são obrigatórios"
+      );
+    }
 
-    const vehicle = `${vehicleMake} ${vehicleModel} ${vehicleYear}`;
-    const html = isOwner ? `
+    try {
+      const subject = isOwner ?
+        `🚗 Código de Transferência - ${vehicleMake} ${vehicleModel}` :
+        `🚗 Você Recebeu um Veículo - ${vehicleMake} ${vehicleModel}`;
+
+      const vehicle = `${vehicleMake} ${vehicleModel} ${vehicleYear}`;
+      const html = isOwner ? `
       <div style="font-family: Arial, sans-serif;
         max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">
@@ -137,60 +138,64 @@ export const sendTransferEmail = onCall(async (request) => {
       </div>
     `;
 
-    const msg = {
-      to,
-      from: FROM_EMAIL,
-      subject,
-      html,
-    };
+      const msg = {
+        to,
+        from: FROM_EMAIL,
+        subject,
+        html,
+      };
 
-    await sgMail.send(msg);
-    logger.info(`✅ Email de transferência enviado para ${to}`);
-    return {success: true, message: "Email enviado com sucesso"};
-  } catch (error) {
-    logger.error("❌ Erro ao enviar email de transferência:", error);
-    throw new HttpsError("internal", "Erro ao enviar email");
+      await sgMail.send(msg);
+      logger.info(`✅ Email de transferência enviado para ${to}`);
+      return {success: true, message: "Email enviado com sucesso"};
+    } catch (error) {
+      logger.error("❌ Erro ao enviar email de transferência:", error);
+      throw new HttpsError("internal", "Erro ao enviar email");
+    }
   }
-});
+);
 
 // Função: Enviar alerta de manutenção
-export const sendMaintenanceAlert = onCall(async (request) => {
-  const data = request.data as SendMaintenanceAlertData;
-  const {
-    to,
-    userName,
-    vehicleMake,
-    vehicleModel,
-    vehicleYear,
-    maintenanceType,
-    dueDate,
-    isOverdue,
-  } = data;
+export const sendMaintenanceAlert = onCall(
+  {secrets: [sendgridApiKey]},
+  async (request) => {
+    sgMail.setApiKey(sendgridApiKey.value());
+    const data = request.data as SendMaintenanceAlertData;
+    const {
+      to,
+      userName,
+      vehicleMake,
+      vehicleModel,
+      vehicleYear,
+      maintenanceType,
+      dueDate,
+      isOverdue,
+    } = data;
 
-  if (!to || !maintenanceType) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Email e tipo de manutenção são obrigatórios"
-    );
-  }
+    if (!to || !maintenanceType) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Email e tipo de manutenção são obrigatórios"
+      );
+    }
 
-  try {
-    const vehicle = `${vehicleMake} ${vehicleModel}`;
-    const subject = isOverdue ?
-      `🚨 Manutenção Atrasada - ${vehicle}` :
-      `⏰ Manutenção Próxima - ${vehicle}`;
+    try {
+      const vehicle = `${vehicleMake} ${vehicleModel}`;
+      const subject = isOverdue ?
+        `🚨 Manutenção Atrasada - ${vehicle}` :
+        `⏰ Manutenção Próxima - ${vehicle}`;
 
-    const statusMsg = isOverdue ?
-      "A manutenção está <strong style=\"color: #ef4444;\">" +
+      const statusMsg = isOverdue ?
+        "A manutenção está <strong style=\"color: #ef4444;\">" +
       "atrasada</strong>!" :
-      "A manutenção está <strong style=\"color: #f59e0b;\">" +
+        "A manutenção está <strong style=\"color: #f59e0b;\">" +
       "próxima</strong>!";
 
-    const actionMsg = isOverdue ?
-      "Realize a manutenção o quanto antes." :
-      "Não se esqueça de agendar esta manutenção.";
+      const actionMsg = isOverdue ?
+        "Realize a manutenção o quanto antes." :
+        "Não se esqueça de agendar esta manutenção.";
 
-    const html = `
+      const html = `
       <div style="font-family: Arial, sans-serif;
         max-width: 600px; margin: 0 auto;">
         <h2 style="color: ${isOverdue ? "#ef4444" : "#f59e0b"};">
@@ -222,37 +227,41 @@ export const sendMaintenanceAlert = onCall(async (request) => {
       </div>
     `;
 
-    const msg = {
-      to,
-      from: FROM_EMAIL,
-      subject,
-      html,
-    };
+      const msg = {
+        to,
+        from: FROM_EMAIL,
+        subject,
+        html,
+      };
 
-    await sgMail.send(msg);
-    logger.info(`✅ Alerta de manutenção enviado para ${to}`);
-    return {success: true, message: "Email enviado com sucesso"};
-  } catch (error) {
-    logger.error("❌ Erro ao enviar alerta de manutenção:", error);
-    throw new HttpsError("internal", "Erro ao enviar email");
+      await sgMail.send(msg);
+      logger.info(`✅ Alerta de manutenção enviado para ${to}`);
+      return {success: true, message: "Email enviado com sucesso"};
+    } catch (error) {
+      logger.error("❌ Erro ao enviar alerta de manutenção:", error);
+      throw new HttpsError("internal", "Erro ao enviar email");
+    }
   }
-});
+);
 
 // Função: Enviar email de boas-vindas
-export const sendWelcomeEmail = onCall(async (request) => {
-  const data = request.data as SendWelcomeEmailData;
-  const {to, userName} = data;
+export const sendWelcomeEmail = onCall(
+  {secrets: [sendgridApiKey]},
+  async (request) => {
+    sgMail.setApiKey(sendgridApiKey.value());
+    const data = request.data as SendWelcomeEmailData;
+    const {to, userName} = data;
 
-  if (!to || !userName) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Email e nome são obrigatórios"
-    );
-  }
+    if (!to || !userName) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Email e nome são obrigatórios"
+      );
+    }
 
-  try {
-    const subject = "🚗 Bem-vindo ao AutoCare!";
-    const html = `
+    try {
+      const subject = "🚗 Bem-vindo ao AutoCare!";
+      const html = `
       <div style="font-family: Arial, sans-serif;
         max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">
@@ -287,18 +296,19 @@ export const sendWelcomeEmail = onCall(async (request) => {
       </div>
     `;
 
-    const msg = {
-      to,
-      from: FROM_EMAIL,
-      subject,
-      html,
-    };
+      const msg = {
+        to,
+        from: FROM_EMAIL,
+        subject,
+        html,
+      };
 
-    await sgMail.send(msg);
-    logger.info(`✅ Email de boas-vindas enviado para ${to}`);
-    return {success: true, message: "Email enviado com sucesso"};
-  } catch (error) {
-    logger.error("❌ Erro ao enviar email de boas-vindas:", error);
-    throw new HttpsError("internal", "Erro ao enviar email");
+      await sgMail.send(msg);
+      logger.info(`✅ Email de boas-vindas enviado para ${to}`);
+      return {success: true, message: "Email enviado com sucesso"};
+    } catch (error) {
+      logger.error("❌ Erro ao enviar email de boas-vindas:", error);
+      throw new HttpsError("internal", "Erro ao enviar email");
+    }
   }
-});
+);
