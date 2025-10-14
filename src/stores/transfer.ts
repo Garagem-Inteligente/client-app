@@ -12,7 +12,8 @@ import {
   Timestamp,
   writeBatch
 } from 'firebase/firestore'
-import { db } from '@/firebase/config'
+import { httpsCallable } from 'firebase/functions'
+import { db, functions } from '@/firebase/config'
 import { useAuthStore } from './auth'
 import { useVehiclesStore } from './vehicles'
 import { translateFirebaseError } from '@/utils/errorMessages'
@@ -169,13 +170,37 @@ export const useTransferStore = defineStore('transfer', () => {
 
       const transferRef = await addDoc(collection(db, 'vehicle_transfers'), transferData)
 
-      // TODO: Enviar emails com os códigos
-      // Por enquanto, vamos apenas logar no console para testes
-      console.log('=== CÓDIGOS DE TRANSFERÊNCIA ===')
-      console.log(`Transfer ID: ${transferRef.id}`)
-      console.log(`Código do dono atual (${authStore.user.email}): ${currentOwnerCode}`)
-      console.log(`Código do novo dono (${input.newOwnerEmail}): ${newOwnerCode}`)
-      console.log('================================')
+      // Enviar emails com os códigos de confirmação
+      const sendTransferEmail = httpsCallable(functions, 'sendTransferEmail')
+      
+      try {
+        // Enviar email para o dono atual
+        await sendTransferEmail({
+          to: authStore.user.email,
+          ownerName: authStore.user.name || authStore.user.email.split('@')[0],
+          vehicleMake: vehicle.make,
+          vehicleModel: vehicle.model,
+          vehicleYear: vehicle.year,
+          transferCode: currentOwnerCode,
+          isOwner: true
+        })
+
+        // Enviar email para o novo dono
+        await sendTransferEmail({
+          to: input.newOwnerEmail,
+          ownerName: authStore.user.name || authStore.user.email!.split('@')[0],
+          vehicleMake: vehicle.make,
+          vehicleModel: vehicle.model,
+          vehicleYear: vehicle.year,
+          transferCode: newOwnerCode,
+          isOwner: false
+        })
+
+        console.log('✅ Emails de transferência enviados com sucesso')
+      } catch (emailError) {
+        console.error('❌ Erro ao enviar emails de transferência:', emailError)
+        // Não falhar a transferência se o email falhar
+      }
 
       await fetchPendingTransfers()
 
