@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useVehiclesStore } from '../stores/vehicles'
 import type { MaintenanceAttachment, MaintenanceRecord } from '../stores/vehicles'
 import Card from '../components/Card.vue'
@@ -14,6 +15,7 @@ import ImageCompare from '../components/ImageCompare.vue'
 import { downloadBase64File } from '../utils/fileUtils'
 import { MAINTENANCE_TYPE_OPTIONS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 
+const route = useRoute()
 const vehiclesStore = useVehiclesStore()
 
 const showAddForm = ref(false)
@@ -327,6 +329,17 @@ const totalMaintenanceCost = computed(() => {
 onMounted(async () => {
   await vehiclesStore.fetchVehicles()
   await vehiclesStore.fetchMaintenanceRecords()
+  
+  // Check for query parameters to auto-open form
+  const action = route.query.action as string
+  const vehicleId = route.query.vehicleId as string
+  
+  if (action === 'new') {
+    showAddForm.value = true
+    if (vehicleId) {
+      formData.value.vehicleId = vehicleId
+    }
+  }
 })
 </script>
 

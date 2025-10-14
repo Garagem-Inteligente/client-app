@@ -97,7 +97,7 @@ const formatCurrency = (value: number) => {
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <!-- Registrar Manutenção -->
           <button
-            @click="router.push('/maintenance')"
+            @click="router.push('/maintenance?action=new')"
             class="group flex items-center gap-3 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-blue-500/50 rounded-lg p-4 transition-all duration-200"
           >
             <div class="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
@@ -113,7 +113,7 @@ const formatCurrency = (value: number) => {
 
           <!-- Adicionar Veículo -->
           <button
-            @click="router.push('/vehicles')"
+            @click="router.push('/vehicles?action=new')"
             class="group flex items-center gap-3 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-green-500/50 rounded-lg p-4 transition-all duration-200"
           >
             <div class="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">

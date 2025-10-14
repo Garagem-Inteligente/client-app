@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useVehiclesStore } from '../stores/vehicles'
 import type { Vehicle, FuelType, VehicleType as AppVehicleType } from '../stores/vehicles'
 import { FUEL_TYPE_LABELS } from '@/constants/vehicles'
@@ -13,6 +14,7 @@ import Navbar from '../components/Navbar.vue'
 import SearchableSelect from '../components/SearchableSelect.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
+const route = useRoute()
 const vehiclesStore = useVehiclesStore()
 
 const showAddForm = ref(false)
@@ -321,6 +323,13 @@ watch(showAddForm, (isOpen) => {
 
 onMounted(() => {
   vehiclesStore.fetchVehicles()
+  
+  // Check for query parameters to auto-open form
+  const action = route.query.action as string
+  
+  if (action === 'new') {
+    showAddForm.value = true
+  }
 })
 </script>
 

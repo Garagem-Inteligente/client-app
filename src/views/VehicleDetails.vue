@@ -189,8 +189,14 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="flex gap-3">
-                <Button variant="primary" @click="showTransferModal = true">
+              <div class="flex flex-wrap gap-3">
+                <Button variant="primary" @click="router.push(`/maintenance?action=new&vehicleId=${vehicleId}`)">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Nova Manutenção
+                </Button>
+                <Button variant="outline" @click="showTransferModal = true">
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
