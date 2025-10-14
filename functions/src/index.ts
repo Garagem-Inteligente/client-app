@@ -6,7 +6,7 @@
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import * as sgMail from "@sendgrid/mail";
+import sgMail from "@sendgrid/mail";
 import {defineSecret} from "firebase-functions/params";
 
 // Configuração global
