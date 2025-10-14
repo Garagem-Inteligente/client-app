@@ -312,7 +312,113 @@ Podem ser implementadas quando houver necessidade/demanda.- **Novos Tipos a Adic
 
 - **Complexidade**: Média (2-3 horas)
 
-## 📌 Backlog - Sprint 2: Documentação e Exportação- **Dependências**: Nenhuma
+- **Dependências**: Nenhuma
+
+---
+
+### T006 - Melhorar Lógica de Transferência de Veículos �
+- **Descrição**: Sistema inteligente de pré-cadastro para transferências
+- **Origem**: Feedback do usuário - experiência de transferência
+- **Prioridade**: 🔴 **ALTA - PRIORIDADE MÁXIMA**
+- **Status**: ⏳ Pendente
+- **Motivação**: Transferência atual requer que destinatário já esteja cadastrado, criando atrito.
+- **Solução Proposta**:
+  1. Verificar se email do destinatário existe na plataforma
+  2. Se não existir, criar pré-cadastro automático
+  3. Enviar email com credenciais temporárias + código de transferência
+  4. Destinatário loga, define senha definitiva, informa código
+  5. Sistema valida código e finaliza transferência com histórico completo
+  6. Veículo transferido aparece na nova conta
+  7. Conta do antigo dono mostra seção "Veículos Transferidos"
+- **Critérios de Aceitação**:
+  - [ ] Função `checkUserExists(email)` em auth.ts
+  - [ ] Função `createPreRegistration(email, vehicleData)` com senha temporária
+  - [ ] Email template "transfer-with-credentials.html" com credenciais e código
+  - [ ] Campo "código de transferência" na tela de login
+  - [ ] Validação de código em Cloud Function
+  - [ ] Seção "Veículos Transferidos" no dashboard do antigo dono
+  - [ ] Mostrar histórico de transferências (data, destinatário, veículo)
+  - [ ] Status do pré-cadastro (pendente, aceito, expirado)
+  - [ ] Expiração de código após 7 dias
+  - [ ] Notificação quando transferência for aceita
+- **Complexidade**: Alta (6-8 horas)
+- **Dependências**: T-R09 (Firebase Functions), T-R10 (SendGrid)
+
+---
+
+### T007 - Plataforma para Oficinas Mecânicas 🚀
+- **Descrição**: Sistema completo B2B2C para oficinas gerenciarem clientes e manutenções
+- **Origem**: Expansão estratégica do produto
+- **Prioridade**: 🔴 **ALTA - FEATURE PRINCIPAL FUTURA**
+- **Status**: ⏳ Pendente
+- **Motivação**: Expandir plataforma para oficinas parceiras, criando ecossistema completo.
+- **Módulos**:
+
+  **1. Cadastro e Perfil de Oficina**
+  - Oficinas se cadastram como tipo "workshop" (vs "user")
+  - Dados: nome, CNPJ, endereço, especialidades, horário
+  - Fotos da oficina, certificações
+  - Verificação de CNPJ via API (opcional)
+
+  **2. Cadastro de Manutenção pela Oficina**
+  - Oficina informa placa do veículo
+  - Sistema verifica se placa existe na plataforma
+  - Se existir: envia notificação para o proprietário aprovar
+  - Se não existir: solicita dados básicos do cliente
+  - Oficina preenche: descrição, tipo, custos (peças + mão de obra), garantias
+  - Upload de fotos antes/depois
+  - Proprietário aprova ou rejeita via notificação
+
+  **3. Dashboard da Oficina**
+  - Lista de clientes (com histórico de manutenções)
+  - Manutenções pendentes de aprovação
+  - Manutenções realizadas (por período)
+  - Estatísticas: receita, tipos de serviço mais comuns
+  - Avaliações recebidas
+
+  **4. Permissões e Restrições**
+  - Oficina **edita** manutenção que cadastrou
+  - Cliente **apenas visualiza** manutenção de oficina
+  - Cliente pode adicionar comentário/reclamação
+  - Tab separada "Manutenções de Oficinas" com badge
+  - Badge visual diferenciando manutenção própria vs oficina
+
+  **5. Avaliação e Busca de Oficinas**
+  - Cliente pode avaliar oficina após manutenção (1-5 estrelas + comentário)
+  - Página de busca de oficinas por localização
+  - Filtros: especialidade, avaliação, preço médio
+  - Perfil público da oficina com avaliações
+
+  **6. Agendamento de Manutenção**
+  - Cliente solicita agendamento com oficina
+  - Oficina aceita ou propõe novo horário
+  - Sistema de confirmação bidirecional
+  - Notificações de lembrete 24h antes
+  - Cliente pode cancelar até 12h antes
+
+- **Critérios de Aceitação**:
+  - [ ] Novo tipo de usuário: "workshop" em auth
+  - [ ] Formulário de cadastro diferenciado para oficinas
+  - [ ] Dashboard `/workshop/dashboard` com estatísticas
+  - [ ] Função Cloud `verifyVehiclePlate(plate)` retorna userId ou null
+  - [ ] Sistema de aprovação de manutenção (pending → approved → completed)
+  - [ ] Notificações para cliente quando oficina cadastra manutenção
+  - [ ] Tab "Minhas Manutenções" vs "Manutenções de Oficinas" em Vehicles
+  - [ ] Badge "Registrado por [Nome Oficina]" em MaintenanceRecord
+  - [ ] Sistema de avaliações (collection `workshop_reviews`)
+  - [ ] View `/workshops` para busca e listagem
+  - [ ] Sistema de agendamento (collection `appointments`)
+  - [ ] Email templates para agendamento (solicitação, confirmação, lembrete)
+  - [ ] Permissões: oficina não pode editar veículo, apenas manutenções próprias
+  - [ ] Lista de clientes da oficina (veículos que atendeu)
+  - [ ] Histórico completo de interações oficina-cliente
+- **Complexidade**: Muito Alta (40-50 horas) - **ÉPICO, dividir em subtarefas**
+- **Dependências**: T-R03 (autenticação), T-R09 (Functions), sistema de notificações completo
+- **Nota**: Este é um **épico** que deve ser quebrado em 15-20 tarefas menores no futuro
+
+---
+
+## 📌 Backlog - Sprint 2: Documentação e Exportação
 
 
 
