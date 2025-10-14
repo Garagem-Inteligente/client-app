@@ -316,10 +316,25 @@ const formatCurrency = (value: number) => {
 }
 
 const filteredMaintenanceRecords = computed(() => {
-  if (!selectedVehicleId.value) {
-    return vehiclesStore.maintenanceRecords
+  let records = selectedVehicleId.value 
+    ? vehiclesStore.getMaintenanceByVehicle(selectedVehicleId.value)
+    : vehiclesStore.maintenanceRecords
+  
+  // Apply view filter from query params
+  const view = route.query.view as string
+  
+  if (view === 'upcoming') {
+    // Show only records with future maintenance dates
+    records = records.filter(r => r.nextDueDate && r.nextDueDate > new Date())
+  } else if (view === 'overdue') {
+    // Show only records with overdue maintenance dates
+    records = records.filter(r => r.nextDueDate && r.nextDueDate < new Date())
+  } else if (view === 'costs') {
+    // Sort by cost (highest first) for cost view
+    records = records.slice().sort((a, b) => b.cost - a.cost)
   }
-  return vehiclesStore.getMaintenanceByVehicle(selectedVehicleId.value)
+  
+  return records
 })
 
 const totalMaintenanceCost = computed(() => {
@@ -333,11 +348,24 @@ onMounted(async () => {
   // Check for query parameters to auto-open form
   const action = route.query.action as string
   const vehicleId = route.query.vehicleId as string
+  const view = route.query.view as string
   
   if (action === 'new') {
     showAddForm.value = true
     if (vehicleId) {
       formData.value.vehicleId = vehicleId
+    }
+  }
+  
+  // Apply view filter if present
+  if (view) {
+    // View filter logic will be handled by computed property
+    // Just ensuring we scroll to the correct section
+    if (view === 'upcoming' || view === 'overdue' || view === 'costs') {
+      // Scroll to records section after data loads
+      setTimeout(() => {
+        document.querySelector('.maintenance-records')?.scrollIntoView({ behavior: 'smooth' })
+      }, 500)
     }
   }
 })
@@ -347,11 +375,22 @@ onMounted(async () => {
   <div class="min-h-screen bg-gray-900">
     <Navbar />
     <div class="py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="text-3xl font-bold text-white">Manutenções</h1>
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-bold text-white">Manutenções</h1>
+            <Badge v-if="route.query.view === 'upcoming'" variant="warning">
+              📅 Agendadas
+            </Badge>
+            <Badge v-if="route.query.view === 'overdue'" variant="error">
+              ⚠️ Atrasadas
+            </Badge>
+            <Badge v-if="route.query.view === 'costs'" variant="success">
+              💰 Ordenado por Custo
+            </Badge>
+          </div>
           <p class="mt-2 text-gray-400">
             Registre e acompanhe as manutenções dos seus veículos
           </p>
@@ -368,7 +407,6 @@ onMounted(async () => {
           Registrar Manutenção
         </Button>
       </div>
-      
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card title="Total de Registros">
@@ -741,18 +779,21 @@ onMounted(async () => {
       </Card>
       
       <!-- Maintenance Records -->
-      <div v-if="filteredMaintenanceRecords.length === 0 && !showAddForm" class="text-center py-16">
-        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <h3 class="text-lg font-medium text-white mb-2">Nenhuma manutenção registrada</h3>
-        <p class="text-gray-400 mb-6">Comece registrando a primeira manutenção</p>
-        <Button @click="showAddForm = true" variant="primary">
-          Registrar primeira manutenção
-        </Button>
-      </div>
-      
-      <div v-else-if="!showAddForm" class="space-y-6">
+      <div class="maintenance-records">
+        <div v-if="filteredMaintenanceRecords.length === 0 && !showAddForm" class="text-center py-16">
+          <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <h3 class="text-lg font-medium text-white mb-2">Nenhuma manutenção encontrada</h3>
+          <p class="text-gray-400 mb-6">
+            {{ route.query.view ? 'Nenhuma manutenção nesta categoria' : 'Comece registrando a primeira manutenção' }}
+          </p>
+          <Button @click="showAddForm = true" variant="primary">
+            Registrar primeira manutenção
+          </Button>
+        </div>
+        
+        <div v-else-if="!showAddForm" class="space-y-6">
         <Card 
           v-for="record in filteredMaintenanceRecords" 
           :key="record.id"
@@ -888,6 +929,7 @@ onMounted(async () => {
         </Card>
       </div>
     </div>
+      </div>
     </div>
   </div>
 

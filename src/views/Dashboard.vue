@@ -222,7 +222,7 @@ const formatCurrency = (value: number) => {
         </router-link>
 
         <!-- Custo Total Card -->
-        <router-link to="/maintenance">
+        <router-link to="/maintenance?view=costs">
           <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-xl p-4 sm:p-6 hover:border-purple-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
             <div class="flex items-start justify-between mb-3 sm:mb-4">
               <div class="min-w-0 flex-1 pr-2">
@@ -240,7 +240,7 @@ const formatCurrency = (value: number) => {
         </router-link>
 
         <!-- Próximas Manutenções Card -->
-        <router-link to="/maintenance">
+        <router-link to="/maintenance?view=upcoming">
           <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-xl p-4 sm:p-6 hover:border-yellow-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
             <div class="flex items-start justify-between mb-3 sm:mb-4">
               <div>
