@@ -101,7 +101,9 @@ export interface MaintenanceRecord {
   vehicleId: string
   type: MaintenanceType
   description: string
-  cost: number
+  cost: number // Total cost (kept for backward compatibility)
+  partsCost?: number // Cost of parts/materials
+  laborCost?: number // Cost of labor/service
   mileage: number
   date: Date
   nextDueDate?: Date

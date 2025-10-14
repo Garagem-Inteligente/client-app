@@ -32,6 +32,8 @@ const formData = ref({
   type: 'oil_change' as import('@/stores/vehicles').MaintenanceType,
   description: '',
   cost: 0,
+  partsCost: 0,
+  laborCost: 0,
   mileage: 0,
   date: new Date().toISOString().split('T')[0],
   nextDueDate: '',
@@ -46,6 +48,8 @@ const resetForm = () => {
     type: 'oil_change',
     description: '',
     cost: 0,
+    partsCost: 0,
+    laborCost: 0,
     mileage: 0,
     date: new Date().toISOString().split('T')[0],
     nextDueDate: '',
@@ -58,6 +62,13 @@ const resetForm = () => {
   showAddForm.value = false
   editingRecordId.value = null
 }
+
+// Computed para calcular custo total automaticamente
+const totalCost = computed(() => {
+  const parts = typeof formData.value.partsCost === 'string' ? Number(formData.value.partsCost) || 0 : formData.value.partsCost
+  const labor = typeof formData.value.laborCost === 'string' ? Number(formData.value.laborCost) || 0 : formData.value.laborCost
+  return parts + labor
+})
 
 const handleSubmit = async () => {
   try {
@@ -112,11 +123,18 @@ const handleSubmit = async () => {
       }
     }
 
+    // Converter custos para números
+    const partsCost = typeof formData.value.partsCost === 'string' ? Number(formData.value.partsCost) || 0 : formData.value.partsCost
+    const laborCost = typeof formData.value.laborCost === 'string' ? Number(formData.value.laborCost) || 0 : formData.value.laborCost
+    const totalCalculated = partsCost + laborCost
+
     const recordData = {
       vehicleId: formData.value.vehicleId,
       type: formData.value.type,
       description: formData.value.description,
-      cost: cost,
+      cost: totalCalculated > 0 ? totalCalculated : cost, // Use calculated total if parts/labor provided
+      partsCost: partsCost > 0 ? partsCost : undefined,
+      laborCost: laborCost > 0 ? laborCost : undefined,
       mileage: mileage,
       date: new Date(formData.value.date),
       nextDueDate: formData.value.nextDueDate ? new Date(formData.value.nextDueDate) : undefined,
@@ -376,18 +394,41 @@ onMounted(async () => {
             </div>
             
             <div>
-              <label for="cost" class="block text-sm font-medium text-gray-300 mb-2">
-                Custo (R$) *
+              <label for="partsCost" class="block text-sm font-medium text-gray-300 mb-2">
+                💰 Custo das Peças (R$)
               </label>
               <Input
-                id="cost"
-                v-model="formData.cost"
+                id="partsCost"
+                v-model="formData.partsCost"
                 type="text"
                 mask="currency"
                 placeholder="R$ 0,00"
-                required
                 :disabled="vehiclesStore.loading"
               />
+              <p class="text-xs text-gray-500 mt-1">Custo dos materiais e peças utilizados</p>
+            </div>
+            
+            <div>
+              <label for="laborCost" class="block text-sm font-medium text-gray-300 mb-2">
+                🔧 Custo da Mão de Obra (R$)
+              </label>
+              <Input
+                id="laborCost"
+                v-model="formData.laborCost"
+                type="text"
+                mask="currency"
+                placeholder="R$ 0,00"
+                :disabled="vehiclesStore.loading"
+              />
+              <p class="text-xs text-gray-500 mt-1">Custo do serviço profissional</p>
+            </div>
+
+            <!-- Display do Total -->
+            <div v-if="totalCost > 0" class="md:col-span-2 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-300">💵 Custo Total:</span>
+                <span class="text-2xl font-bold text-blue-400">{{ formatCurrency(totalCost) }}</span>
+              </div>
             </div>
             
             <div>
@@ -578,7 +619,15 @@ onMounted(async () => {
             <div>
               <p class="text-sm text-gray-400">Custo</p>
               <p class="font-medium text-green-400">{{ formatCurrency(record.cost) }}</p>
-              <Badge :variant="getMaintenanceTypeBadgeVariant(record.type)">
+              <div v-if="record.partsCost || record.laborCost" class="mt-1 space-y-0.5">
+                <p v-if="record.partsCost" class="text-xs text-gray-500">
+                  💰 Peças: {{ formatCurrency(record.partsCost) }}
+                </p>
+                <p v-if="record.laborCost" class="text-xs text-gray-500">
+                  🔧 Mão de obra: {{ formatCurrency(record.laborCost) }}
+                </p>
+              </div>
+              <Badge :variant="getMaintenanceTypeBadgeVariant(record.type)" class="mt-2">
                 {{ getMaintenanceTypeLabel(record.type) }}
               </Badge>
             </div>
