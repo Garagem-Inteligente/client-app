@@ -67,7 +67,7 @@ export const maintenanceDueEmailTemplate = (data: MaintenanceDueData): string =>
                   <tr>
                     <td style="padding: 12px 0; color: #78350f; font-size: 14px;">Faltam:</td>
                     <td style="padding: 12px 0; color: #f59e0b; font-size: 20px; font-weight: bold; text-align: right;">
-                      ${data.daysUntilDue} ${data.daysUntilDue === 1 ? 'dia' : 'dias'}
+                      ${data.daysUntilDue} ${data.daysUntilDue === 1 ? "dia" : "dias"}
                     </td>
                   </tr>
                 </table>

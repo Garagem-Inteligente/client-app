@@ -67,7 +67,7 @@ export const maintenanceOverdueEmailTemplate = (data: MaintenanceOverdueData): s
                   <tr>
                     <td style="padding: 12px 0; color: #7f1d1d; font-size: 14px;">Atraso:</td>
                     <td style="padding: 12px 0; color: #ef4444; font-size: 20px; font-weight: bold; text-align: right;">
-                      ${data.daysOverdue} ${data.daysOverdue === 1 ? 'dia' : 'dias'}
+                      ${data.daysOverdue} ${data.daysOverdue === 1 ? "dia" : "dias"}
                     </td>
                   </tr>
                 </table>

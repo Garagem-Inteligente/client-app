@@ -1,7 +1,7 @@
 /**
  * Email Templates - AutoCare
  * Templates HTML responsivos para todos os emails do sistema
- * 
+ *
  * Todos os templates usam inline CSS para máxima compatibilidade
  * com clientes de email (Gmail, Outlook, Apple Mail, etc.)
  */
@@ -14,27 +14,27 @@ export {maintenanceOverdueEmailTemplate} from "./maintenanceOverdueEmail";
 
 /**
  * Guia de uso dos templates:
- * 
+ *
  * 1. welcomeEmailTemplate(userName)
  *    - Enviado no registro de novo usuário
  *    - Apresenta funcionalidades da plataforma
- * 
+ *
  * 2. transferOwnerEmailTemplate(data)
  *    - Enviado ao proprietário que inicia transferência
  *    - Contém código para compartilhar
- * 
+ *
  * 3. transferReceiverEmailTemplate(data)
  *    - Enviado ao receptor do veículo
  *    - Instrui como aceitar a transferência
- * 
+ *
  * 4. maintenanceDueEmailTemplate(data)
  *    - Lembrete 7 dias antes da manutenção
  *    - Estilo amarelo/laranja (aviso)
- * 
+ *
  * 5. maintenanceOverdueEmailTemplate(data)
  *    - Alerta de manutenção atrasada
  *    - Estilo vermelho (urgente)
- * 
+ *
  * Características dos templates:
  * - ✅ Design responsivo (mobile-first)
  * - ✅ Inline CSS para compatibilidade

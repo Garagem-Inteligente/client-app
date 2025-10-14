@@ -29,5 +29,19 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+    "max-len": ["error", {
+      "code": 80,
+      "ignorePattern": "^\\s*<.*>$", // Ignore HTML lines
+      "ignoreStrings": true, // Ignore long strings
+      "ignoreTemplateLiterals": true, // Ignore template literals
+    }],
   },
+  overrides: [
+    {
+      files: ["src/templates/**/*.ts"],
+      rules: {
+        "max-len": "off", // Disable max-len for email templates
+      },
+    },
+  ],
 };
