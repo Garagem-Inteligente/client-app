@@ -121,6 +121,13 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       .sort((a, b) => (a.nextDueDate!.getTime() - b.nextDueDate!.getTime()))
   })
 
+  const recentMaintenance = computed(() => {
+    return maintenanceRecords.value
+      .filter(record => record.date) // Apenas registros com data definida
+      .sort((a, b) => b.date.getTime() - a.date.getTime()) // Mais recentes primeiro
+      .slice(0, 5) // Limitar a 5 registros
+  })
+
   const totalMaintenanceCost = computed(() => {
     return maintenanceRecords.value.reduce((total, record) => total + record.cost, 0)
   })
@@ -465,6 +472,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     getMaintenanceByVehicle,
     upcomingMaintenance,
     overdueMaintenance,
+    recentMaintenance,
     totalMaintenanceCost,
     maintenanceStats,
     // Actions

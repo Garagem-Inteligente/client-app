@@ -321,8 +321,64 @@ const formatCurrency = (value: number) => {
         </div>
       </Card>
 
-      <!-- Upcoming Maintenance -->
-      <Card title="📅 Próximas Manutenções" class="hover:shadow-xl transition-shadow duration-300">
+      <!-- Manutenções Grid (Últimas + Próximas) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Últimas Manutenções Card -->
+        <Card title="🔧 Últimas Manutenções" class="hover:shadow-xl transition-shadow duration-300">
+          <div v-if="vehiclesStore.recentMaintenance.length === 0" class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <p class="text-gray-400 mb-4">Nenhuma manutenção registrada</p>
+            <router-link to="/maintenance">
+              <Button variant="primary">Registrar manutenção</Button>
+            </router-link>
+          </div>
+          
+          <div v-else class="space-y-3">
+            <div 
+              v-for="maintenance in vehiclesStore.recentMaintenance" 
+              :key="maintenance.id"
+              class="flex items-center justify-between p-4 rounded-lg bg-gray-800 hover:bg-gray-750 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+              @click="$router.push('/maintenance')"
+            >
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-1">
+                  <Badge variant="success">
+                    {{ getMaintenanceTypeLabel(maintenance.type) }}
+                  </Badge>
+                </div>
+                <p class="text-sm text-gray-400">
+                  {{ vehiclesStore.getVehicleById(maintenance.vehicleId)?.make }} 
+                  {{ vehiclesStore.getVehicleById(maintenance.vehicleId)?.model }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1" v-if="maintenance.description">
+                  {{ maintenance.description }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium text-white">
+                  {{ formatDate(maintenance.date) }}
+                </p>
+                <p class="text-xs text-emerald-400 font-medium">
+                  {{ formatCurrency(maintenance.cost) }}
+                </p>
+                <p class="text-xs text-gray-400" v-if="maintenance.mileage">
+                  {{ maintenance.mileage.toLocaleString('pt-BR') }} km
+                </p>
+              </div>
+            </div>
+            
+            <router-link to="/maintenance">
+              <Button variant="outline" size="sm" class="w-full">
+                Ver histórico completo
+              </Button>
+            </router-link>
+          </div>
+        </Card>
+
+        <!-- Próximas Manutenções Card -->
+        <Card title="📅 Próximas Manutenções" class="hover:shadow-xl transition-shadow duration-300">
         <div v-if="vehiclesStore.upcomingMaintenance.length === 0" class="text-center py-8">
           <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -380,6 +436,8 @@ const formatCurrency = (value: number) => {
           </router-link>
         </div>
       </Card>
+      </div>
+      <!-- Fim Manutenções Grid -->
     </div>
     </div>
   </div>
