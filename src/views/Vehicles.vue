@@ -502,9 +502,10 @@ onMounted(() => {
           v-for="vehicle in vehiclesStore.vehicles" 
           :key="vehicle.id"
           :title="`${vehicle.make} ${vehicle.model}`"
-          class="hover:border-gray-600 transition-colors"
+          class="hover:border-gray-600 transition-all cursor-pointer group"
+          @click="$router.push(`/vehicles/${vehicle.id}`)"
         >
-          <div class="space-y-3 sm:space-y-4">
+          <div class="space-y-3 sm:space-y-4 group-hover:opacity-90 transition-opacity">
             <!-- Header -->
             <div class="flex justify-between items-start mb-3 sm:mb-4 gap-2">
               <div class="min-w-0 flex-1">
@@ -537,7 +538,7 @@ onMounted(() => {
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-2 pt-3 sm:pt-4 border-t border-gray-700">
               <Button 
-                @click="startEdit(vehicle)" 
+                @click.stop="startEdit(vehicle)" 
                 variant="outline" 
                 size="sm"
                 class="flex-1 w-full sm:w-auto"
@@ -548,7 +549,7 @@ onMounted(() => {
                 Editar
               </Button>
               <Button 
-                @click="handleDelete(vehicle)" 
+                @click.stop="handleDelete(vehicle)" 
                 variant="outline"
                 size="sm"
                 class="flex-1 w-full sm:w-auto !text-red-400 !border-red-400/30 hover:!bg-red-400/10"
