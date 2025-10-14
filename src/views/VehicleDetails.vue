@@ -11,6 +11,9 @@ import Navbar from '../components/Navbar.vue'
 import TransferModal from '../components/TransferModal.vue'
 import Tabs from '../components/Tabs.vue'
 import TabPanel from '../components/TabPanel.vue'
+import MonthlyCostsChart from '../components/charts/MonthlyCostsChart.vue'
+import CostsByTypeChart from '../components/charts/CostsByTypeChart.vue'
+import PreventiveVsCorrectiveChart from '../components/charts/PreventiveVsCorrectiveChart.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -798,25 +801,36 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-                <div class="mt-8 p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                  <h3 class="text-lg font-semibold text-white mb-4">📊 Gráficos em Breve</h3>
-                  <p class="text-gray-400 mb-4">
-                    Em breve você terá acesso a gráficos detalhados sobre:
+                <!-- Gráficos de Analytics -->
+                <div v-if="maintenanceHistory.length > 0" class="mt-8 space-y-6">
+                  <!-- Evolução de Custos Mensais -->
+                  <Card title="📈 Evolução de Custos Mensais">
+                    <MonthlyCostsChart :maintenanceHistory="maintenanceHistory" />
+                  </Card>
+
+                  <!-- Custos por Tipo e Preventiva vs Corretiva -->
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card title="📊 Custos por Tipo de Manutenção">
+                      <CostsByTypeChart :maintenanceHistory="maintenanceHistory" />
+                    </Card>
+
+                    <Card title="🔄 Preventiva vs Corretiva">
+                      <PreventiveVsCorrectiveChart :maintenanceHistory="maintenanceHistory" />
+                    </Card>
+                  </div>
+                </div>
+
+                <!-- Placeholder quando não há dados -->
+                <div v-else class="mt-8 p-6 bg-gray-800/50 rounded-xl border border-gray-700 text-center">
+                  <div class="mx-auto w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-semibold text-white mb-2">📊 Nenhum Dado Disponível</h3>
+                  <p class="text-gray-400">
+                    Adicione registros de manutenção para visualizar gráficos e análises detalhadas.
                   </p>
-                  <ul class="space-y-2 text-gray-400">
-                    <li class="flex items-center gap-2">
-                      <span class="text-blue-400">📈</span>
-                      Evolução de custos mensais
-                    </li>
-                    <li class="flex items-center gap-2">
-                      <span class="text-green-400">📊</span>
-                      Custos por tipo de manutenção
-                    </li>
-                    <li class="flex items-center gap-2">
-                      <span class="text-yellow-400">📉</span>
-                      Manutenções preventivas vs corretivas
-                    </li>
-                  </ul>
                 </div>
               </TabPanel>
 
