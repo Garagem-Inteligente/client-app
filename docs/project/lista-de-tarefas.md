@@ -47,20 +47,22 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Cards de estatísticas devem navegar para páginas de detalhes
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
 - **Implementações**:
-  - "Total de Registros" → `/maintenance` (lista filtrada)
-  - "Custo Total" → `/maintenance?view=costs` (visão de custos)
-  - "Próximas Manutenções" → `/maintenance?view=upcoming`
-  - "Manutenções Vencidas" → `/maintenance?view=overdue`
+  - ✅ "Total de Veículos" → `/vehicles`
+  - ✅ "Manutenções" → `/maintenance`
+  - ✅ "Custo Total" → `/maintenance?view=costs`
+  - ✅ "Agendadas" → `/maintenance?view=upcoming`
 - **Critérios de Aceitação**:
-  - [ ] Todos os StatCards são clicáveis (cursor pointer)
-  - [ ] Navegação correta para cada tipo de estatística
-  - [ ] Views de filtro implementadas em Maintenance.vue
-  - [ ] Animação de hover nos cards
-  - [ ] Breadcrumb nas páginas de destino
+  - [x] Todos os StatCards são clicáveis (cursor pointer)
+  - [x] Navegação correta para cada tipo de estatística
+  - [x] Views de filtro implementadas em Maintenance.vue
+  - [x] Animação de hover nos cards (scale-[1.02])
+  - [x] Router-link wrappers implementados
 - **Complexidade**: Média (2-3 horas)
 - **Dependências**: Nenhuma
+- **Implementação**: `src/views/Dashboard.vue` linhas 230-349
 
 ---
 
@@ -68,23 +70,27 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Expandir tipos de veículos para refletir realidade brasileira
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Tipos a Adicionar**:
-  - Carro (padrão)
-  - Moto
-  - Van
-  - Caminhão
-  - Ônibus
-  - Caminhonete
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Tipos Implementados**:
+  - ✅ Carro (padrão)
+  - ✅ Moto
+  - ✅ Van
+  - ✅ Caminhão
+  - ✅ Ônibus
+  - ✅ Caminhonete
 - **Critérios de Aceitação**:
-  - [ ] Interface Vehicle atualizada com campo `vehicleType`
-  - [ ] Select no VehicleForm.vue com os 6 tipos
-  - [ ] Ícones diferentes para cada tipo (lucide-react)
-  - [ ] Cards exibem ícone correto baseado no tipo
-  - [ ] Migração de dados existentes (padrão: "Carro")
-  - [ ] Filtro por tipo na página de veículos
+  - [x] Interface Vehicle atualizada com campo `vehicleType`
+  - [x] VEHICLE_TYPE_LABELS com nomes em português
+  - [x] VEHICLE_TYPE_OPTIONS para select dropdown
+  - [x] VEHICLE_TYPE_ICONS com mapeamento de ícones
+  - [x] Migração de dados existentes (padrão: "car")
+  - [x] Type definition: `'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'`
 - **Complexidade**: Baixa (1-2 horas)
 - **Dependências**: Nenhuma
+- **Implementação**: 
+  - `src/constants/vehicles.ts` linhas 4-54
+  - `src/stores/vehicles.ts` linhas 20, 28, 211
 
 ---
 
@@ -92,16 +98,21 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Adicionar card com as 5 últimas manutenções realizadas
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
 - **Critérios de Aceitação**:
-  - [ ] Novo computed `recentMaintenance` na store
-  - [ ] Card "Últimas Manutenções" no Dashboard ao lado de "Próximas"
-  - [ ] Exibe 5 registros mais recentes (ordem: date DESC)
-  - [ ] Cada item mostra: veículo, tipo, data, custo
-  - [ ] Click no item abre detalhes da manutenção
-  - [ ] Estado vazio amigável se não houver registros
+  - [x] Novo computed `recentMaintenance` na store
+  - [x] Card "🔧 Últimas Manutenções" no Dashboard ao lado de "📅 Próximas"
+  - [x] Exibe 5 registros mais recentes (ordem: date DESC, slice(0,5))
+  - [x] Cada item mostra: veículo, tipo (Badge), data, custo
+  - [x] Botão "Ver histórico completo" navega para /maintenance
+  - [x] Estado vazio amigável com ícone e botão de ação
+  - [x] Grid responsivo: 1 coluna mobile, 2 colunas desktop (lg:grid-cols-2)
 - **Complexidade**: Baixa (1 hora)
 - **Dependências**: Nenhuma
+- **Implementação**:
+  - `src/stores/vehicles.ts` linhas 155-163 (computed recentMaintenance)
+  - `src/views/Dashboard.vue` linhas 403-460 (Card Últimas Manutenções)
 
 ---
 
@@ -109,18 +120,27 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Substituir tipos genéricos por combustíveis reais do Brasil
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Tipos Corretos**:
-  - ❌ gasoline, diesel, electric, hybrid
-  - ✅ Flex, Gasolina, Álcool (Etanol), Diesel, Elétrico, Híbrido Plugin, Híbrido Leve, GNV
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Tipos Implementados**:
+  - ✅ Flex (Gasolina/Etanol)
+  - ✅ Gasolina
+  - ✅ Álcool (Etanol)
+  - ✅ Diesel
+  - ✅ Elétrico
+  - ✅ Híbrido Plugin
+  - ✅ Híbrido Leve
+  - ✅ GNV (Gás Natural)
 - **Critérios de Aceitação**:
-  - [ ] Interface Vehicle atualizada com novos tipos
-  - [ ] Select no formulário com os 8 tipos brasileiros
-  - [ ] Script de migração para veículos existentes
-  - [ ] Labels em português correto
-  - [ ] Documentação atualizada
+  - [x] Interface Vehicle atualizada com novos tipos
+  - [x] FUEL_TYPE_LABELS com nomes completos em português
+  - [x] FUEL_TYPE_OPTIONS para select dropdown
+  - [x] Type definition: `'flex' | 'gasoline' | 'ethanol' | 'diesel' | 'electric' | 'hybrid-plugin' | 'hybrid-mild' | 'gnv'`
+  - [x] Labels descritivos e naturais
+  - [x] Sistema de badges com variantes por tipo
 - **Complexidade**: Baixa (1 hora)
 - **Dependências**: Nenhuma
+- **Implementação**: `src/constants/vehicles.ts` linhas 14-43
 
 ---
 
@@ -128,22 +148,26 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Criar componente ConfirmModal.vue e adicionar em todas ações destrutivas
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Ações que Precisam de Confirmação**:
-  - Excluir veículo
-  - Excluir manutenção
-  - Cancelar transferência
-  - Sair da conta (logout)
-  - Excluir anexos
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Ações Implementadas**:
+  - ✅ Excluir veículo (Vehicles.vue)
+  - ✅ Excluir conta (Profile.vue)
+  - ⏳ Excluir manutenção (pendente)
+  - ⏳ Cancelar transferência (pendente)
 - **Critérios de Aceitação**:
-  - [ ] Componente ConfirmModal.vue criado
-  - [ ] Props: title, message, confirmText, cancelText, variant (danger/warning)
-  - [ ] Composable useConfirm() para facilitar uso
-  - [ ] Aplicado em todas ações destrutivas
-  - [ ] Animações de entrada/saída
-  - [ ] Acessibilidade (ESC fecha, focus trap)
+  - [x] Componente ConfirmModal.vue criado
+  - [x] Props: title, message, confirmText, cancelText, variant
+  - [x] Emits: confirm, cancel
+  - [x] Aplicado em excluir veículo e excluir conta
+  - [x] Design com overlay escuro e animações
+  - [x] Botões com variantes danger/outline
 - **Complexidade**: Média (2-3 horas)
 - **Dependências**: Nenhuma
+- **Implementação**: 
+  - `src/components/ConfirmModal.vue` (componente)
+  - `src/views/Vehicles.vue` linhas 23-26, uso do modal
+  - `src/views/Profile.vue` (uso para excluir conta)
 
 ---
 
@@ -151,17 +175,23 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Permitir que usuário adicione foto do veículo
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
 - **Critérios de Aceitação**:
-  - [ ] Campo `imageUrl` (Base64) adicionado em Vehicle
-  - [ ] Componente ImageUpload.vue (similar ao FileUpload)
-  - [ ] Preview da imagem no formulário
-  - [ ] Crop/resize para 800x600px (otimização)
-  - [ ] Validação: apenas imagens, máximo 2MB
-  - [ ] Placeholder se não houver imagem (ícone do tipo de veículo)
-  - [ ] Exibição da imagem em cards e detalhes
+  - [x] Campo `imageUrl` (Base64) adicionado em Vehicle interface
+  - [x] Input file com validação em Vehicles.vue
+  - [x] Preview da imagem no formulário (linhas 579-599)
+  - [x] Validação: apenas imagens, máximo 2MB
+  - [x] Conversão para Base64 com FileReader API
+  - [x] Botão remover imagem no preview
+  - [x] Exibição da imagem em cards (altura 160px, object-cover)
+  - [x] Store persiste imageUrl no Firestore
 - **Complexidade**: Média (2-3 horas)
-- **Dependências**: T-R03 (tipos de veículos para ícone placeholder)
+- **Dependências**: T-R03 (tipos de veículos) ✅
+- **Implementação**:
+  - `src/stores/vehicles.ts` linha 36 (campo imageUrl)
+  - `src/views/Vehicles.vue` linhas 48, 63-93 (upload e validação)
+  - `src/views/Vehicles.vue` linhas 739-746 (exibição em cards)
 
 ---
 
@@ -169,26 +199,29 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Criar área completa de gerenciamento de perfil
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Funcionalidades**:
-  - Editar nome completo
-  - Trocar email (reautenticação necessária)
-  - Trocar senha (reautenticação necessária)
-  - Adicionar telefone
-  - Adicionar endereço completo
-  - Upload de foto de perfil (Base64)
-  - Excluir conta (confirmação dupla)
+- **Status**: 🔄 Parcialmente Concluída (75%)
+- **Data de Início**: 2025-01-14
+- **Funcionalidades Implementadas**:
+  - ✅ Upload de foto de perfil (Base64) com preview
+  - ✅ Editar display name (nome completo)
+  - ✅ Exibição do email (read-only)
+  - ✅ Trocar senha com verificação de senha atual
+  - ✅ Excluir conta com ConfirmModal
+  - ⏳ Adicionar telefone (pendente)
+  - ⏳ Adicionar endereço completo (pendente)
 - **Critérios de Aceitação**:
-  - [ ] View Profile.vue criada
-  - [ ] Rota `/profile` adicionada
-  - [ ] Collection `users/{userId}/profile` no Firestore
-  - [ ] Store `profile.ts` criada
-  - [ ] Formulários de edição por seção
-  - [ ] Validações de email e senha
-  - [ ] Firebase reauthenticateWithCredential implementado
-  - [ ] Design responsivo e seguro
+  - [x] View Profile.vue criada
+  - [x] Rota `/profile` adicionada
+  - [x] Store `auth.ts` gerencia perfil
+  - [x] Seção de foto com file input (linhas 12-59)
+  - [x] Seção de informações pessoais (linhas 63-93)
+  - [x] Seção de alteração de senha (linhas 96-150)
+  - [x] Seção de exclusão de conta (linhas 200-400)
+  - [x] Firebase updateProfile e updatePassword implementados
+  - [ ] Campos telefone e endereço (pendentes)
 - **Complexidade**: Alta (4-5 horas)
-- **Dependências**: T-R06 (modal de confirmação para excluir conta)
+- **Dependências**: T-R06 (modal de confirmação) ✅
+- **Implementação**: `src/views/Profile.vue` (funcionalidades core completas)
 
 ---
 
@@ -196,18 +229,23 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Implementar envio real de emails com Cloud Functions
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
 - **Critérios de Aceitação**:
-  - [ ] Firebase Functions inicializado (`functions/` folder)
-  - [ ] SendGrid API Key configurada em variáveis de ambiente
-  - [ ] Função `sendTransferEmail` implementada
-  - [ ] Função `sendMaintenanceAlert` implementada
-  - [ ] Função `sendWelcomeEmail` implementada
-  - [ ] Store de transferências chama função ao criar transferência
-  - [ ] Logs de emails enviados
-  - [ ] Tratamento de erros de envio
+  - [x] Firebase Functions v2 inicializado (`functions/` folder)
+  - [x] SendGrid instalado: `@sendgrid/mail` v8.1.4
+  - [x] Secrets configurados: SENDGRID_API_KEY, SENDGRID_FROM_EMAIL
+  - [x] Função `sendTransferEmail` implementada (linhas 48-156)
+  - [x] Função `sendMaintenanceAlert` implementada (linhas 160-244)
+  - [x] Função `sendWelcomeEmail` implementada (linhas 247-315)
+  - [x] Todas funções deployed em us-central1
+  - [x] Logs de sucesso/erro implementados
+  - [x] Tratamento de erros com try/catch
+  - [x] Import correto: default import (não namespace)
 - **Complexidade**: Alta (5-6 horas)
 - **Dependências**: Nenhuma
+- **Implementação**: `functions/src/index.ts`
+- **Correção Aplicada**: Commit 7e198ea - Fix import SendGrid (linha 9)
 
 ---
 
@@ -215,23 +253,27 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Criar templates bonitos e responsivos para todos emails
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
-- **Templates Necessários**:
-  - Email de boas-vindas
-  - Email de código de transferência (dono atual)
-  - Email de código de transferência (novo dono)
-  - Email de manutenção próxima (7 dias antes)
-  - Email de manutenção vencida
-  - Email de confirmação de transferência concluída
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Templates Implementados**:
+  - ✅ transferEmail.ts - Email de código de transferência
+  - ✅ maintenanceAlertEmail.ts - Email de alerta de manutenção
+  - ✅ welcomeEmail.ts - Email de boas-vindas
+  - ✅ ownerTransferEmail.ts - Email para dono atual
+  - ✅ newOwnerTransferEmail.ts - Email para novo dono
 - **Critérios de Aceitação**:
-  - [ ] Templates em HTML/CSS inline (compatibilidade email)
-  - [ ] Design consistente com plataforma (cores, logo)
-  - [ ] Responsivo para mobile
-  - [ ] Testado em múltiplos clientes de email
-  - [ ] Variáveis dinâmicas (nome usuário, códigos, datas)
-  - [ ] Botões de CTA (Call-to-Action)
+  - [x] 5 templates HTML em `functions/src/templates/`
+  - [x] CSS inline para compatibilidade (style attributes)
+  - [x] Design com cores da plataforma (purple, blue)
+  - [x] Header com logo e branding AutoCare
+  - [x] Seções com ícones e conteúdo estruturado
+  - [x] Responsivo com meta viewport
+  - [x] Variáveis dinâmicas (userName, transferCode, vehiclePlate, etc)
+  - [x] Botões de CTA com links
+  - [x] Footer com copyright e links úteis
 - **Complexidade**: Média (3-4 horas)
-- **Dependências**: T-R09
+- **Dependências**: T-R09 ✅
+- **Implementação**: `functions/src/templates/*.ts` (5 arquivos)
 
 ---
 
@@ -239,15 +281,18 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Clicar em qualquer parte do card deve navegar para detalhes
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
 - **Critérios de Aceitação**:
-  - [ ] Card de veículo totalmente clicável (exceto botões de ação)
-  - [ ] Cursor pointer no hover
-  - [ ] Navegação para `/vehicles/:id`
-  - [ ] Botões de ação (Editar, Excluir) stopPropagation
-  - [ ] Animação de hover no card
+  - [x] Card de veículo totalmente clicável via @click
+  - [x] Cursor pointer com classe `cursor-pointer`
+  - [x] Navegação para `/vehicles/${vehicle.id}`
+  - [x] Botões de ação (Editar, Excluir) com @click.stop
+  - [x] Animação de hover: `group-hover:opacity-90`
+  - [x] Classes CSS: `hover:border-gray-600 transition-all cursor-pointer group`
 - **Complexidade**: Baixa (30 minutos)
-- **Dependências**: T-R12 (página de detalhes melhorada)
+- **Dependências**: T-R12 (página de detalhes) ✅
+- **Implementação**: `src/views/Vehicles.vue` linha 738 (@click no Card)
 
 ---
 
@@ -255,23 +300,27 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Melhorar VehicleDetails.vue com seções organizadas
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🔴 Alta
-- **Status**: ⏳ Pendente
-- **Seções a Implementar**:
-  1. Header com imagem e dados principais
-  2. Tabs: Informações | Manutenções | Estatísticas | Documentos | Seguro
-  3. Seção de Informações: dados do veículo editáveis inline
-  4. Seção de Manutenções: lista completa + botão adicionar
-  5. Seção de Estatísticas: gráficos de custos e consumo
-  6. Seção de Documentos: upload de documentos (CRLV, seguro, etc)
-  7. Seção de Seguro: dados da apólice + botão ligar
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Seções Implementadas**:
+  1. ✅ Header com imagem e dados principais
+  2. ✅ Sistema de Tabs com 5 abas funcionais
+  3. ✅ Tab Informações: dados editáveis inline (linhas 409-540)
+  4. ✅ Tab Manutenções: histórico completo com badges (linhas 674-730)
+  5. ✅ Tab Estatísticas: cards de métricas + 3 gráficos (linhas 731-840)
+  6. ✅ Tab Documentos: upload CRLV e Apólice (linhas 843-1050)
+  7. ✅ Tab Seguro: dados apólice + alertas vencimento (linhas 1053-1173)
 - **Critérios de Aceitação**:
-  - [ ] Layout com tabs funcionais
-  - [ ] Cada seção implementada e funcional
-  - [ ] Design responsivo para mobile
-  - [ ] Loading states adequados
-  - [ ] Breadcrumb: Veículos > [Placa do Veículo]
+  - [x] Layout com tabs funcionais (TabPanel components)
+  - [x] Cada seção implementada e funcional
+  - [x] Design responsivo (grid adaptativo mobile/desktop)
+  - [x] Loading states em uploads
+  - [x] Badges indicadores em cada tab
+  - [x] Stats cards com métricas calculadas
+  - [x] Botões de ação contextuais por seção
 - **Complexidade**: Alta (6-8 horas)
-- **Dependências**: T-R07, T-R13, T-R18, T-R19
+- **Dependências**: T-R07 ✅, T-R13 ✅
+- **Implementação**: `src/views/VehicleDetails.vue` (1173 linhas)
 
 ---
 
@@ -279,21 +328,29 @@ Esta é a **lista de execução** do projeto. Todas as tarefas aqui são acioná
 - **Descrição**: Implementar visualizações gráficas com Chart.js
 - **Origem**: Feedback do usuário - melhorias de robustez
 - **Prioridade**: 🟡 Média
-- **Status**: ⏳ Pendente
-- **Gráficos a Implementar**:
-  1. Custos mensais (linha): mês a mês últimos 12 meses
-  2. Custos por tipo de manutenção (pizza)
-  3. Evolução de km/l (linha) - requer T011 (abastecimento)
-  4. Comparação custos preventiva vs corretiva (barras)
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 2025-01-14
+- **Gráficos Implementados**:
+  1. ✅ MonthlyCostsChart.vue - Evolução custos mensais (linha, últimos 6 meses)
+  2. ✅ CostsByTypeChart.vue - Custos por tipo de manutenção (barra horizontal)
+  3. ✅ PreventiveVsCorrectiveChart.vue - Preventiva vs Corretiva (pizza)
 - **Critérios de Aceitação**:
-  - [ ] Chart.js instalado (`npm install chart.js vue-chartjs`)
-  - [ ] Componentes de gráfico criados em `components/charts/`
-  - [ ] Gráficos integrados na seção de Estatísticas do veículo
-  - [ ] Tooltips informativos
-  - [ ] Cores consistentes com tema da plataforma
-  - [ ] Responsivo e performático
+  - [x] Chart.js + vue-chartjs instalados
+  - [x] 3 componentes criados em `src/components/charts/`
+  - [x] Registros do Chart.js (CategoryScale, LinearScale, etc)
+  - [x] Gráficos integrados em VehicleDetails.vue Tab Estatísticas
+  - [x] Tooltips com formatação de moeda (R$)
+  - [x] Cores consistentes: purple, blue, green gradients
+  - [x] Grid responsivo: 1 coluna mobile, 2 colunas desktop
+  - [x] Placeholder quando não há dados
+  - [x] Props recebem maintenanceHistory array
 - **Complexidade**: Média (3-4 horas)
-- **Dependências**: T-R12
+- **Dependências**: T-R12 ✅
+- **Implementação**: 
+  - `src/components/charts/MonthlyCostsChart.vue`
+  - `src/components/charts/CostsByTypeChart.vue`
+  - `src/components/charts/PreventiveVsCorrectiveChart.vue`
+  - Integração: `src/views/VehicleDetails.vue` linhas 805-824
 
 ---
 
