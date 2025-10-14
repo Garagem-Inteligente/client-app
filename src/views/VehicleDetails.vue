@@ -8,13 +8,27 @@ import Button from '../components/Button.vue'
 import Badge from '../components/Badge.vue'
 import Navbar from '../components/Navbar.vue'
 import TransferModal from '../components/TransferModal.vue'
+import Tabs from '../components/Tabs.vue'
+import TabPanel from '../components/TabPanel.vue'
 
 const route = useRoute()
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
 const showTransferModal = ref(false)
+const isEditing = ref(false)
+const activeTab = ref('info')
 
 const vehicleId = route.params.id as string
+
+// Form data for editing
+const editForm = ref({
+  make: '',
+  model: '',
+  year: 0,
+  plate: '',
+  color: '',
+  mileage: 0
+})
 
 const vehicle = computed(() => vehiclesStore.getVehicleById(vehicleId))
 
@@ -55,6 +69,38 @@ const nextMaintenanceDate = computed(() => {
   if (upcomingMaintenance.value.length === 0) return null
   return upcomingMaintenance.value[0].nextDueDate
 })
+
+// Tabs configuration
+const tabs = computed(() => [
+  { 
+    id: 'info', 
+    label: 'Informações', 
+    icon: '📋'
+  },
+  { 
+    id: 'maintenance', 
+    label: 'Manutenções', 
+    icon: '🔧',
+    badge: maintenanceHistory.value.length
+  },
+  { 
+    id: 'stats', 
+    label: 'Estatísticas', 
+    icon: '📊',
+    disabled: maintenanceHistory.value.length === 0
+  },
+  { 
+    id: 'documents', 
+    label: 'Documentos', 
+    icon: '📄'
+  },
+  { 
+    id: 'insurance', 
+    label: 'Seguro', 
+    icon: '🛡️',
+    badge: isInsuranceExpired.value ? 1 : (isInsuranceExpiringSoon.value ? 1 : undefined)
+  }
+])
 
 // Verificações de seguro
 const isInsuranceExpired = computed(() => {
@@ -114,9 +160,39 @@ const daysUntilNext = (date: Date) => {
   return days
 }
 
+const startEditing = () => {
+  if (!vehicle.value) return
+  editForm.value = {
+    make: vehicle.value.make,
+    model: vehicle.value.model,
+    year: vehicle.value.year,
+    plate: vehicle.value.plate,
+    color: vehicle.value.color || '',
+    mileage: vehicle.value.mileage
+  }
+  isEditing.value = true
+}
+
+const cancelEditing = () => {
+  isEditing.value = false
+}
+
+// TODO: Implementar edição inline na aba Info
+// const saveEditing = async () => {
+//   if (!vehicle.value) return
+//   
+//   try {
+//     await vehiclesStore.updateVehicle(vehicleId, editForm.value)
+//     isEditing.value = false
+//   } catch (error) {
+//     console.error('Erro ao atualizar veículo:', error)
+//     alert('Erro ao atualizar veículo. Tente novamente.')
+//   }
+// }
+
 const handleEdit = () => {
-  router.push('/vehicles')
-  // Idealmente, você passaria o ID do veículo para abrir o formulário de edição
+  activeTab.value = 'info'
+  startEditing()
 }
 
 const handleDelete = async () => {
@@ -129,6 +205,14 @@ const handleDelete = async () => {
     } catch (error) {
       console.error('Erro ao excluir veículo:', error)
     }
+  }
+}
+
+const handleTabChange = (tabId: string) => {
+  activeTab.value = tabId
+  // Cancela edição ao mudar de aba
+  if (isEditing.value && tabId !== 'info') {
+    cancelEditing()
   }
 }
 
@@ -218,8 +302,14 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Stats Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Tabs -->
+          <Tabs :tabs="tabs" :default-tab="activeTab" @change="handleTabChange">
+            <template #default>
+              
+              <!-- TAB: Informações -->
+              <TabPanel tab-id="info">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Quilometragem -->
             <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-xl p-6">
               <div class="flex items-center justify-between mb-4">
@@ -330,61 +420,48 @@ onMounted(async () => {
               </div>
             </Card>
 
-            <!-- Dados do Seguro -->
-            <Card v-if="vehicle.insuranceCompany || vehicle.insurancePolicyNumber" 
-                  title="Dados do Seguro" 
-                  class="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-blue-600/5">
+            <!-- Quick Link Seguro -->
+            <Card 
+              title="Seguro" 
+              class="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-blue-600/5 cursor-pointer hover:border-blue-500/50 transition-all"
+              @click="activeTab = 'insurance'"
+            >
               <div class="space-y-4">
-                <div v-if="vehicle.insuranceCompany" class="flex items-start justify-between py-3 border-b border-gray-700">
-                  <span class="text-gray-400">Seguradora</span>
-                  <span class="font-medium text-white">{{ vehicle.insuranceCompany }}</span>
-                </div>
-                
-                <div v-if="vehicle.insurancePolicyNumber" class="flex items-start justify-between py-3 border-b border-gray-700">
-                  <span class="text-gray-400">Número da Apólice</span>
-                  <span class="font-medium text-white">{{ vehicle.insurancePolicyNumber }}</span>
-                </div>
-                
-                <div v-if="vehicle.insuranceExpiryDate" class="flex items-start justify-between py-3 border-b border-gray-700">
-                  <span class="text-gray-400">Vencimento</span>
-                  <div class="text-right">
-                    <span class="font-medium text-white">{{ formatDate(vehicle.insuranceExpiryDate) }}</span>
-                    <Badge 
-                      v-if="isInsuranceExpiringSoon" 
-                      variant="warning" 
-                      size="sm" 
-                      class="ml-2"
-                    >
-                      Renovar em breve
-                    </Badge>
-                    <Badge 
-                      v-else-if="isInsuranceExpired" 
-                      variant="error" 
-                      size="sm" 
-                      class="ml-2"
-                    >
-                      Vencido
-                    </Badge>
+                <div v-if="vehicle.insuranceCompany" class="text-center py-6">
+                  <div class="text-2xl font-bold text-white mb-2">
+                    {{ vehicle.insuranceCompany }}
                   </div>
-                </div>
-                
-                <div v-if="vehicle.insuranceValue" class="flex items-start justify-between py-3 border-b border-gray-700">
-                  <span class="text-gray-400">Valor Anual</span>
-                  <span class="font-medium text-emerald-400">{{ formatCurrency(vehicle.insuranceValue) }}</span>
-                </div>
-                
-                <div v-if="vehicle.insurancePhone" class="pt-2">
-                  <a 
-                    :href="`tel:${vehicle.insurancePhone}`"
-                    class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                  <p class="text-sm text-gray-400 mb-4">
+                    Vence em {{ vehicle.insuranceExpiryDate ? formatDate(vehicle.insuranceExpiryDate) : 'N/A' }}
+                  </p>
+                  <Badge 
+                    v-if="isInsuranceExpired" 
+                    variant="error"
                   >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    Ligar para Seguradora
-                    <span class="text-sm text-green-100">{{ vehicle.insurancePhone }}</span>
-                  </a>
+                    ⚠️ Vencido
+                  </Badge>
+                  <Badge 
+                    v-else-if="isInsuranceExpiringSoon" 
+                    variant="warning"
+                  >
+                    📅 Renovar em breve
+                  </Badge>
+                  <Badge v-else variant="success">
+                    ✓ Em dia
+                  </Badge>
                 </div>
+                <div v-else class="text-center py-6">
+                  <p class="text-gray-400 mb-4">Sem dados de seguro</p>
+                  <Badge variant="warning">Adicionar Dados</Badge>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  class="w-full"
+                  @click.stop="activeTab = 'insurance'"
+                >
+                  Ver Detalhes do Seguro
+                </Button>
               </div>
             </Card>
 
@@ -430,9 +507,12 @@ onMounted(async () => {
               </div>
             </Card>
           </div>
+              </TabPanel>
 
-          <!-- Histórico de Manutenções -->
-          <Card title="Histórico de Manutenções" class="mt-8">
+              <!-- TAB: Manutenções -->
+              <TabPanel tab-id="maintenance">
+                <!-- Histórico de Manutenções -->
+                <Card title="Histórico Completo de Manutenções">
             <div v-if="completedMaintenance.length === 0" class="text-center py-8">
               <svg class="mx-auto h-12 w-12 text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -499,6 +579,263 @@ onMounted(async () => {
               </div>
             </div>
           </Card>
+              </TabPanel>
+
+              <!-- TAB: Estatísticas -->
+              <TabPanel tab-id="stats">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card title="Custo Total">
+                    <div class="text-center py-6">
+                      <div class="text-3xl font-bold text-purple-400 mb-2">
+                        {{ formatCurrency(totalMaintenanceCost) }}
+                      </div>
+                      <p class="text-sm text-gray-400">Investido em manutenções</p>
+                    </div>
+                  </Card>
+
+                  <Card title="Custo Médio">
+                    <div class="text-center py-6">
+                      <div class="text-3xl font-bold text-blue-400 mb-2">
+                        {{ formatCurrency(averageMaintenanceCost) }}
+                      </div>
+                      <p class="text-sm text-gray-400">Por manutenção</p>
+                    </div>
+                  </Card>
+
+                  <Card title="Total de Manutenções">
+                    <div class="text-center py-6">
+                      <div class="text-3xl font-bold text-green-400 mb-2">
+                        {{ maintenanceHistory.length }}
+                      </div>
+                      <p class="text-sm text-gray-400">Registros no histórico</p>
+                    </div>
+                  </Card>
+
+                  <Card title="Próximas Manutenções">
+                    <div class="text-center py-6">
+                      <div class="text-3xl font-bold text-yellow-400 mb-2">
+                        {{ upcomingMaintenance.length }}
+                      </div>
+                      <p class="text-sm text-gray-400">Agendadas</p>
+                    </div>
+                  </Card>
+
+                  <Card title="Manutenções Concluídas">
+                    <div class="text-center py-6">
+                      <div class="text-3xl font-bold text-emerald-400 mb-2">
+                        {{ completedMaintenance.length }}
+                      </div>
+                      <p class="text-sm text-gray-400">Finalizadas</p>
+                    </div>
+                  </Card>
+
+                  <Card title="Última Manutenção">
+                    <div class="text-center py-6">
+                      <div class="text-xl font-bold text-white mb-2">
+                        {{ lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'N/A' }}
+                      </div>
+                      <p class="text-sm text-gray-400">Data do último serviço</p>
+                    </div>
+                  </Card>
+                </div>
+
+                <div class="mt-8 p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                  <h3 class="text-lg font-semibold text-white mb-4">📊 Gráficos em Breve</h3>
+                  <p class="text-gray-400 mb-4">
+                    Em breve você terá acesso a gráficos detalhados sobre:
+                  </p>
+                  <ul class="space-y-2 text-gray-400">
+                    <li class="flex items-center gap-2">
+                      <span class="text-blue-400">📈</span>
+                      Evolução de custos mensais
+                    </li>
+                    <li class="flex items-center gap-2">
+                      <span class="text-green-400">📊</span>
+                      Custos por tipo de manutenção
+                    </li>
+                    <li class="flex items-center gap-2">
+                      <span class="text-yellow-400">📉</span>
+                      Manutenções preventivas vs corretivas
+                    </li>
+                  </ul>
+                </div>
+              </TabPanel>
+
+              <!-- TAB: Documentos -->
+              <TabPanel tab-id="documents">
+                <div class="space-y-6">
+                  <Card title="Documentos do Veículo">
+                    <div class="text-center py-12">
+                      <div class="mx-auto w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <h3 class="text-lg font-medium text-white mb-2">Upload de Documentos</h3>
+                      <p class="text-gray-400 mb-6">
+                        Em breve você poderá fazer upload de documentos como CRLV, apólice de seguro, notas fiscais, etc.
+                      </p>
+                      <Badge variant="warning">Em Desenvolvimento</Badge>
+                    </div>
+                  </Card>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card title="📄 CRLV">
+                      <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-gray-700">
+                          <span class="text-gray-400">Status</span>
+                          <Badge variant="warning" size="sm">Pendente</Badge>
+                        </div>
+                        <p class="text-gray-500 text-xs">
+                          Adicione o documento do seu veículo para ter acesso rápido quando necessário.
+                        </p>
+                      </div>
+                    </Card>
+
+                    <Card title="📋 Apólice de Seguro">
+                      <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-gray-700">
+                          <span class="text-gray-400">Status</span>
+                          <Badge variant="warning" size="sm">Pendente</Badge>
+                        </div>
+                        <p class="text-gray-500 text-xs">
+                          Mantenha uma cópia digital da sua apólice de seguro sempre disponível.
+                        </p>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </TabPanel>
+
+              <!-- TAB: Seguro -->
+              <TabPanel tab-id="insurance">
+                <div v-if="!vehicle.insuranceCompany && !vehicle.insurancePolicyNumber" class="text-center py-16">
+                  <div class="mx-auto w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-xl font-semibold text-white mb-2">Sem Informações de Seguro</h3>
+                  <p class="text-gray-400 mb-6">
+                    Adicione as informações do seguro do seu veículo para ter acesso rápido quando necessário.
+                  </p>
+                  <router-link to="/vehicles">
+                    <Button variant="primary">Adicionar Dados do Seguro</Button>
+                  </router-link>
+                </div>
+
+                <div v-else class="space-y-6">
+                  <!-- Alert de Vencimento -->
+                  <div v-if="isInsuranceExpired" class="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <div class="flex items-start gap-3">
+                      <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div>
+                        <h4 class="font-semibold text-red-400 mb-1">⚠️ Seguro Vencido</h4>
+                        <p class="text-sm text-red-300">
+                          Seu seguro está vencido. Entre em contato com a seguradora para renovar.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else-if="isInsuranceExpiringSoon" class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <div class="flex items-start gap-3">
+                      <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <h4 class="font-semibold text-yellow-400 mb-1">📅 Renovação Próxima</h4>
+                        <p class="text-sm text-yellow-300">
+                          Seu seguro vence em breve. Considere renová-lo para manter a cobertura.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Informações do Seguro -->
+                  <Card title="Informações do Seguro" class="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-blue-600/5">
+                    <div class="space-y-4">
+                      <div v-if="vehicle.insuranceCompany" class="flex items-start justify-between py-3 border-b border-gray-700">
+                        <span class="text-gray-400">Seguradora</span>
+                        <span class="font-medium text-white">{{ vehicle.insuranceCompany }}</span>
+                      </div>
+                      
+                      <div v-if="vehicle.insurancePolicyNumber" class="flex items-start justify-between py-3 border-b border-gray-700">
+                        <span class="text-gray-400">Número da Apólice</span>
+                        <span class="font-medium text-white font-mono">{{ vehicle.insurancePolicyNumber }}</span>
+                      </div>
+                      
+                      <div v-if="vehicle.insuranceExpiryDate" class="flex items-start justify-between py-3 border-b border-gray-700">
+                        <span class="text-gray-400">Vencimento</span>
+                        <div class="text-right">
+                          <span class="font-medium text-white">{{ formatDate(vehicle.insuranceExpiryDate) }}</span>
+                          <Badge 
+                            v-if="isInsuranceExpiringSoon" 
+                            variant="warning" 
+                            size="sm" 
+                            class="ml-2"
+                          >
+                            Renovar em breve
+                          </Badge>
+                          <Badge 
+                            v-else-if="isInsuranceExpired" 
+                            variant="error" 
+                            size="sm" 
+                            class="ml-2"
+                          >
+                            Vencido
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div v-if="vehicle.insuranceValue" class="flex items-start justify-between py-3 border-b border-gray-700">
+                        <span class="text-gray-400">Valor Anual</span>
+                        <span class="font-semibold text-emerald-400 text-lg">{{ formatCurrency(vehicle.insuranceValue) }}</span>
+                      </div>
+                      
+                      <div v-if="vehicle.insurancePhone" class="pt-4">
+                        <a 
+                          :href="`tel:${vehicle.insurancePhone}`"
+                          class="flex items-center justify-center gap-3 w-full py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span>Ligar para Seguradora</span>
+                          <span class="text-sm text-green-100">{{ vehicle.insurancePhone }}</span>
+                        </a>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <!-- Dicas sobre Seguro -->
+                  <Card title="💡 Dicas Importantes">
+                    <div class="space-y-3 text-sm text-gray-400">
+                      <div class="flex items-start gap-3">
+                        <span class="text-blue-400 mt-0.5">✓</span>
+                        <p>Mantenha sempre uma cópia da apólice no veículo</p>
+                      </div>
+                      <div class="flex items-start gap-3">
+                        <span class="text-blue-400 mt-0.5">✓</span>
+                        <p>Revise anualmente as coberturas do seu seguro</p>
+                      </div>
+                      <div class="flex items-start gap-3">
+                        <span class="text-blue-400 mt-0.5">✓</span>
+                        <p>Compare preços de outras seguradoras antes de renovar</p>
+                      </div>
+                      <div class="flex items-start gap-3">
+                        <span class="text-blue-400 mt-0.5">✓</span>
+                        <p>Mantenha o pagamento em dia para não perder a cobertura</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              </TabPanel>
+
+            </template>
+          </Tabs>
         </div>
       </div>
     </div>
