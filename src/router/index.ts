@@ -97,6 +97,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, requiresWorkshop: true }
   },
   {
+    path: '/select-type',
+    name: 'SelectType',
+    component: () => import('../views/auth/SelectType.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/auth/Login.vue'),
@@ -106,6 +112,12 @@ const routes: RouteRecordRaw[] = [
     path: '/register',
     name: 'Register',
     component: () => import('../views/auth/Register.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/workshop/register',
+    name: 'WorkshopRegister',
+    component: () => import('../views/workshop/Register.vue'),
     meta: { requiresGuest: true }
   },
   {

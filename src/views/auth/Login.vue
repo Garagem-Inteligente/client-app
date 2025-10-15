@@ -142,7 +142,7 @@ onMounted(() => {
             <p class="text-gray-300">
               Não tem uma conta?
               <router-link
-                to="/register"
+                to="/select-type?mode=register"
                 class="text-purple-400 hover:text-purple-300 font-medium transition-colors"
               >
                 Criar conta

@@ -236,7 +236,7 @@ onMounted(() => {
              <p class="text-gray-300">
                Já tem uma conta?
                <router-link
-                 to="/login"
+                 to="/select-type?mode=login"
                  class="text-purple-400 hover:text-purple-300 font-medium transition-colors"
                >
                  Fazer login

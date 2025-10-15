@@ -46,8 +46,8 @@ const handleNavigation = (page: string) => {
           <button @click="handleNavigation('features')" class="text-gray-300 hover:text-white transition-colors duration-300">Recursos</button>
           <button @click="handleNavigation('pricing')" class="text-gray-300 hover:text-white transition-colors duration-300">Preços</button>
           <button @click="handleNavigation('support')" class="text-gray-300 hover:text-white transition-colors duration-300">Suporte</button>
-          <router-link to="/login" class="text-gray-300 hover:text-white transition-colors duration-300">Login</router-link>
-          <router-link to="/register" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</router-link>
+          <router-link to="/select-type?mode=login" class="text-gray-300 hover:text-white transition-colors duration-300">Login</router-link>
+          <router-link to="/select-type?mode=register" class="text-gray-300 hover:text-white transition-colors duration-300">Registro</router-link>
           <Button variant="primary" size="sm">Baixar App</Button>
         </div>
         
@@ -69,8 +69,8 @@ const handleNavigation = (page: string) => {
           <button @click="handleNavigation('features')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Recursos</button>
           <button @click="handleNavigation('pricing')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Preços</button>
           <button @click="handleNavigation('support')" class="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Suporte</button>
-          <router-link to="/login" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Login</router-link>
-          <router-link to="/register" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Registro</router-link>
+          <router-link to="/select-type?mode=login" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Login</router-link>
+          <router-link to="/select-type?mode=register" class="block px-4 py-3 text-gray-300 hover:text-white hover:bg-purple-900/30 rounded-lg transition-colors">Registro</router-link>
           <div class="pt-2">
             <Button variant="primary" class="w-full">Baixar App</Button>
           </div>
