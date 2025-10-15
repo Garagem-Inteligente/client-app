@@ -1,5 +1,21 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  Timestamp,
+  collectionGroup,
+  type Query
+} from 'firebase/firestore'
+import { db } from '@/firebase/config'
+import { useAuthStore } from './auth'
 
 export interface Workshop {
   id: string
@@ -8,8 +24,17 @@ export interface Workshop {
   email?: string
   phone?: string
   address?: string
+  city?: string
+  state?: string
+  specialties?: string[]
+  workHours?: string
+  photos?: string[]
   ownerId: string
+  verified: boolean
+  rating?: number
+  totalReviews: number
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface ServiceItem {
@@ -27,68 +52,448 @@ export interface JobOrder {
   workshopId: string
   vehicleId: string
   customerId?: string
+  customerEmail?: string
   status: JobStatus
   services: ServiceItem[]
+  totalLabor: number
+  totalParts: number
+  totalCost: number
   notes?: string
+  customerComment?: string
+  photosBefore?: string[]
+  photosAfter?: string[]
   createdAt: Date
   updatedAt: Date
+  completedAt?: Date
 }
 
+export interface WorkshopReview {
+  id: string
+  workshopId: string
+  userId: string
+  userName: string
+  rating: number
+  comment?: string
+  createdAt: Date
+}
+
+export interface WorkshopInput extends Omit<Workshop, 'id' | 'createdAt' | 'updatedAt' | 'verified' | 'totalReviews'> {}
+export interface JobOrderInput extends Omit<JobOrder, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'> {}
+export interface ReviewInput extends Omit<WorkshopReview, 'id' | 'createdAt'> {}
+
 export const useWorkshopsStore = defineStore('workshops', () => {
+  const authStore = useAuthStore()
+  
   const workshops = ref<Workshop[]>([])
   const jobOrders = ref<JobOrder[]>([])
+  const reviews = ref<WorkshopReview[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // Placeholders: implementar integração com Firestore em etapas futuras (T007)
-  const fetchWorkshops = async () => {
+  // Computed
+  const myWorkshops = computed(() => 
+    workshops.value.filter(w => w.ownerId === authStore.user?.id)
+  )
+
+  const workshopById = computed(() => (id: string) => 
+    workshops.value.find(w => w.id === id)
+  )
+
+  const averageRating = computed(() => (workshopId: string) => {
+    const workshopReviews = reviews.value.filter(r => r.workshopId === workshopId)
+    if (workshopReviews.length === 0) return 0
+    const sum = workshopReviews.reduce((acc, r) => acc + r.rating, 0)
+    return sum / workshopReviews.length
+  })
+
+  // Actions
+  const fetchWorkshops = async (filters?: { city?: string; specialty?: string; minRating?: number }) => {
     loading.value = true
     error.value = null
     try {
-      // TODO: carregar da coleção 'workshops'
-      return [] as Workshop[]
+      let q: Query = collection(db, 'workshops')
+      
+      const constraints = []
+      if (filters?.city) {
+        constraints.push(where('city', '==', filters.city))
+      }
+      if (filters?.specialty) {
+        constraints.push(where('specialties', 'array-contains', filters.specialty))
+      }
+      
+      if (constraints.length > 0) {
+        q = query(q as any, ...constraints, orderBy('rating', 'desc'))
+      } else {
+        q = query(q as any, orderBy('createdAt', 'desc'))
+      }
+
+      const snapshot = await getDocs(q)
+      workshops.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate()
+      })) as Workshop[]
+
+      // Filtrar por rating se necessário (pós-query)
+      if (filters?.minRating) {
+        workshops.value = workshops.value.filter(w => 
+          (w.rating || 0) >= filters.minRating!
+        )
+      }
+
+      return workshops.value
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Erro ao carregar oficinas'
-      return [] as Workshop[]
+      return []
     } finally {
       loading.value = false
     }
   }
 
-  const fetchJobOrders = async (_workshopId: string) => {
+  const fetchWorkshopById = async (id: string) => {
     loading.value = true
     error.value = null
     try {
-      // TODO: carregar de 'workshops/{id}/job_orders'
-      return [] as JobOrder[]
+      const docRef = doc(db, 'workshops', id)
+      const docSnap = await getDoc(docRef)
+      
+      if (docSnap.exists()) {
+        const workshop = {
+          id: docSnap.id,
+          ...docSnap.data(),
+          createdAt: docSnap.data().createdAt?.toDate(),
+          updatedAt: docSnap.data().updatedAt?.toDate()
+        } as Workshop
+        
+        // Atualizar no array se já existir
+        const index = workshops.value.findIndex(w => w.id === id)
+        if (index >= 0) {
+          workshops.value[index] = workshop
+        } else {
+          workshops.value.push(workshop)
+        }
+        
+        return workshop
+      }
+      
+      return null
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Erro ao carregar ordens de serviço'
-      return [] as JobOrder[]
+      error.value = e instanceof Error ? e.message : 'Erro ao carregar oficina'
+      return null
     } finally {
       loading.value = false
     }
   }
 
-  const createWorkshop = async (_input: Omit<Workshop, 'id' | 'createdAt'>) => {
-    // TODO: persistir no Firestore
-    return { success: true, id: crypto.randomUUID() }
+  const createWorkshop = async (input: WorkshopInput) => {
+    if (!authStore.user?.id) {
+      return { success: false, error: 'Usuário não autenticado' }
+    }
+
+    loading.value = true
+    error.value = null
+    try {
+      const now = Timestamp.now()
+      const workshopData = {
+        ...input,
+        ownerId: authStore.user.id,
+        verified: false,
+        totalReviews: 0,
+        createdAt: now,
+        updatedAt: now
+      }
+
+      const docRef = await addDoc(collection(db, 'workshops'), workshopData)
+      
+      const newWorkshop: Workshop = {
+        id: docRef.id,
+        ...workshopData,
+        createdAt: now.toDate(),
+        updatedAt: now.toDate()
+      }
+      
+      workshops.value.push(newWorkshop)
+      
+      return { success: true, id: docRef.id, workshop: newWorkshop }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao criar oficina'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
   }
 
-  const createJobOrder = async (_input: Omit<JobOrder, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: JobStatus }) => {
-    // TODO: persistir no Firestore
-    return { success: true, id: crypto.randomUUID() }
+  const updateWorkshop = async (id: string, data: Partial<WorkshopInput>) => {
+    loading.value = true
+    error.value = null
+    try {
+      const docRef = doc(db, 'workshops', id)
+      await updateDoc(docRef, {
+        ...data,
+        updatedAt: Timestamp.now()
+      })
+
+      const index = workshops.value.findIndex(w => w.id === id)
+      if (index >= 0) {
+        workshops.value[index] = {
+          ...workshops.value[index],
+          ...data,
+          updatedAt: new Date()
+        }
+      }
+
+      return { success: true }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao atualizar oficina'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchJobOrders = async (workshopId: string, statusFilter?: JobStatus) => {
+    loading.value = true
+    error.value = null
+    try {
+      let q: Query = collection(db, 'workshops', workshopId, 'job_orders')
+      
+      if (statusFilter) {
+        q = query(q as any, 
+          where('status', '==', statusFilter),
+          orderBy('createdAt', 'desc')
+        )
+      } else {
+        q = query(q as any, orderBy('createdAt', 'desc'))
+      }
+
+      const snapshot = await getDocs(q)
+      jobOrders.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+        completedAt: doc.data().completedAt?.toDate()
+      })) as JobOrder[]
+
+      return jobOrders.value
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao carregar ordens de serviço'
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchMyJobOrders = async (statusFilter?: JobStatus) => {
+    if (!authStore.user?.id) return []
+    
+    loading.value = true
+    error.value = null
+    try {
+      // Buscar em todas as oficinas (collection group)
+      let q: Query = collectionGroup(db, 'job_orders')
+      
+      if (statusFilter) {
+        q = query(q as any,
+          where('customerId', '==', authStore.user.id),
+          where('status', '==', statusFilter),
+          orderBy('createdAt', 'desc')
+        )
+      } else {
+        q = query(q as any,
+          where('customerId', '==', authStore.user.id),
+          orderBy('createdAt', 'desc')
+        )
+      }
+
+      const snapshot = await getDocs(q)
+      jobOrders.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+        completedAt: doc.data().completedAt?.toDate()
+      })) as JobOrder[]
+
+      return jobOrders.value
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao carregar suas ordens'
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const createJobOrder = async (workshopId: string, input: JobOrderInput) => {
+    loading.value = true
+    error.value = null
+    try {
+      const now = Timestamp.now()
+      const orderData = {
+        ...input,
+        createdAt: now,
+        updatedAt: now
+      }
+
+      const docRef = await addDoc(
+        collection(db, 'workshops', workshopId, 'job_orders'),
+        orderData
+      )
+
+      const newOrder: JobOrder = {
+        id: docRef.id,
+        ...orderData,
+        createdAt: now.toDate(),
+        updatedAt: now.toDate()
+      }
+
+      jobOrders.value.push(newOrder)
+
+      return { success: true, id: docRef.id, order: newOrder }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao criar ordem de serviço'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateJobOrderStatus = async (
+    workshopId: string,
+    orderId: string,
+    status: JobStatus,
+    comment?: string
+  ) => {
+    loading.value = true
+    error.value = null
+    try {
+      const docRef = doc(db, 'workshops', workshopId, 'job_orders', orderId)
+      const updateData: any = {
+        status,
+        updatedAt: Timestamp.now()
+      }
+
+      if (status === 'completed') {
+        updateData.completedAt = Timestamp.now()
+      }
+
+      if (comment) {
+        updateData.customerComment = comment
+      }
+
+      await updateDoc(docRef, updateData)
+
+      const index = jobOrders.value.findIndex(o => o.id === orderId)
+      if (index >= 0) {
+        jobOrders.value[index] = {
+          ...jobOrders.value[index],
+          status,
+          customerComment: comment,
+          updatedAt: new Date(),
+          ...(status === 'completed' && { completedAt: new Date() })
+        }
+      }
+
+      return { success: true }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao atualizar status'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchReviews = async (workshopId: string) => {
+    loading.value = true
+    error.value = null
+    try {
+      const q = query(
+        collection(db, 'workshop_reviews'),
+        where('workshopId', '==', workshopId),
+        orderBy('createdAt', 'desc')
+      )
+
+      const snapshot = await getDocs(q)
+      reviews.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate()
+      })) as WorkshopReview[]
+
+      return reviews.value
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao carregar avaliações'
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const createReview = async (input: ReviewInput) => {
+    if (!authStore.user?.id) {
+      return { success: false, error: 'Usuário não autenticado' }
+    }
+
+    loading.value = true
+    error.value = null
+    try {
+      const reviewData = {
+        ...input,
+        userId: authStore.user.id,
+        createdAt: Timestamp.now()
+      }
+
+      const docRef = await addDoc(collection(db, 'workshop_reviews'), reviewData)
+
+      const newReview: WorkshopReview = {
+        id: docRef.id,
+        ...reviewData,
+        createdAt: reviewData.createdAt.toDate()
+      }
+
+      reviews.value.push(newReview)
+
+      // Atualizar contagem de reviews da oficina
+      const workshopRef = doc(db, 'workshops', input.workshopId)
+      const workshopSnap = await getDoc(workshopRef)
+      if (workshopSnap.exists()) {
+        const currentTotal = workshopSnap.data().totalReviews || 0
+        await updateDoc(workshopRef, {
+          totalReviews: currentTotal + 1
+        })
+      }
+
+      return { success: true, id: docRef.id, review: newReview }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao criar avaliação'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
   }
 
   return {
     // state
     workshops,
     jobOrders,
+    reviews,
     loading,
     error,
+    // computed
+    myWorkshops,
+    workshopById,
+    averageRating,
     // actions
     fetchWorkshops,
-    fetchJobOrders,
+    fetchWorkshopById,
     createWorkshop,
-    createJobOrder
+    updateWorkshop,
+    fetchJobOrders,
+    fetchMyJobOrders,
+    createJobOrder,
+    updateJobOrderStatus,
+    fetchReviews,
+    createReview
   }
 })

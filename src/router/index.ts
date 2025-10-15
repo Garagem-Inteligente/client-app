@@ -33,31 +33,31 @@ const routes: RouteRecordRaw[] = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('../views/Dashboard.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
   },
   {
     path: '/vehicles',
     name: 'Vehicles',
     component: () => import('../views/Vehicles.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
   },
   {
     path: '/vehicles/:id',
     name: 'VehicleDetails',
     component: () => import('../views/VehicleDetails.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
   },
   {
     path: '/maintenance',
     name: 'Maintenance',
     component: () => import('../views/Maintenance.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
   },
   {
     path: '/transfers',
     name: 'Transfers',
     component: () => import('../views/Transfers.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
   },
   {
     path: '/profile',
@@ -69,7 +69,32 @@ const routes: RouteRecordRaw[] = [
     path: '/workshops',
     name: 'Workshops',
     component: () => import('../views/Workshops.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresUser: true }
+  },
+  // Workshop routes
+  {
+    path: '/workshop/dashboard',
+    name: 'WorkshopDashboard',
+    component: () => import('../views/workshop/Dashboard.vue'),
+    meta: { requiresAuth: true, requiresWorkshop: true }
+  },
+  {
+    path: '/workshop/job-orders',
+    name: 'WorkshopJobOrders',
+    component: () => import('../views/workshop/JobOrders.vue'),
+    meta: { requiresAuth: true, requiresWorkshop: true }
+  },
+  {
+    path: '/workshop/reviews',
+    name: 'WorkshopReviews',
+    component: () => import('../views/workshop/Reviews.vue'),
+    meta: { requiresAuth: true, requiresWorkshop: true }
+  },
+  {
+    path: '/workshop/profile',
+    name: 'WorkshopProfile',
+    component: () => import('../views/workshop/Profile.vue'),
+    meta: { requiresAuth: true, requiresWorkshop: true }
   },
   {
     path: '/login',
@@ -119,7 +144,10 @@ router.beforeEach(async (to, _from, next) => {
   
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
+  const requiresWorkshop = to.matched.some(record => record.meta.requiresWorkshop)
+  const requiresUser = to.matched.some(record => record.meta.requiresUser)
   const isAuthenticated = authStore.isAuthenticated
+  const isWorkshop = authStore.isWorkshop
   
   if (requiresAuth && !isAuthenticated) {
     // Redirect to login with return URL
@@ -128,8 +156,18 @@ router.beforeEach(async (to, _from, next) => {
       query: { redirect: to.fullPath }
     })
   } else if (requiresGuest && isAuthenticated) {
-    // Redirect authenticated users away from auth pages
+    // Redirect authenticated users to appropriate dashboard
+    if (isWorkshop) {
+      next('/workshop/dashboard')
+    } else {
+      next('/dashboard')
+    }
+  } else if (requiresWorkshop && !isWorkshop) {
+    // Redirect non-workshop users trying to access workshop routes
     next('/dashboard')
+  } else if (requiresUser && isWorkshop) {
+    // Redirect workshop users trying to access user-only routes
+    next('/workshop/dashboard')
   } else {
     next()
   }

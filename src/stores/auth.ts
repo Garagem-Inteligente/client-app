@@ -10,15 +10,19 @@ import {
   type User as FirebaseUser
 } from 'firebase/auth'
 import { httpsCallable } from 'firebase/functions'
-import { functions } from '@/firebase/config'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { functions, db } from '@/firebase/config'
 import { auth } from '@/firebase/config'
 import { translateFirebaseError } from '@/utils/errorMessages'
+
+export type UserType = 'user' | 'workshop'
 
 export interface User {
   id: string
   email: string
   name: string
   avatar?: string
+  userType: UserType
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -32,16 +36,30 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value)
   const userName = computed(() => user.value?.name || '')
   const userEmail = computed(() => user.value?.email || '')
+  const userType = computed(() => user.value?.userType || 'user')
+  const isWorkshop = computed(() => user.value?.userType === 'workshop')
 
   // Initialize auth state listener
   const initializeAuth = () => {
-    onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+    onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
+        // Buscar userType do Firestore (com fallback para 'user')
+        let userType: UserType = 'user'
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+          if (userDoc.exists()) {
+            userType = userDoc.data()?.userType || 'user'
+          }
+        } catch (error) {
+          console.warn('Erro ao buscar userType do Firestore, usando padrão "user":', error)
+        }
+        
         user.value = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || '',
-          avatar: firebaseUser.photoURL || undefined
+          avatar: firebaseUser.photoURL || undefined,
+          userType: userType
         }
       } else {
         user.value = null
@@ -60,11 +78,23 @@ export const useAuthStore = defineStore('auth', () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const firebaseUser = userCredential.user
       
+      // Buscar userType do Firestore (com fallback para 'user')
+      let userType: UserType = 'user'
+      try {
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+        if (userDoc.exists()) {
+          userType = userDoc.data()?.userType || 'user'
+        }
+      } catch (firestoreErr) {
+        console.warn('Erro ao buscar userType do Firestore, usando padrão "user":', firestoreErr)
+      }
+      
       user.value = {
         id: firebaseUser.uid,
         email: firebaseUser.email || '',
         name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || '',
-        avatar: firebaseUser.photoURL || undefined
+        avatar: firebaseUser.photoURL || undefined,
+        userType: userType
       }
       
       return true
@@ -76,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, userType: UserType = 'user') => {
     loading.value = true
     error.value = null
     
@@ -89,11 +119,21 @@ export const useAuthStore = defineStore('auth', () => {
         displayName: name
       })
       
+      // Salvar userType no Firestore
+      await setDoc(doc(db, 'users', firebaseUser.uid), {
+        email: firebaseUser.email,
+        name: name,
+        userType: userType,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      
       user.value = {
         id: firebaseUser.uid,
         email: firebaseUser.email || '',
         name: name,
-        avatar: firebaseUser.photoURL || undefined
+        avatar: firebaseUser.photoURL || undefined,
+        userType: userType
       }
       
       // Enviar email de boas-vindas (não bloqueante)
@@ -173,6 +213,8 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     userName,
     userEmail,
+    userType,
+    isWorkshop,
     // Actions
     login,
     register,
