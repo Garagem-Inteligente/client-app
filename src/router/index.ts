@@ -71,6 +71,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Workshops.vue'),
     meta: { requiresAuth: true, requiresUser: true }
   },
+  {
+    path: '/workshops/:id',
+    name: 'WorkshopDetail',
+    component: () => import('../views/WorkshopDetail.vue'),
+    meta: { requiresAuth: true, requiresUser: true }
+  },
   // Workshop routes
   {
     path: '/workshop/dashboard',
