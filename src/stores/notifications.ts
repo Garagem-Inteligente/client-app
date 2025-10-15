@@ -19,7 +19,7 @@ import {
 import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
 
-export type NotificationType = 'maintenance' | 'transfer' | 'insurance' | 'system'
+export type NotificationType = 'maintenance' | 'transfer' | 'insurance' | 'system' | 'job_order_approval' | 'review_response'
 
 export interface Notification {
   id: string
@@ -30,15 +30,26 @@ export interface Notification {
   read: boolean
   actionUrl?: string // URL para navegar ao clicar (ex: /vehicles/123)
   actionLabel?: string // Label do botão de ação (ex: "Ver veículo")
+  metadata?: {
+    jobOrderId?: string
+    workshopId?: string
+    reviewId?: string
+  }
   createdAt: Date
 }
 
 export interface NotificationInput {
+  userId?: string // Opcional para permitir notificações para outros usuários
   type: NotificationType
   title: string
   message: string
   actionUrl?: string
   actionLabel?: string
+  metadata?: {
+    jobOrderId?: string
+    workshopId?: string
+    reviewId?: string
+  }
 }
 
 export const useNotificationStore = defineStore('notifications', () => {
@@ -93,6 +104,7 @@ export const useNotificationStore = defineStore('notifications', () => {
           read: data.read || false,
           actionUrl: data.actionUrl,
           actionLabel: data.actionLabel,
+          metadata: data.metadata,
           createdAt: data.createdAt.toDate()
         } as Notification
       })
@@ -109,8 +121,11 @@ export const useNotificationStore = defineStore('notifications', () => {
    * Adicionar nova notificação
    */
   const addNotification = async (input: NotificationInput) => {
-    if (!authStore.user) {
-      throw new Error('Usuário não autenticado')
+    // Se userId não for fornecido, usa o usuário autenticado
+    const targetUserId = input.userId || authStore.user?.id
+    
+    if (!targetUserId) {
+      throw new Error('Usuário não especificado')
     }
 
     loading.value = true
@@ -119,29 +134,35 @@ export const useNotificationStore = defineStore('notifications', () => {
     try {
       const now = Timestamp.now()
       const docRef = await addDoc(collection(db, 'notifications'), {
-        userId: authStore.user.id,
+        userId: targetUserId,
         type: input.type,
         title: input.title,
         message: input.message,
         read: false,
         actionUrl: input.actionUrl || null,
         actionLabel: input.actionLabel || null,
+        metadata: input.metadata || null,
         createdAt: now
       })
 
       const newNotification: Notification = {
         id: docRef.id,
-        userId: authStore.user.id,
+        userId: targetUserId,
         type: input.type,
         title: input.title,
         message: input.message,
         read: false,
         actionUrl: input.actionUrl,
         actionLabel: input.actionLabel,
+        metadata: input.metadata,
         createdAt: now.toDate()
       }
 
-      notifications.value.unshift(newNotification)
+      // Só adiciona no array se for notificação do usuário atual
+      if (targetUserId === authStore.user?.id) {
+        notifications.value.unshift(newNotification)
+      }
+      
       return newNotification
     } catch (err) {
       console.error('Erro ao adicionar notificação:', err)

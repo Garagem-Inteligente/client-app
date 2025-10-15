@@ -1,5 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <Navbar />
+    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="mb-8">
@@ -350,6 +352,7 @@ import { useRouter } from 'vue-router'
 import { useWorkshopsStore, type JobOrder, type JobStatus } from '@/stores/workshops'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useAuthStore } from '@/stores/auth'
+import Navbar from '@/components/Navbar.vue'
 import Button from '@/components/Button.vue'
 import Badge from '@/components/Badge.vue'
 import Alert from '@/components/Alert.vue'

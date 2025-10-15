@@ -1,5 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <Navbar />
+    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="mb-8">
@@ -181,6 +183,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkshopsStore } from '@/stores/workshops'
+import Navbar from '@/components/Navbar.vue'
 import Input from '@/components/Input.vue'
 import Button from '@/components/Button.vue'
 import Badge from '@/components/Badge.vue'

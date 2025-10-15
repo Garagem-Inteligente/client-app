@@ -74,7 +74,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/workshops/:id',
     name: 'WorkshopDetail',
-    component: () => import('../views/WorkshopDetail.vue'),
+    component: () => import('@/views/WorkshopDetail.vue'),
     meta: { requiresAuth: true, requiresUser: true }
   },
   {
@@ -129,7 +129,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/workshop/register',
     name: 'WorkshopRegister',
-    component: () => import('../views/workshop/Register.vue'),
+    component: () => import('@/views/workshop/Register.vue'),
     meta: { requiresGuest: true }
   },
   {

@@ -28,6 +28,7 @@ export interface Workshop {
   state?: string
   specialties?: string[]
   workHours?: string
+  description?: string
   photos?: string[]
   ownerId: string
   verified: boolean
@@ -62,6 +63,9 @@ export interface JobOrder {
   customerComment?: string
   photosBefore?: string[]
   photosAfter?: string[]
+  pendingApproval?: boolean
+  approvedByCustomer?: boolean
+  customerApprovedAt?: Date
   createdAt: Date
   updatedAt: Date
   completedAt?: Date
@@ -74,6 +78,8 @@ export interface WorkshopReview {
   userName: string
   rating: number
   comment?: string
+  workshopResponse?: string
+  workshopResponseAt?: Date
   createdAt: Date
 }
 
@@ -332,6 +338,7 @@ export const useWorkshopsStore = defineStore('workshops', () => {
       const now = Timestamp.now()
       const orderData = {
         ...input,
+        pendingApproval: true, // Por padrão, precisa aprovação do cliente
         createdAt: now,
         updatedAt: now
       }
@@ -349,6 +356,34 @@ export const useWorkshopsStore = defineStore('workshops', () => {
       }
 
       jobOrders.value.push(newOrder)
+
+      // Criar notificação para o cliente
+      if (input.customerId) {
+        try {
+          // Buscar nome da oficina
+          const workshopDoc = await getDoc(doc(db, 'workshops', workshopId))
+          const workshopName = workshopDoc.exists() ? workshopDoc.data().name : 'Uma oficina'
+          
+          const { useNotificationStore } = await import('./notifications')
+          const notificationStore = useNotificationStore()
+          
+          await notificationStore.addNotification({
+            userId: input.customerId,
+            type: 'job_order_approval',
+            title: 'Nova ordem de serviço',
+            message: `${workshopName} cadastrou uma nova ordem de serviço para aprovação.`,
+            actionUrl: `/my-job-orders/${docRef.id}`,
+            actionLabel: 'Ver detalhes',
+            metadata: {
+              jobOrderId: docRef.id,
+              workshopId: workshopId
+            }
+          })
+        } catch (notifError) {
+          console.error('Erro ao criar notificação:', notifError)
+          // Não falha se a notificação não puder ser criada
+        }
+      }
 
       return { success: true, id: docRef.id, order: newOrder }
     } catch (e) {
@@ -468,6 +503,41 @@ export const useWorkshopsStore = defineStore('workshops', () => {
     }
   }
 
+  const approveJobOrder = async (workshopId: string, orderId: string) => {
+    loading.value = true
+    error.value = null
+    try {
+      const now = Timestamp.now()
+      const docRef = doc(db, 'workshops', workshopId, 'job_orders', orderId)
+      
+      await updateDoc(docRef, {
+        pendingApproval: false,
+        approvedByCustomer: true,
+        customerApprovedAt: now,
+        updatedAt: now
+      })
+
+      // Atualizar estado local
+      const index = jobOrders.value.findIndex(o => o.id === orderId)
+      if (index >= 0) {
+        jobOrders.value[index] = {
+          ...jobOrders.value[index],
+          pendingApproval: false,
+          approvedByCustomer: true,
+          customerApprovedAt: now.toDate(),
+          updatedAt: now.toDate()
+        }
+      }
+
+      return { success: true }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao aprovar ordem de serviço'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
   const fetchReviews = async (workshopId: string) => {
     loading.value = true
     error.value = null
@@ -537,6 +607,36 @@ export const useWorkshopsStore = defineStore('workshops', () => {
     }
   }
 
+  const respondToReview = async (reviewId: string, response: string) => {
+    loading.value = true
+    error.value = null
+    try {
+      const reviewRef = doc(db, 'workshop_reviews', reviewId)
+      
+      await updateDoc(reviewRef, {
+        workshopResponse: response,
+        workshopResponseAt: Timestamp.now()
+      })
+
+      // Atualizar localmente
+      const reviewIndex = reviews.value.findIndex(r => r.id === reviewId)
+      if (reviewIndex !== -1) {
+        reviews.value[reviewIndex] = {
+          ...reviews.value[reviewIndex],
+          workshopResponse: response,
+          workshopResponseAt: new Date()
+        }
+      }
+
+      return { success: true }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao responder avaliação'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     // state
     workshops,
@@ -556,9 +656,11 @@ export const useWorkshopsStore = defineStore('workshops', () => {
     fetchJobOrders,
     fetchMyJobOrders,
     createJobOrder,
+    approveJobOrder,
     updateJobOrderStatus,
     updateJobOrder,
     fetchReviews,
-    createReview
+    createReview,
+    respondToReview
   }
 })
