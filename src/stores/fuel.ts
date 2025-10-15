@@ -142,7 +142,7 @@ export const useFuelStore = defineStore('fuel', () => {
     try {
       const q = query(
         collection(db, 'fuel_records'),
-        where('userId', '==', authStore.user.uid),
+        where('userId', '==', authStore.user.id),
         orderBy('date', 'desc')
       )
 
@@ -209,7 +209,7 @@ export const useFuelStore = defineStore('fuel', () => {
 
       const now = Timestamp.now()
       const docRef = await addDoc(collection(db, 'fuel_records'), {
-        userId: authStore.user.uid,
+  userId: authStore.user.id,
         vehicleId: input.vehicleId,
         date: Timestamp.fromDate(input.date),
         liters: input.liters,
@@ -227,7 +227,7 @@ export const useFuelStore = defineStore('fuel', () => {
 
       const newRecord: FuelRecord = {
         id: docRef.id,
-        userId: authStore.user.uid,
+  userId: authStore.user.id,
         vehicleId: input.vehicleId,
         date: input.date,
         liters: input.liters,

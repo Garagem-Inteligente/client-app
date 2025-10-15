@@ -9,6 +9,8 @@ import {
   sendPasswordResetEmail,
   type User as FirebaseUser
 } from 'firebase/auth'
+import { httpsCallable } from 'firebase/functions'
+import { functions } from '@/firebase/config'
 import { auth } from '@/firebase/config'
 import { translateFirebaseError } from '@/utils/errorMessages'
 
@@ -94,6 +96,15 @@ export const useAuthStore = defineStore('auth', () => {
         avatar: firebaseUser.photoURL || undefined
       }
       
+      // Enviar email de boas-vindas (não bloqueante)
+      try {
+        const sendWelcomeEmail = httpsCallable<{ to: string; userName: string }, { success: boolean }>(functions, 'sendWelcomeEmail')
+        await sendWelcomeEmail({ to: email, userName: name })
+      } catch (welcomeErr) {
+        // Não falhar o registro se o email não for enviado
+        console.warn('Falha ao enviar email de boas-vindas:', welcomeErr)
+      }
+
       return true
     } catch (err: any) {
       error.value = translateFirebaseError(err, 'Erro ao criar conta')
