@@ -9,7 +9,7 @@
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Ordens de Serviço</h1>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Gerencie todas as ordens de serviço da oficina</p>
         </div>
-        <Button variant="primary" @click="showCreateModal = true" class="mt-4 md:mt-0">
+        <Button variant="primary" @click="openCreateModal" class="mt-4 md:mt-0">
           Nova Ordem
         </Button>
       </div>
@@ -307,25 +307,176 @@
     </div>
 
     <!-- Modal de Criação -->
+    <!-- Modal de Criação de Ordem -->
     <div
       v-if="showCreateModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-      @click.self="showCreateModal = false"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+      @click.self="closeCreateModal"
     >
-      <div class="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full">
+      <div class="bg-white dark:bg-gray-800 rounded-lg max-w-3xl w-full my-8">
         <div class="p-6">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Nova Ordem de Serviço
           </h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">
-            As ordens de serviço são criadas pelos clientes através do sistema.
-            Use esta opção apenas para registrar serviços presenciais.
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            Cadastre uma manutenção para um cliente através da placa do veículo
           </p>
-          <div class="flex gap-3 justify-end">
-            <Button variant="outline" @click="showCreateModal = false">
-              Fechar
-            </Button>
-          </div>
+
+          <Alert v-if="createError" variant="error" class="mb-6">
+            {{ createError }}
+          </Alert>
+
+          <Alert v-if="createSuccess" variant="success" class="mb-6">
+            {{ createSuccess }}
+          </Alert>
+
+          <form @submit.prevent="handleCreateOrder" class="space-y-6">
+            <!-- Busca por Placa -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Placa do Veículo *
+              </label>
+              <div class="flex gap-2">
+                <Input
+                  v-model="createForm.licensePlate"
+                  type="text"
+                  placeholder="ABC-1234"
+                  class="flex-1"
+                  @input="createForm.licensePlate = createForm.licensePlate.toUpperCase()"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  @click="searchVehicle"
+                  :disabled="searchingVehicle || !createForm.licensePlate"
+                >
+                  <svg v-if="searchingVehicle" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ searchingVehicle ? 'Buscando...' : 'Buscar' }}
+                </Button>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Digite a placa do veículo do cliente
+              </p>
+            </div>
+
+            <!-- Informações do Veículo (aparece após busca) -->
+            <div v-if="foundVehicle" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="flex-1">
+                  <p class="font-semibold text-blue-900 dark:text-blue-100">Veículo encontrado!</p>
+                  <div class="mt-2 text-sm text-blue-800 dark:text-blue-200">
+                    <p><strong>Veículo:</strong> {{ foundVehicle.brand }} {{ foundVehicle.model }} ({{ foundVehicle.year }})</p>
+                    <p><strong>Cliente:</strong> {{ foundVehicle.ownerName }}</p>
+                    <p><strong>Placa:</strong> {{ foundVehicle.licensePlate }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Serviços -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Serviços Realizados *
+              </label>
+              <div class="space-y-3">
+                <div
+                  v-for="(service, index) in createForm.services"
+                  :key="index"
+                  class="flex gap-2 items-start bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg"
+                >
+                  <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
+                    <Input
+                      v-model="service.name"
+                      placeholder="Nome do serviço"
+                      class="md:col-span-2"
+                      required
+                    />
+                    <Input
+                      v-model.number="service.qty"
+                      type="number"
+                      min="1"
+                      placeholder="Qtd"
+                      required
+                    />
+                    <Input
+                      v-model.number="service.unitPrice"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Valor"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    @click="removeServiceFromCreate(index)"
+                    class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                @click="addServiceToCreate"
+                class="mt-3"
+              >
+                + Adicionar Serviço
+              </Button>
+            </div>
+
+            <!-- Total -->
+            <div v-if="createForm.services.length > 0" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+              <div class="flex justify-between items-center text-lg font-semibold">
+                <span class="text-gray-900 dark:text-white">Total:</span>
+                <span class="text-blue-600 dark:text-blue-400">
+                  R$ {{ calculateCreateTotal().toFixed(2) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Observações -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Observações
+              </label>
+              <textarea
+                v-model="createForm.notes"
+                rows="4"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Detalhes adicionais sobre o serviço..."
+              ></textarea>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+              <Button variant="outline" type="button" @click="closeCreateModal">
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                :disabled="submittingCreate || !foundVehicle || createForm.services.length === 0"
+              >
+                <svg v-if="submittingCreate" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ submittingCreate ? 'Cadastrando...' : 'Cadastrar Ordem' }}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -351,6 +502,19 @@ const selectedOrder = ref<JobOrder | null>(null)
 const showCreateModal = ref(false)
 const submitting = ref(false)
 const formError = ref('')
+
+// Create Order Form
+const searchingVehicle = ref(false)
+const submittingCreate = ref(false)
+const createError = ref('')
+const createSuccess = ref('')
+const foundVehicle = ref<any>(null)
+
+const createForm = ref({
+  licensePlate: '',
+  services: [] as ServiceItem[],
+  notes: ''
+})
 
 const editForm = ref({
   status: 'open' as JobStatus,
@@ -494,6 +658,164 @@ const saveOrder = async () => {
     formError.value = error.message || 'Erro ao salvar ordem de serviço'
   } finally {
     submitting.value = false
+  }
+}
+
+// Funções para criar ordem
+const searchVehicle = async () => {
+  if (!createForm.value.licensePlate.trim()) return
+
+  searchingVehicle.value = true
+  createError.value = ''
+  foundVehicle.value = null
+
+  try {
+    // Buscar veículo pela placa
+    const { collection, query, where, getDocs } = await import('firebase/firestore')
+    const { db } = await import('@/firebase/config')
+
+    const q = query(
+      collection(db, 'vehicles'),
+      where('licensePlate', '==', createForm.value.licensePlate.toUpperCase())
+    )
+
+    const snapshot = await getDocs(q)
+
+    if (snapshot.empty) {
+      createError.value = 'Veículo não encontrado. Verifique a placa digitada.'
+      return
+    }
+
+    const vehicleDoc = snapshot.docs[0]
+    const vehicleData = vehicleDoc.data()
+
+    // Buscar informações do proprietário
+    const { doc, getDoc } = await import('firebase/firestore')
+    const ownerDoc = await getDoc(doc(db, 'users', vehicleData.ownerId))
+    const ownerData = ownerDoc.data()
+
+    foundVehicle.value = {
+      id: vehicleDoc.id,
+      ...vehicleData,
+      ownerName: ownerData?.name || 'Não informado',
+      ownerEmail: ownerData?.email || ''
+    }
+
+    createSuccess.value = 'Veículo encontrado com sucesso!'
+    setTimeout(() => {
+      createSuccess.value = ''
+    }, 3000)
+  } catch (error: any) {
+    console.error('Erro ao buscar veículo:', error)
+    createError.value = 'Erro ao buscar veículo. Tente novamente.'
+  } finally {
+    searchingVehicle.value = false
+  }
+}
+
+const addServiceToCreate = () => {
+  createForm.value.services.push({
+    id: `temp-${Date.now()}`,
+    name: '',
+    description: '',
+    qty: 1,
+    unitPrice: 0
+  })
+}
+
+const removeServiceFromCreate = (index: number) => {
+  createForm.value.services.splice(index, 1)
+}
+
+const calculateCreateTotal = () => {
+  return createForm.value.services.reduce((total, service) => {
+    return total + (service.qty * service.unitPrice)
+  }, 0)
+}
+
+const handleCreateOrder = async () => {
+  if (!foundVehicle.value) {
+    createError.value = 'Busque um veículo primeiro'
+    return
+  }
+
+  if (createForm.value.services.length === 0) {
+    createError.value = 'Adicione pelo menos um serviço'
+    return
+  }
+
+  const invalidService = createForm.value.services.find(s => !s.name || s.unitPrice <= 0 || s.qty <= 0)
+  if (invalidService) {
+    createError.value = 'Todos os serviços devem ter nome, quantidade e preço válidos'
+    return
+  }
+
+  submittingCreate.value = true
+  createError.value = ''
+
+  try {
+    const workshopId = workshopsStore.myWorkshops[0]?.id
+    if (!workshopId) {
+      createError.value = 'Oficina não encontrada'
+      return
+    }
+
+    const workshop = workshopsStore.myWorkshops[0]
+
+    const orderData = {
+      workshopId,
+      workshopName: workshop.name,
+      customerId: foundVehicle.value.ownerId,
+      customerEmail: foundVehicle.value.ownerEmail,
+      vehicleId: foundVehicle.value.id,
+      vehicleInfo: `${foundVehicle.value.brand} ${foundVehicle.value.model} (${foundVehicle.value.year})`,
+      licensePlate: foundVehicle.value.licensePlate,
+      status: 'open' as JobStatus,
+      services: createForm.value.services,
+      notes: createForm.value.notes,
+      totalCost: calculateCreateTotal(),
+      totalLabor: 0,
+      totalParts: calculateCreateTotal()
+    }
+
+    const result = await workshopsStore.createJobOrder(workshopId, orderData)
+
+    if (result.success) {
+      createSuccess.value = 'Ordem de serviço cadastrada com sucesso! O cliente receberá uma notificação para aprovar.'
+      
+      // Aguardar 2 segundos e fechar o modal
+      setTimeout(() => {
+        closeCreateModal()
+        applyFilters()
+      }, 2000)
+    } else {
+      createError.value = result.error || 'Erro ao criar ordem de serviço'
+    }
+  } catch (error: any) {
+    console.error('Erro ao criar ordem:', error)
+    createError.value = error.message || 'Erro ao criar ordem de serviço'
+  } finally {
+    submittingCreate.value = false
+  }
+}
+
+const closeCreateModal = () => {
+  showCreateModal.value = false
+  createForm.value = {
+    licensePlate: '',
+    services: [],
+    notes: ''
+  }
+  foundVehicle.value = null
+  createError.value = ''
+  createSuccess.value = ''
+}
+
+// Adicionar serviço inicial ao abrir modal
+const openCreateModal = () => {
+  showCreateModal.value = true
+  if (createForm.value.services.length === 0) {
+    addServiceToCreate()
   }
 }
 
