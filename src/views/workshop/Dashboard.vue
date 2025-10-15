@@ -84,12 +84,16 @@
             class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
           >
             <div class="flex items-center justify-between mb-2">
-              <h3 class="font-medium text-gray-900 dark:text-white">{{ order.customerName }}</h3>
+              <h3 class="font-medium text-gray-900 dark:text-white">
+                {{ order.customerEmail || 'Cliente' }}
+              </h3>
               <Badge :variant="getStatusVariant(order.status)">
                 {{ getStatusLabel(order.status) }}
               </Badge>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ order.vehicleInfo }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Veículo ID: {{ order.vehicleId.substring(0, 8) }}... | Total: R$ {{ order.totalCost.toFixed(2) }}
+            </p>
             <p class="text-xs text-gray-500 dark:text-gray-500">
               {{ formatDate(order.createdAt) }}
             </p>
@@ -103,13 +107,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useWorkshopsStore } from '@/stores/workshops'
-import { useAuthStore } from '@/stores/auth'
 import StatCard from '@/components/StatCard.vue'
 import Button from '@/components/Button.vue'
 import Badge from '@/components/Badge.vue'
 
 const workshopsStore = useWorkshopsStore()
-const authStore = useAuthStore()
 const loading = ref(true)
 
 const stats = ref({
@@ -125,8 +127,10 @@ const recentOrders = computed(() => {
 
 const getStatusVariant = (status: string) => {
   const variants: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
-    pending: 'warning',
-    in_progress: 'default',
+    draft: 'default',
+    open: 'warning',
+    'in-progress': 'default',
+    'awaiting-approval': 'warning',
     completed: 'success',
     cancelled: 'error'
   }
@@ -135,8 +139,10 @@ const getStatusVariant = (status: string) => {
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    pending: 'Pendente',
-    in_progress: 'Em Andamento',
+    draft: 'Rascunho',
+    open: 'Aberta',
+    'in-progress': 'Em Andamento',
+    'awaiting-approval': 'Aguardando Aprovação',
     completed: 'Concluída',
     cancelled: 'Cancelada'
   }
@@ -166,8 +172,8 @@ onMounted(async () => {
       
       // Calcular estatísticas
       const orders = workshopsStore.jobOrders
-      stats.value.totalClients = new Set(orders.map(o => o.customerId)).size
-      stats.value.pendingOrders = orders.filter(o => o.status === 'pending').length
+      stats.value.totalClients = new Set(orders.map(o => o.customerId).filter(Boolean)).size
+      stats.value.pendingOrders = orders.filter(o => o.status === 'open' || o.status === 'awaiting-approval').length
       stats.value.completedOrders = orders.filter(o => o.status === 'completed').length
       
       // Buscar avaliações
