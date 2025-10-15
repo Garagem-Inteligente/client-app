@@ -1,13 +1,13 @@
 export const transferWithCredentialsEmail = (
   params: {
-    userName: string
-    ownerName: string
-    toEmail: string
-    vehicleMake: string
-    vehicleModel: string
-    vehicleYear: number
-    transferCode: string
-    tempPassword: string
+    userName: string,
+    ownerName: string,
+    toEmail: string,
+    vehicleMake: string,
+    vehicleModel: string,
+    vehicleYear: number,
+    transferCode: string,
+    tempPassword: string,
   }
 ) => {
   const {
@@ -17,10 +17,10 @@ export const transferWithCredentialsEmail = (
     vehicleModel,
     vehicleYear,
     transferCode,
-    tempPassword
-  } = params
+    tempPassword,
+  } = params;
 
-  const vehicle = `${vehicleMake} ${vehicleModel} ${vehicleYear}`
+  const vehicle = `${vehicleMake} ${vehicleModel} ${vehicleYear}`;
 
   return `
   <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto;">
@@ -46,5 +46,5 @@ export const transferWithCredentialsEmail = (
     <hr style="border:none; border-top:1px solid #e2e8f0; margin:24px 0;" />
     <p style="color:#64748b; font-size:12px;">AutoCare - Gestão Inteligente de Veículos</p>
   </div>
-  `
-}
+  `;
+};

@@ -2,6 +2,7 @@
  * Firebase Cloud Functions para AutoCare
  * Sistema de envio de emails via SendGrid
  */
+/* eslint-disable max-len, operator-linebreak */
 
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
@@ -346,8 +347,9 @@ export const checkUserExists = onCall(async (request) => {
   try {
     await getAuth().getUserByEmail(email);
     return {exists: true};
-  } catch (err: any) {
-    if (err.code === "auth/user-not-found") {
+  } catch (err) {
+    const e = err as {code?: string};
+    if (e.code === "auth/user-not-found") {
       return {exists: false};
     }
     throw new HttpsError("internal", "Erro ao verificar usuário");
@@ -385,8 +387,9 @@ export const createPreRegistration = onCall(
           disabled: false,
         });
         created = true;
-      } catch (e: any) {
-        if (e.code !== "auth/email-already-exists") {
+      } catch (e) {
+        const err = e as {code?: string};
+        if (err.code !== "auth/email-already-exists") {
           throw e;
         }
       }
@@ -394,9 +397,9 @@ export const createPreRegistration = onCall(
       // Enviar e-mail com credenciais e código
       sgMail.setApiKey(sendgridApiKey.value());
       const FROM_EMAIL = sendgridFromEmail.value();
-      const subject = created
-        ? "🚗 Acesse sua conta para aceitar o veículo"
-        : "🚗 Você possui uma transferência pendente no AutoCare";
+      const subject = created ?
+        "🚗 Acesse sua conta para aceitar o veículo" :
+        "🚗 Você possui uma transferência pendente no AutoCare";
 
       const html = (
         await import("./templates/transferWithCredentialsEmail.js")
