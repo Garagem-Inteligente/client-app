@@ -5,12 +5,20 @@
 
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
+import {getAuth} from "firebase-admin/auth";
+import {initializeApp as initAdmin} from "firebase-admin/app";
 import * as logger from "firebase-functions/logger";
 import sgMail from "@sendgrid/mail";
 import {defineSecret} from "firebase-functions/params";
 
 // Configuração global
 setGlobalOptions({maxInstances: 10});
+// Inicializar Admin SDK
+try {
+  initAdmin();
+} catch (e) {
+  // já inicializado em ambiente de emulador/teste
+}
 
 // Definir secrets do SendGrid
 const sendgridApiKey = defineSecret("SENDGRID_API_KEY");
@@ -41,6 +49,20 @@ interface SendMaintenanceAlertData {
 interface SendWelcomeEmailData {
   to: string;
   userName: string;
+}
+
+interface CheckUserExistsData {
+  email: string;
+}
+
+interface CreatePreRegistrationData {
+  email: string;
+  userName: string;
+  ownerName: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleYear: number;
+  transferCode: string;
 }
 
 // Função: Enviar email de transferência de veículo
@@ -310,6 +332,90 @@ export const sendWelcomeEmail = onCall(
     } catch (error) {
       logger.error("❌ Erro ao enviar email de boas-vindas:", error);
       throw new HttpsError("internal", "Erro ao enviar email");
+    }
+  }
+);
+
+// Função: Verificar se usuário existe por email
+export const checkUserExists = onCall(async (request) => {
+  const data = request.data as CheckUserExistsData;
+  const {email} = data;
+  if (!email) {
+    throw new HttpsError("invalid-argument", "Email é obrigatório");
+  }
+  try {
+    await getAuth().getUserByEmail(email);
+    return {exists: true};
+  } catch (err: any) {
+    if (err.code === "auth/user-not-found") {
+      return {exists: false};
+    }
+    throw new HttpsError("internal", "Erro ao verificar usuário");
+  }
+});
+
+// Função: Criar pré-cadastro com senha temporária e enviar email com credenciais
+export const createPreRegistration = onCall(
+  {secrets: [sendgridApiKey, sendgridFromEmail]},
+  async (request) => {
+    const data = request.data as CreatePreRegistrationData;
+    const {
+      email, userName, ownerName,
+      vehicleMake, vehicleModel, vehicleYear,
+      transferCode,
+    } = data;
+
+    if (!email || !userName || !transferCode) {
+      throw new HttpsError("invalid-argument", "Parâmetros obrigatórios ausentes");
+    }
+
+    const auth = getAuth();
+    // Criar senha temporária forte
+    const tempPassword = Math.random().toString(36).slice(-10) + "A1!";
+
+    try {
+      // Tentar criar usuário; se já existir, apenas enviar e-mail com instruções
+      let created = false;
+      try {
+        await auth.createUser({
+          email,
+          password: tempPassword,
+          displayName: userName,
+          emailVerified: false,
+          disabled: false,
+        });
+        created = true;
+      } catch (e: any) {
+        if (e.code !== "auth/email-already-exists") {
+          throw e;
+        }
+      }
+
+      // Enviar e-mail com credenciais e código
+      sgMail.setApiKey(sendgridApiKey.value());
+      const FROM_EMAIL = sendgridFromEmail.value();
+      const subject = created
+        ? "🚗 Acesse sua conta para aceitar o veículo"
+        : "🚗 Você possui uma transferência pendente no AutoCare";
+
+      const html = (
+        await import("./templates/transferWithCredentialsEmail.js")
+      ).transferWithCredentialsEmail({
+        userName,
+        ownerName,
+        toEmail: email,
+        vehicleMake,
+        vehicleModel,
+        vehicleYear,
+        transferCode,
+        tempPassword,
+      });
+
+      await sgMail.send({to: email, from: FROM_EMAIL, subject, html});
+      return {success: true};
+    } catch (error) {
+      logger.error("Erro no pré-cadastro:", error);
+      throw new HttpsError("internal", "Erro ao criar pré-cadastro");
     }
   }
 );

@@ -7,6 +7,7 @@
  */
 
 export {welcomeEmailTemplate} from "./welcomeEmail";
+export {transferWithCredentialsEmail} from "./transferWithCredentialsEmail";
 export {transferOwnerEmailTemplate} from "./transferOwnerEmail";
 export {transferReceiverEmailTemplate} from "./transferReceiverEmail";
 export {maintenanceDueEmailTemplate} from "./maintenanceDueEmail";

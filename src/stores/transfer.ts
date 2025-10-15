@@ -170,7 +170,17 @@ export const useTransferStore = defineStore('transfer', () => {
 
       const transferRef = await addDoc(collection(db, 'vehicle_transfers'), transferData)
 
-      // Enviar emails com os códigos de confirmação
+      // Verificar se novo dono já existe; se não, criar pré-cadastro
+      const checkUserExists = httpsCallable<{ email: string }, { exists: boolean }>(functions, 'checkUserExists')
+      const createPreRegistration = httpsCallable<{
+        email: string
+        userName: string
+        ownerName: string
+        vehicleMake: string
+        vehicleModel: string
+        vehicleYear: number
+        transferCode: string
+      }, { success: boolean }>(functions, 'createPreRegistration')
       const sendTransferEmail = httpsCallable(functions, 'sendTransferEmail')
       
       try {
@@ -185,16 +195,31 @@ export const useTransferStore = defineStore('transfer', () => {
           isOwner: true
         })
 
-        // Enviar email para o novo dono
-        await sendTransferEmail({
-          to: input.newOwnerEmail,
-          ownerName: authStore.user.name || authStore.user.email!.split('@')[0],
-          vehicleMake: vehicle.make,
-          vehicleModel: vehicle.model,
-          vehicleYear: vehicle.year,
-          transferCode: newOwnerCode,
-          isOwner: false
-        })
+        // Verificar existência do novo dono
+        const check = await checkUserExists({ email: input.newOwnerEmail })
+        if (check.data?.exists) {
+          // Enviar email padrão de transferência
+          await sendTransferEmail({
+            to: input.newOwnerEmail,
+            ownerName: authStore.user.name || authStore.user.email!.split('@')[0],
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            transferCode: newOwnerCode,
+            isOwner: false
+          })
+        } else {
+          // Criar pré-cadastro e enviar email com credenciais + código
+          await createPreRegistration({
+            email: input.newOwnerEmail,
+            userName: input.newOwnerEmail.split('@')[0],
+            ownerName: authStore.user.name || authStore.user.email!.split('@')[0],
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            transferCode: newOwnerCode
+          })
+        }
 
         console.log('✅ Emails de transferência enviados com sucesso')
       } catch (emailError) {
