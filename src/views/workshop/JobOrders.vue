@@ -1,11 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <WorkshopHeader />
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Header -->
-      <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+      <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Ordens de Serviço</h1>
-          <p class="mt-2 text-gray-600 dark:text-gray-400">Gerencie todas as ordens de serviço da oficina</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Ordens de Serviço</h1>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Gerencie todas as ordens de serviço da oficina</p>
         </div>
         <Button variant="primary" @click="showCreateModal = true" class="mt-4 md:mt-0">
           Nova Ordem
@@ -334,6 +336,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useWorkshopsStore, type JobOrder, type JobStatus, type ServiceItem } from '@/stores/workshops'
 import { useAuthStore } from '@/stores/auth'
+import WorkshopHeader from '@/components/WorkshopHeader.vue'
 import Button from '@/components/Button.vue'
 import Badge from '@/components/Badge.vue'
 import Alert from '@/components/Alert.vue'
@@ -457,10 +460,32 @@ const saveOrder = async () => {
     const workshopId = workshopsStore.myWorkshops[0]?.id
     if (!workshopId) throw new Error('Oficina não encontrada')
     
-    // Atualizar status da ordem
-    await workshopsStore.updateJobOrderStatus(workshopId, selectedOrder.value.id!, editForm.value.status)
+    // Validar serviços
+    if (editForm.value.services.length === 0) {
+      formError.value = 'Adicione pelo menos um serviço'
+      submitting.value = false
+      return
+    }
+
+    // Validar que todos os serviços têm nome e preço
+    const invalidService = editForm.value.services.find(s => !s.name || s.unitPrice <= 0 || s.qty <= 0)
+    if (invalidService) {
+      formError.value = 'Todos os serviços devem ter nome, quantidade e preço válidos'
+      submitting.value = false
+      return
+    }
     
-    // Nota: atualização completa de serviços e valores pode ser implementada posteriormente
+    // Atualizar ordem completa (status, serviços, notas)
+    const result = await workshopsStore.updateJobOrder(workshopId, selectedOrder.value.id!, {
+      status: editForm.value.status,
+      services: editForm.value.services,
+      notes: editForm.value.notes
+    })
+
+    if (!result.success) {
+      formError.value = result.error || 'Erro ao salvar ordem'
+      return
+    }
     
     selectedOrder.value = null
     await applyFilters()

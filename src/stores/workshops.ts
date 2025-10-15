@@ -404,6 +404,70 @@ export const useWorkshopsStore = defineStore('workshops', () => {
     }
   }
 
+  const updateJobOrder = async (
+    workshopId: string,
+    orderId: string,
+    updates: {
+      status?: JobStatus
+      services?: ServiceItem[]
+      notes?: string
+      customerComment?: string
+      photosBefore?: string[]
+      photosAfter?: string[]
+    }
+  ) => {
+    loading.value = true
+    error.value = null
+    try {
+      const docRef = doc(db, 'workshops', workshopId, 'job_orders', orderId)
+      
+      // Calcular totais se services foi atualizado
+      let updateData: any = {
+        ...updates,
+        updatedAt: Timestamp.now()
+      }
+
+      if (updates.services) {
+        const totalCost = updates.services.reduce((sum, service) => {
+          return sum + (service.qty * service.unitPrice)
+        }, 0)
+        
+        updateData.totalCost = totalCost
+        updateData.totalLabor = totalCost * 0.6 // 60% mão de obra (ajustar conforme necessário)
+        updateData.totalParts = totalCost * 0.4  // 40% peças
+      }
+
+      if (updates.status === 'completed') {
+        updateData.completedAt = Timestamp.now()
+      }
+
+      await updateDoc(docRef, updateData)
+
+      // Atualizar estado local
+      const index = jobOrders.value.findIndex(o => o.id === orderId)
+      if (index >= 0) {
+        jobOrders.value[index] = {
+          ...jobOrders.value[index],
+          ...updates,
+          updatedAt: new Date(),
+          ...(updates.services && {
+            totalCost: updateData.totalCost,
+            totalLabor: updateData.totalLabor,
+            totalParts: updateData.totalParts
+          }),
+          ...(updates.status === 'completed' && { completedAt: new Date() })
+        }
+      }
+
+      return { success: true }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Erro ao atualizar ordem'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
   const fetchReviews = async (workshopId: string) => {
     loading.value = true
     error.value = null
@@ -493,6 +557,7 @@ export const useWorkshopsStore = defineStore('workshops', () => {
     fetchMyJobOrders,
     createJobOrder,
     updateJobOrderStatus,
+    updateJobOrder,
     fetchReviews,
     createReview
   }
