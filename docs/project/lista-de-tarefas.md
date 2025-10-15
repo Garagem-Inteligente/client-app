@@ -350,8 +350,22 @@ Podem ser implementadas quando houver necessidade/demanda.- **Novos Tipos a Adic
 - **Descrição**: Sistema completo B2B2C para oficinas gerenciarem clientes e manutenções
 - **Origem**: Expansão estratégica do produto
 - **Prioridade**: 🔴 **ALTA - FEATURE PRINCIPAL FUTURA**
-- **Status**: ⏳ Pendente
+- **Status**: 🔄 **EM PROGRESSO** (Esqueleto inicial criado em 14/10/2025)
 - **Motivação**: Expandir plataforma para oficinas parceiras, criando ecossistema completo.
+
+**✅ Implementado até agora**:
+- [x] Store Pinia `workshops.ts` com interfaces e stubs de ações
+- [x] View placeholder `Workshops.vue` com layout básico
+- [x] Rota protegida `/workshops` configurada
+- [x] Link "Oficinas" adicionado ao Navbar
+- [x] Build validado sem erros
+
+**🎯 Próximos passos**:
+- [ ] Implementar coleções Firestore (`workshops`, `job_orders`)
+- [ ] UI de cadastro de oficina
+- [ ] UI de listagem de ordens de serviço
+- [ ] Sistema de aprovação de manutenções
+
 - **Módulos**:
 
   **1. Cadastro e Perfil de Oficina**

@@ -17,6 +17,49 @@ As tarefas pendentes estão em `lista-de-tarefas.md`.
 
 ---
 
+## ✅ T006 - Melhorar Lógica de Transferência (Pré-Cadastro) - **CONCLUÍDA** (14/10/2025)
+
+- **Descrição**: Sistema inteligente de pré-cadastro para transferências
+- **Origem**: Feedback do usuário - experiência de transferência
+- **Prioridade**: 🔴 Alta
+- **Status**: ✅ Concluída
+- **Data de Conclusão**: 14/10/2025
+- **Motivação**: Transferência exigia que destinatário já estivesse cadastrado, criando atrito.
+- **Solução Implementada**:
+  1. Cloud Function `checkUserExists(email)` verifica existência do usuário
+  2. Cloud Function `createPreRegistration` cria conta com senha temporária
+  3. Email template `transferWithCredentialsEmail` com credenciais + código de transferência
+  4. Store `transfer.ts` integrado com novas callables
+  5. Fluxo: se email não existe, cria pré-cadastro automático e envia credenciais por email
+- **Critérios de Aceitação**:
+  - [x] Cloud Function `checkUserExists(email)` implementada
+  - [x] Cloud Function `createPreRegistration` implementada com Admin SDK
+  - [x] Email template com credenciais e código criado
+  - [x] Store transfer.ts chama checkUserExists antes de enviar email
+  - [x] Se não existe, chama createPreRegistration automaticamente
+  - [x] Lint das Functions corrigido (sem erros)
+  - [x] Build/typecheck validados
+  - [x] Functions deployadas em produção
+- **Arquivos Modificados**:
+  - `functions/src/index.ts` - Novas callables e Admin SDK init
+  - `functions/src/templates/transferWithCredentialsEmail.ts` - Novo template
+  - `functions/src/templates/index.ts` - Export do novo template
+  - `src/stores/transfer.ts` - Integração com novas callables
+- **Complexidade**: Alta (6-8 horas)
+- **Dependências**: T-R09 (Firebase Functions), T-R10 (SendGrid)
+- **Commits**: 
+  - `843bdc0` - feat(transfers): pré-cadastro automático em transferências
+  - `e9dbf58` - chore(functions): fix lint issues
+
+**🎯 Incrementos futuros opcionais**:
+- Campo "código de transferência" na tela de login
+- Seção "Veículos Transferidos" no dashboard do antigo dono
+- Forçar troca de senha no primeiro acesso
+- Expiração automática de código após 7 dias
+- Notificação quando transferência for aceita
+
+---
+
 ### ✅ T-R01 - Revisar Copy para Português Brasileiro Natural
 - **Descrição**: Revisar toda interface para usar português brasileiro coloquial e natural
 - **Origem**: Feedback do usuário - melhorias de robustez
