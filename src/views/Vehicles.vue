@@ -336,8 +336,7 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-gray-900">
     <Navbar />
-    <div class="py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
@@ -727,22 +726,27 @@ onMounted(() => {
       
       <!-- Vehicles Grid -->
       <div v-else-if="!showAddForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <Card 
+        <div
           v-for="vehicle in vehiclesStore.vehicles" 
           :key="vehicle.id"
-          :title="`${vehicle.make} ${vehicle.model}`"
-          class="hover:border-gray-600 transition-all cursor-pointer group"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg hover:border-gray-600 cursor-pointer group flex flex-col"
           @click="$router.push(`/vehicles/${vehicle.id}`)"
         >
-          <div class="space-y-3 sm:space-y-4 group-hover:opacity-90 transition-opacity">
-            <!-- Vehicle Photo -->
-            <div v-if="vehicle.imageUrl" class="mb-4 -mx-6 -mt-6">
-              <img 
-                :src="vehicle.imageUrl" 
-                :alt="`${vehicle.make} ${vehicle.model}`"
-                class="w-full h-40 object-cover rounded-t-lg"
-              />
-            </div>
+          <!-- Vehicle Photo -->
+          <div v-if="vehicle.imageUrl" class="w-full h-48 bg-gray-700 flex-shrink-0">
+            <img 
+              :src="vehicle.imageUrl" 
+              :alt="`${vehicle.make} ${vehicle.model}`"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          
+          <!-- Card Content -->
+          <div class="p-4 sm:p-6 flex-1 flex flex-col">
+            <!-- Title -->
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white mb-4">
+              {{ vehicle.make }} {{ vehicle.model }}
+            </h3>
             
             <!-- Header -->
             <div class="flex justify-between items-start mb-3 sm:mb-4 gap-2">
@@ -756,7 +760,7 @@ onMounted(() => {
             </div>
             
             <!-- Details -->
-            <div class="space-y-2 sm:space-y-3">
+            <div class="space-y-2 sm:space-y-3 mb-4 flex-1">
               <div class="flex justify-between">
                 <span class="text-sm text-gray-400">Placa</span>
                 <span class="font-medium text-white">{{ vehicle.plate }}</span>
@@ -773,8 +777,8 @@ onMounted(() => {
               </div>
             </div>
             
-            <!-- Actions -->
-            <div class="flex flex-col sm:flex-row gap-2 pt-3 sm:pt-4 border-t border-gray-700">
+            <!-- Actions - Fixed at bottom -->
+            <div class="flex flex-col sm:flex-row gap-2 pt-3 sm:pt-4 border-t border-gray-700 mt-auto">
               <Button 
                 @click.stop="startEdit(vehicle)" 
                 variant="outline" 
@@ -799,9 +803,8 @@ onMounted(() => {
               </Button>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
-    </div>
     </div>
   </div>
 
