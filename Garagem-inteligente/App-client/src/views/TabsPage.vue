@@ -201,10 +201,9 @@ onMounted(() => {
 
 .blob-indicator {
   position: absolute;
-  top: 50%;
-  width: 58px;
-  height: 58px;
-  margin-top: -29px;
+  top: 12px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 
@@ -266,7 +265,7 @@ onMounted(() => {
   --ripple-color: rgba(102, 126, 234, 0.25);
   position: relative;
   flex: 1;
-  min-height: 58px;
+  min-height: 56px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
   animation: tabSlideUp 0.6s ease-out backwards;
@@ -298,7 +297,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   position: relative;
   z-index: 3;
 }
@@ -309,8 +308,8 @@ onMounted(() => {
 
 .icon-container {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -518,22 +517,22 @@ onMounted(() => {
   }
 
   .blob-indicator {
-    width: 52px;
-    height: 52px;
-    margin-top: -26px;
+    width: 50px;
+    height: 50px;
+    top: 10px;
   }
 
   .icon-container {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
   }
 
   .premium-tab-button {
-    min-height: 52px;
+    min-height: 50px;
   }
 
   .tab-icon {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
   }
 
   .tab-label {
@@ -551,22 +550,22 @@ onMounted(() => {
   }
 
   .blob-indicator {
-    width: 64px;
-    height: 64px;
-    margin-top: -32px;
+    width: 62px;
+    height: 62px;
+    top: 10px;
   }
 
   .icon-container {
-    width: 64px;
-    height: 64px;
+    width: 62px;
+    height: 62px;
   }
 
   .premium-tab-button {
-    min-height: 64px;
+    min-height: 62px;
   }
 
   .tab-icon {
-    font-size: 1.875rem;
+    font-size: 1.75rem;
   }
 
   .tab-label {
