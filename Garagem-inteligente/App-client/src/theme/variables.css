@@ -1,0 +1,337 @@
+/* Ionic Variables and Theming. For more info, please see:
+http://ionicframework.com/docs/theming/ */
+
+/** Ionic CSS Variables **/
+:root {
+  /** primary **/
+  --ion-color-primary: #3b82f6;
+  --ion-color-primary-rgb: 59, 130, 246;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3471d8;
+  --ion-color-primary-tint: #4f8ff7;
+
+  /** secondary **/
+  --ion-color-secondary: #8b5cf6;
+  --ion-color-secondary-rgb: 139, 92, 246;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #7a51d8;
+  --ion-color-secondary-tint: #9770f7;
+
+  /** tertiary **/
+  --ion-color-tertiary: #5260ff;
+  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #4854e0;
+  --ion-color-tertiary-tint: #6370ff;
+
+  /** success **/
+  --ion-color-success: #10b981;
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #0ea372;
+  --ion-color-success-tint: #28c794;
+
+  /** warning **/
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6a823;
+
+  /** danger **/
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  /** dark **/
+  --ion-color-dark: #111827;
+  --ion-color-dark-rgb: 17, 24, 39;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #0f1522;
+  --ion-color-dark-tint: #29303d;
+
+  /** medium **/
+  --ion-color-medium: #9ca3af;
+  --ion-color-medium-rgb: 156, 163, 175;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #898f9a;
+  --ion-color-medium-tint: #a6acb7;
+
+  /** light **/
+  --ion-color-light: #374151;
+  --ion-color-light-rgb: 55, 65, 81;
+  --ion-color-light-contrast: #ffffff;
+  --ion-color-light-contrast-rgb: 255, 255, 255;
+  --ion-color-light-shade: #303947;
+  --ion-color-light-tint: #4b5462;
+}
+
+/* Dark Mode (Default) - Matching Tailwind gray-900 theme */
+:root {
+  /* Background colors - Matching web version */
+  --ion-background-color: #111827; /* gray-900 */
+  --ion-background-color-rgb: 17, 24, 39;
+
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+
+  --ion-color-step-50: #1a1f2e; /* Slightly lighter than bg */
+  --ion-color-step-100: #1f2937; /* gray-800 - Card background */
+  --ion-color-step-150: #252d3d;
+  --ion-color-step-200: #2b3546;
+  --ion-color-step-250: #313d4f;
+  --ion-color-step-300: #374151; /* gray-700 - Borders */
+  --ion-color-step-350: #3d495a;
+  --ion-color-step-400: #4b5563; /* gray-600 - Input borders */
+  --ion-color-step-450: #59616d;
+  --ion-color-step-500: #6b7280; /* gray-500 */
+  --ion-color-step-550: #7d8490;
+  --ion-color-step-600: #9ca3af; /* gray-400 - Secondary text */
+  --ion-color-step-650: #adb3bc;
+  --ion-color-step-700: #d1d5db; /* gray-300 - Labels */
+  --ion-color-step-750: #dfe2e6;
+  --ion-color-step-800: #e5e7eb; /* gray-200 */
+  --ion-color-step-850: #eff1f3;
+  --ion-color-step-900: #f3f4f6; /* gray-100 */
+  --ion-color-step-950: #f9fafb;
+
+  /* Item/Card colors */
+  --ion-item-background: #1f2937; /* gray-800 */
+  --ion-card-background: #1f2937; /* gray-800 */
+
+  /* Toolbar */
+  --ion-toolbar-background: #1f2937; /* gray-800 */
+  --ion-toolbar-border-color: #374151; /* gray-700 */
+  --ion-toolbar-color: #ffffff;
+
+  /* Tab bar */
+  --ion-tab-bar-background: #1f2937; /* gray-800 */
+  --ion-tab-bar-border-color: #374151; /* gray-700 */
+
+  /* Border color */
+  --ion-border-color: #374151; /* gray-700 */
+  --ion-item-border-color: #374151; /* gray-700 */
+}
+
+/* Additional custom variables for web version parity */
+:root {
+  /* Gray scale matching Tailwind */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Blue scale */
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+
+  /* Purple scale */
+  --purple-500: #a855f7;
+  --purple-600: #9333ea;
+
+  /* Success/Green */
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+
+  /* Warning/Orange */
+  --orange-400: #fb923c;
+  --orange-500: #f97316;
+
+  /* Danger/Red */
+  --red-400: #f87171;
+  --red-500: #ef4444;
+}
+
+/* Input styling to match web version */
+ion-input,
+ion-textarea,
+ion-select {
+  --background: var(--gray-800);
+  --color: #ffffff;
+  --placeholder-color: var(--gray-500);
+  --placeholder-opacity: 1;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --border-radius: 6px;
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--gray-700);
+  --inner-border-width: 0;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-card {
+  --background: var(--gray-800);
+  --color: #ffffff;
+  border: 1px solid var(--gray-700);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+ion-card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--gray-700);
+}
+
+ion-card-title {
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+ion-card-subtitle {
+  color: var(--gray-400);
+  font-size: 0.875rem;
+}
+
+ion-label {
+  --color: var(--gray-300);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Buttons */
+ion-button {
+  --border-radius: 6px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+ion-button[fill="solid"] {
+  --background: var(--blue-500);
+  --background-hover: var(--blue-600);
+  --background-activated: var(--blue-600);
+  --color: #ffffff;
+}
+
+ion-button[fill="outline"] {
+  --border-color: var(--gray-600);
+  --color: #ffffff;
+  --background-hover: rgba(75, 85, 99, 0.1);
+}
+
+ion-button[color="danger"][fill="outline"] {
+  --border-color: rgba(239, 68, 68, 0.3);
+  --color: var(--red-400);
+  --background-hover: rgba(239, 68, 68, 0.1);
+}
+
+/* Chips/Badges */
+ion-chip {
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+/* Segment */
+ion-segment {
+  --background: var(--gray-800);
+  border: 1px solid var(--gray-700);
+  border-radius: 6px;
+}
+
+ion-segment-button {
+  --color: var(--gray-400);
+  --color-checked: #ffffff;
+  --background-checked: var(--blue-500);
+  --indicator-color: transparent;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Modal */
+ion-modal {
+  --background: var(--gray-800);
+  --border-color: var(--gray-700);
+}
+
+/* Alert */
+ion-alert {
+  --background: var(--gray-800);
+  --max-width: 400px;
+}
+
+ion-alert .alert-head {
+  background: var(--gray-800);
+  color: #ffffff;
+}
+
+ion-alert .alert-message {
+  color: var(--gray-400);
+}
+
+ion-alert .alert-button {
+  color: var(--blue-500);
+}
+
+ion-alert .alert-button.alert-button-role-destructive {
+  color: var(--red-500);
+}
+
+/* Datetime */
+ion-datetime {
+  --background: var(--gray-800);
+  --background-rgb: 31, 41, 55;
+}
+
+/* Spinner */
+ion-spinner {
+  --color: var(--blue-500);
+}
+
+/* Header/Toolbar */
+ion-header ion-toolbar {
+  --background: var(--gray-800);
+  --border-color: var(--gray-700);
+  --color: #ffffff;
+  border-bottom: 1px solid var(--gray-700);
+}
+
+ion-toolbar ion-title {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Content */
+ion-content {
+  --background: var(--gray-900);
+  --color: #ffffff;
+}
+
+/* Select popover */
+ion-select-popover ion-list {
+  background: var(--gray-800);
+}
+
+ion-select-popover ion-item {
+  --background: var(--gray-800);
+  --color: #ffffff;
+}
+
+/* Searchbar */
+ion-searchbar {
+  --background: var(--gray-800);
+  --color: #ffffff;
+  --placeholder-color: var(--gray-500);
+  --border-radius: 6px;
+}

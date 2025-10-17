@@ -1,15 +1,14 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Manutenções</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="$router.push('/tabs/maintenance/new')">
-            <ion-icon :icon="add"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader
+      title="Manutenções"
+      :primary-action="{
+        icon: add,
+        text: 'Registrar',
+        handler: () => $router.push('/tabs/maintenance/new'),
+        pulse: vehiclesStore.maintenanceRecords.length === 0
+      }"
+    />
 
     <ion-content :fullscreen="true">
       <!-- Loading State -->
@@ -171,11 +170,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButtons,
   IonButton,
   IonIcon,
   IonCard,
@@ -202,6 +197,7 @@ import {
 import { useVehiclesStore } from '../stores/vehicles'
 import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles'
 import type { MaintenanceRecord } from '../stores/vehicles'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()

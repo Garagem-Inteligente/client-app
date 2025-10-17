@@ -1,0 +1,954 @@
+<template>
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar class="form-toolbar">
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/tabs/maintenance"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{ isEdit ? 'Editar' : 'Nova' }} Manutenção</ion-title>
+        <ion-buttons slot="end">
+          <ion-button @click="handleSubmit" :disabled="loading || !isFormValid" strong>
+            <ion-spinner v-if="loading" name="crescent"></ion-spinner>
+            <span v-else>Salvar</span>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true" class="form-content">
+      <div class="form-container">
+        <!-- Error Alert -->
+        <AAlert
+          v-if="vehiclesStore.error"
+          type="error"
+          :message="vehiclesStore.error"
+          @close="vehiclesStore.clearError"
+          class="mb-4"
+        />
+
+        <!-- Success Alert -->
+        <AAlert
+          v-if="successMessage"
+          type="success"
+          :message="successMessage"
+          class="mb-4"
+        />
+
+        <form @submit.prevent="handleSubmit" class="form-sections">
+          <!-- Informações Básicas -->
+          <div class="form-section basic-info">
+            <h2 class="section-title">
+              <ion-icon :icon="documentTextOutline" class="title-icon"></ion-icon>
+              Informações Básicas
+            </h2>
+            
+            <div class="fields-grid">
+              <!-- Vehicle Selection -->
+              <div class="field-wrapper full-width">
+                <label class="field-label required">Veículo</label>
+                <ion-select 
+                  v-model="formData.vehicleId" 
+                  placeholder="Selecione o veículo"
+                  interface="action-sheet"
+                  class="custom-select"
+                >
+                  <ion-select-option 
+                    v-for="vehicle in vehiclesStore.vehicles" 
+                    :key="vehicle.id" 
+                    :value="vehicle.id"
+                  >
+                    {{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.plate }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+
+              <!-- Type Selection -->
+              <div class="field-wrapper full-width">
+                <label class="field-label required">Tipo de Manutenção</label>
+                <ion-select 
+                  v-model="formData.type" 
+                  placeholder="Selecione o tipo"
+                  interface="action-sheet"
+                  class="custom-select"
+                >
+                  <template v-for="(group, groupIndex) in MAINTENANCE_TYPE_OPTIONS" :key="groupIndex">
+                    <ion-select-option 
+                      v-for="option in group.options" 
+                      :key="option.value" 
+                      :value="option.value"
+                    >
+                      {{ option.emoji }} {{ option.label }}
+                    </ion-select-option>
+                  </template>
+                </ion-select>
+              </div>
+
+              <!-- Description -->
+              <div class="field-wrapper full-width">
+                <label class="field-label required">Descrição</label>
+                <ion-input
+                  v-model="formData.description"
+                  placeholder="Ex: Troca de óleo sintético 5W30"
+                  class="custom-input"
+                  required
+                ></ion-input>
+              </div>
+
+              <!-- Date -->
+              <div class="field-wrapper">
+                <label class="field-label required">Data da Manutenção</label>
+                <div class="datetime-wrapper">
+                  <ion-datetime-button datetime="maintenance-date" class="custom-datetime-btn"></ion-datetime-button>
+                </div>
+                <ion-modal :keep-contents-mounted="true">
+                  <ion-datetime 
+                    id="maintenance-date" 
+                    v-model="formData.date" 
+                    presentation="date" 
+                    :max="maxDate"
+                    locale="pt-BR"
+                    :first-day-of-week="0"
+                  ></ion-datetime>
+                </ion-modal>
+              </div>
+
+              <!-- Mileage -->
+              <div class="field-wrapper">
+                <label class="field-label required">Quilometragem</label>
+                <ion-input
+                  v-model.number="formData.mileage"
+                  type="number"
+                  placeholder="Ex: 50.000"
+                  class="custom-input"
+                  required
+                ></ion-input>
+                <span class="field-suffix">km</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custos -->
+          <div class="form-section costs-section">
+            <h2 class="section-title">
+              <ion-icon :icon="cashOutline" class="title-icon"></ion-icon>
+              Custos
+            </h2>
+
+            <div class="fields-grid">
+              <!-- Parts Cost -->
+              <div class="field-wrapper">
+                <label class="field-label">
+                  <ion-icon :icon="cubeOutline" class="label-icon"></ion-icon>
+                  Custo das Peças
+                </label>
+                <div class="input-with-prefix">
+                  <span class="input-prefix">R$</span>
+                  <ion-input
+                    v-model.number="formData.partsCost"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    class="custom-input with-prefix"
+                  ></ion-input>
+                </div>
+                <span class="field-hint">Materiais e peças utilizados</span>
+              </div>
+
+              <!-- Labor Cost -->
+              <div class="field-wrapper">
+                <label class="field-label">
+                  <ion-icon :icon="constructOutline" class="label-icon"></ion-icon>
+                  Mão de Obra
+                </label>
+                <div class="input-with-prefix">
+                  <span class="input-prefix">R$</span>
+                  <ion-input
+                    v-model.number="formData.laborCost"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    class="custom-input with-prefix"
+                  ></ion-input>
+                </div>
+                <span class="field-hint">Custo do serviço profissional</span>
+              </div>
+            </div>
+
+            <!-- Total Cost Display -->
+            <div v-if="totalCost > 0" class="total-cost-display">
+              <div class="total-cost-content">
+                <span class="total-label">
+                  <ion-icon :icon="calculatorOutline"></ion-icon>
+                  Custo Total
+                </span>
+                <span class="total-value">{{ formatCurrency(totalCost) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Próxima Manutenção -->
+          <div class="form-section next-maintenance-section">
+            <h2 class="section-title">
+              <ion-icon :icon="calendarOutline" class="title-icon"></ion-icon>
+              Próxima Manutenção
+            </h2>
+            <p class="section-description">Configure lembretes para a próxima revisão</p>
+
+            <div class="fields-grid">
+              <!-- Next Date -->
+              <div class="field-wrapper">
+                <label class="field-label">Próxima Data</label>
+                <div class="datetime-wrapper">
+                  <ion-datetime-button 
+                    v-if="formData.nextDueDate" 
+                    datetime="next-due-date" 
+                    class="custom-datetime-btn"
+                  ></ion-datetime-button>
+                  <ion-button 
+                    v-else
+                    fill="outline" 
+                    size="default"
+                    @click="formData.nextDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()"
+                  >
+                    <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
+                    Definir Data
+                  </ion-button>
+                </div>
+                <ion-modal :keep-contents-mounted="true">
+                  <ion-datetime 
+                    id="next-due-date" 
+                    v-model="formData.nextDueDate" 
+                    presentation="date" 
+                    :min="formData.date"
+                    locale="pt-BR"
+                    :first-day-of-week="0"
+                  ></ion-datetime>
+                </ion-modal>
+              </div>
+
+              <!-- Next Mileage -->
+              <div class="field-wrapper">
+                <label class="field-label">Próxima Quilometragem</label>
+                <ion-input
+                  v-model.number="formData.nextDueMileage"
+                  type="number"
+                  placeholder="Ex: 60.000"
+                  class="custom-input"
+                ></ion-input>
+                <span class="field-suffix">km</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações Adicionais -->
+          <div class="form-section additional-info-section">
+            <h2 class="section-title">
+              <ion-icon :icon="informationCircleOutline" class="title-icon"></ion-icon>
+              Informações Adicionais
+            </h2>
+
+            <div class="fields-grid">
+              <!-- Service Provider -->
+              <div class="field-wrapper full-width">
+                <label class="field-label">
+                  <ion-icon :icon="businessOutline" class="label-icon"></ion-icon>
+                  Prestador de Serviço
+                </label>
+                <ion-input
+                  v-model="formData.serviceProvider"
+                  placeholder="Ex: Auto Center Garagem"
+                  class="custom-input"
+                ></ion-input>
+              </div>
+
+              <!-- Notes -->
+              <div class="field-wrapper full-width">
+                <label class="field-label">
+                  <ion-icon :icon="createOutline" class="label-icon"></ion-icon>
+                  Observações
+                </label>
+                <ion-textarea
+                  v-model="formData.notes"
+                  placeholder="Adicione observações, detalhes técnicos, recomendações..."
+                  :rows="4"
+                  :auto-grow="true"
+                  class="custom-textarea"
+                ></ion-textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fotos -->
+          <div class="form-section photos-section">
+            <h2 class="section-title">📸 Fotos da Manutenção</h2>
+            <p class="section-hint">Registre o antes e depois da manutenção</p>
+
+            <div class="photos-grid">
+              <!-- Before Photo -->
+              <div class="photo-upload-container">
+                <label class="photo-label">Foto Antes</label>
+                <ion-button 
+                  expand="block" 
+                  fill="outline" 
+                  @click="takePicture('before')"
+                  :disabled="loading"
+                >
+                  <ion-icon slot="start" :icon="camera"></ion-icon>
+                  {{ formData.beforePhoto ? 'Trocar Foto' : 'Tirar Foto' }}
+                </ion-button>
+                
+                <div v-if="formData.beforePhoto" class="photo-preview-container">
+                  <img :src="formData.beforePhoto" class="photo-preview" alt="Foto antes" />
+                  <ion-button 
+                    expand="block" 
+                    fill="clear" 
+                    color="danger"
+                    size="small"
+                    @click="formData.beforePhoto = ''"
+                  >
+                    <ion-icon slot="start" :icon="trashOutline"></ion-icon>
+                    Remover
+                  </ion-button>
+                </div>
+              </div>
+
+              <!-- After Photo -->
+              <div class="photo-upload-container">
+                <label class="photo-label">Foto Depois</label>
+                <ion-button 
+                  expand="block" 
+                  fill="outline" 
+                  @click="takePicture('after')"
+                  :disabled="loading"
+                >
+                  <ion-icon slot="start" :icon="camera"></ion-icon>
+                  {{ formData.afterPhoto ? 'Trocar Foto' : 'Tirar Foto' }}
+                </ion-button>
+                
+                <div v-if="formData.afterPhoto" class="photo-preview-container">
+                  <img :src="formData.afterPhoto" class="photo-preview" alt="Foto depois" />
+                  <ion-button 
+                    expand="block" 
+                    fill="clear" 
+                    color="danger"
+                    size="small"
+                    @click="formData.afterPhoto = ''"
+                  >
+                    <ion-icon slot="start" :icon="trashOutline"></ion-icon>
+                    Remover
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anexos -->
+          <div class="form-section attachments-section">
+            <h2 class="section-title">📎 Anexos</h2>
+            <p class="section-hint">Adicione notas fiscais, recibos ou outros documentos</p>
+
+            <MFileUpload
+              ref="fileUploadRef"
+              :max-files="5"
+              :max-size="5"
+              accept="image/*,application/pdf"
+              @files-selected="handleFilesSelected"
+              @files-changed="handleFilesChanged"
+            />
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <ion-button 
+              expand="block" 
+              fill="outline" 
+              @click="handleCancel"
+              :disabled="loading"
+            >
+              Cancelar
+            </ion-button>
+            <ion-button 
+              expand="block" 
+              type="submit"
+              :disabled="loading || !isFormValid"
+            >
+              <ion-spinner v-if="loading" name="crescent"></ion-spinner>
+              <span v-else>{{ isEdit ? 'Atualizar' : 'Salvar' }} Manutenção</span>
+            </ion-button>
+          </div>
+        </form>
+      </div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButtons,
+  IonButton,
+  IonBackButton,
+  IonIcon,
+  IonSpinner,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonNote,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  IonDatetime,
+  IonDatetimeButton,
+  IonModal,
+  toastController
+} from '@ionic/vue'
+import { 
+  camera, 
+  trashOutline,
+  documentTextOutline,
+  cashOutline,
+  cubeOutline,
+  constructOutline,
+  calculatorOutline,
+  calendarOutline,
+  informationCircleOutline,
+  businessOutline,
+  createOutline
+} from 'ionicons/icons'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
+import { useVehiclesStore } from '@/stores/vehicles'
+import type { MaintenanceType, MaintenanceAttachment } from '@/stores/vehicles'
+import { MAINTENANCE_TYPE_OPTIONS } from '@/constants/vehicles'
+import AInput from '@/components/atoms/AInput.vue'
+import ACard from '@/components/atoms/ACard.vue'
+import AAlert from '@/components/atoms/AAlert.vue'
+import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue'
+
+const route = useRoute()
+const router = useRouter()
+const vehiclesStore = useVehiclesStore()
+
+const isEdit = ref(false)
+const recordId = ref<string>('')
+const loading = ref(false)
+const successMessage = ref('')
+const uploadedFiles = ref<FileUploadItem[]>([])
+const fileUploadRef = ref<InstanceType<typeof MFileUpload>>()
+
+const maxDate = new Date().toISOString()
+
+const formData = ref({
+  vehicleId: '',
+  type: 'oil_change' as MaintenanceType,
+  description: '',
+  partsCost: 0,
+  laborCost: 0,
+  mileage: 0,
+  date: new Date().toISOString(),
+  nextDueDate: undefined as string | undefined,
+  nextDueMileage: 0,
+  serviceProvider: '',
+  notes: '',
+  beforePhoto: '',
+  afterPhoto: ''
+})
+
+const totalCost = computed(() => {
+  return (formData.value.partsCost || 0) + (formData.value.laborCost || 0)
+})
+
+const isFormValid = computed(() => {
+  return (
+    formData.value.vehicleId &&
+    formData.value.type &&
+    formData.value.description &&
+    formData.value.date &&
+    formData.value.mileage > 0
+  )
+})
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(value)
+}
+
+const takePicture = async (type: 'before' | 'after') => {
+  try {
+    const image = await Camera.getPhoto({
+      quality: 80,
+      allowEditing: false,
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Prompt
+    })
+
+    if (image.dataUrl) {
+      if (type === 'before') {
+        formData.value.beforePhoto = image.dataUrl
+      } else {
+        formData.value.afterPhoto = image.dataUrl
+      }
+    }
+  } catch (error) {
+    console.error('Error taking picture:', error)
+  }
+}
+
+const handleFilesSelected = (files: FileUploadItem[]) => {
+  uploadedFiles.value = files
+}
+
+const handleFilesChanged = (files: FileUploadItem[]) => {
+  uploadedFiles.value = files
+}
+
+const handleSubmit = async () => {
+  if (!isFormValid.value || loading.value) return
+
+  loading.value = true
+  vehiclesStore.clearError()
+
+  try {
+    // Process attachments
+    const attachments: MaintenanceAttachment[] = []
+    if (uploadedFiles.value.length > 0) {
+      for (const item of uploadedFiles.value) {
+        if (item.base64 && !item.error) {
+          attachments.push({
+            name: item.file.name,
+            data: item.base64,
+            uploadedAt: new Date(),
+            type: item.file.type,
+            size: item.file.size
+          })
+        }
+      }
+    }
+
+    const recordData = {
+      vehicleId: formData.value.vehicleId,
+      type: formData.value.type,
+      description: formData.value.description,
+      cost: totalCost.value,
+      partsCost: formData.value.partsCost || undefined,
+      laborCost: formData.value.laborCost || undefined,
+      mileage: formData.value.mileage,
+      date: new Date(formData.value.date),
+      nextDueDate: formData.value.nextDueDate ? new Date(formData.value.nextDueDate) : undefined,
+      nextDueMileage: formData.value.nextDueMileage || undefined,
+      serviceProvider: formData.value.serviceProvider || undefined,
+      notes: formData.value.notes || undefined,
+      beforePhoto: formData.value.beforePhoto || undefined,
+      afterPhoto: formData.value.afterPhoto || undefined,
+      attachments: attachments.length > 0 ? attachments : undefined
+    }
+
+    const success = await vehiclesStore.addMaintenanceRecord(recordData)
+
+    if (success) {
+      successMessage.value = 'Manutenção registrada com sucesso!'
+      
+      // Show toast
+      const toast = await toastController.create({
+        message: '✅ Manutenção registrada com sucesso!',
+        duration: 2000,
+        position: 'top',
+        color: 'success'
+      })
+      await toast.present()
+
+      // Navigate back after a short delay
+      setTimeout(() => {
+        router.push('/tabs/maintenance')
+      }, 1500)
+    }
+  } catch (error) {
+    console.error('Error submitting maintenance:', error)
+    
+    const toast = await toastController.create({
+      message: '❌ Erro ao registrar manutenção',
+      duration: 3000,
+      position: 'top',
+      color: 'danger'
+    })
+    await toast.present()
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleCancel = () => {
+  router.back()
+}
+
+onMounted(async () => {
+  await vehiclesStore.fetchVehicles()
+
+  // Check if editing
+  if (route.params.id) {
+    isEdit.value = true
+    recordId.value = route.params.id as string
+    // TODO: Load existing maintenance data
+  }
+
+  // Pre-fill vehicle if provided
+  const vehicleId = route.query.vehicleId as string
+  if (vehicleId) {
+    formData.value.vehicleId = vehicleId
+  }
+})
+</script>
+
+<style scoped>
+/* ===== HEADER ===== */
+.form-toolbar {
+  --background: #1f2937;
+  --color: white;
+  --border-color: #374151;
+}
+
+/* ===== CONTENT ===== */
+.form-content {
+  --background: #111827;
+}
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 2rem;
+}
+
+/* ===== FORM SECTIONS ===== */
+.form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-section {
+  background: #1f2937;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #374151;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title-icon {
+  font-size: 1.25rem;
+  color: #3b82f6;
+}
+
+.section-description {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  margin-top: -0.25rem;
+}
+
+.section-hint {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  margin-top: -0.25rem;
+}
+
+/* ===== FIELDS GRID ===== */
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .fields-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== FIELD WRAPPER ===== */
+.field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.field-wrapper.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ===== FIELD LABELS ===== */
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-label.required::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+.label-icon {
+  font-size: 1rem;
+  color: #60a5fa;
+}
+
+/* ===== FIELD HINTS ===== */
+.field-hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: -0.25rem;
+}
+
+.field-suffix {
+  position: absolute;
+  right: 1rem;
+  top: 2.5rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* ===== CUSTOM INPUTS ===== */
+.custom-input {
+  --background: #111827;
+  --color: white;
+  --placeholder-color: #6b7280;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.75rem;
+  --padding-bottom: 0.75rem;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+}
+
+.custom-input:focus-within {
+  --border-color: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.custom-input.with-prefix {
+  --padding-start: 3rem;
+}
+
+/* ===== CUSTOM SELECT ===== */
+.custom-select {
+  --background: #111827;
+  --color: white;
+  --placeholder-color: #6b7280;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.75rem;
+  --padding-bottom: 0.75rem;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* ===== CUSTOM TEXTAREA ===== */
+.custom-textarea {
+  --background: #111827;
+  --color: white;
+  --placeholder-color: #6b7280;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.75rem;
+  --padding-bottom: 0.75rem;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+}
+
+.custom-textarea:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== INPUT WITH PREFIX ===== */
+.input-with-prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #60a5fa;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ===== DATETIME ===== */
+.datetime-wrapper {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-datetime-btn {
+  --background: #111827;
+  --color: white;
+  --border-color: #374151;
+  --border-radius: 0.5rem;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  width: 100%;
+  height: 48px;
+}
+
+/* ===== COSTS SECTION ===== */
+.costs-section {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(99, 102, 241, 0.03));
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+/* ===== TOTAL COST DISPLAY ===== */
+.total-cost-display {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 0.75rem;
+}
+
+.total-cost-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.total-label ion-icon {
+  font-size: 1.25rem;
+  color: #60a5fa;
+}
+
+.total-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+/* ===== NEXT MAINTENANCE SECTION ===== */
+.next-maintenance-section {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(139, 92, 246, 0.03));
+  border-color: rgba(168, 85, 247, 0.2);
+}
+
+/* ===== ADDITIONAL INFO SECTION ===== */
+.additional-info-section {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(16, 185, 129, 0.03));
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+/* ===== PHOTOS SECTION ===== */
+.photos-section {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.05), rgba(249, 115, 22, 0.05));
+  border: 1px solid rgba(251, 146, 60, 0.2);
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .photos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.photo-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.photo-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fb923c;
+}
+
+.photo-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 2px solid #4b5563;
+}
+
+/* ===== ATTACHMENTS SECTION ===== */
+.attachments-section {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .action-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+
