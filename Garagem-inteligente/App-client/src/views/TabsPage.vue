@@ -81,16 +81,12 @@ const hoveredIndex = ref<number | null>(null)
 // Fluid Blob Indicator Position with Elastic Animation
 const blobStyle = computed(() => {
   const tabWidth = 100 / tabs.length
-  const targetIndex = hoveredIndex.value !== null ? hoveredIndex.value : activeTabIndex.value
-  const left = targetIndex * tabWidth + tabWidth / 2
-  const scale = hoveredIndex.value !== null ? 1.15 : 1
+  const left = activeTabIndex.value * tabWidth + tabWidth / 2
   
   return {
     left: `${left}%`,
-    transform: `translateX(-50%) scale(${scale})`,
-    transition: hoveredIndex.value !== null 
-      ? 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
-      : 'all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+    transform: `translateX(-50%)`,
+    transition: 'all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
   }
 })
 
@@ -100,9 +96,8 @@ const handleTabClick = (index: number) => {
 }
 
 const handleTabHover = (index: number) => {
-  if (index !== activeTabIndex.value) {
-    hoveredIndex.value = index
-  }
+  // Hover effect removed - blob only moves on selection
+  // Keep this function for potential future use
 }
 
 // Watch route changes to update active tab
@@ -542,10 +537,9 @@ onMounted(() => {
 
 @media (min-width: 768px) {
   .premium-tab-bar {
-    max-width: 640px;
-    margin: 0 auto 20px;
     height: 82px;
     padding: 12px 24px 16px;
+    margin: 0 16px 16px;
     border-radius: 36px;
   }
 
