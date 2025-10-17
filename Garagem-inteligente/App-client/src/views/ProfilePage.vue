@@ -1,6 +1,10 @@
 <template>
   <ion-page>
-    <ModernHeader title="Perfil" />
+    <ModernHeader 
+      title="Perfil"
+      :show-back-button="true"
+      back-path="/tabs/home"
+    />
 
     <ion-content :fullscreen="true" class="ion-padding">
       <!-- User Info Card -->

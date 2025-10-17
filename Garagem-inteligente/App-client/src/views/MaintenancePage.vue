@@ -1,6 +1,10 @@
 <template>
   <ion-page>
-    <ModernHeader title="Manutenções" />
+    <ModernHeader 
+      title="Manutenções"
+      :show-back-button="true"
+      back-path="/tabs/home"
+    />
 
     <ion-content :fullscreen="true">
       <!-- Loading State -->
