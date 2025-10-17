@@ -1,14 +1,6 @@
 <template>
   <ion-page>
-    <ModernHeader
-      title="Meus Veículos"
-      :primary-action="{
-        icon: add,
-        text: 'Adicionar',
-        handler: () => $router.push('/tabs/vehicle/new'),
-        pulse: vehiclesStore.vehicles.length === 0
-      }"
-    />
+    <ModernHeader title="Meus Veículos" />
 
     <ion-content :fullscreen="true">
       <!-- Loading State -->

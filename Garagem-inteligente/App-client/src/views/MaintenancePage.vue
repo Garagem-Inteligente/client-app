@@ -1,14 +1,6 @@
 <template>
   <ion-page>
-    <ModernHeader
-      title="Manutenções"
-      :primary-action="{
-        icon: add,
-        text: 'Registrar',
-        handler: () => $router.push('/tabs/maintenance/new'),
-        pulse: vehiclesStore.maintenanceRecords.length === 0
-      }"
-    />
+    <ModernHeader title="Manutenções" />
 
     <ion-content :fullscreen="true">
       <!-- Loading State -->

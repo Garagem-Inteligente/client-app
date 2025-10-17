@@ -1,13 +1,10 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-back-button default-href="/tabs/vehicles"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{ isEdit ? 'Editar Veículo' : 'Adicionar Veículo' }}</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader
+      :title="isEdit ? 'Editar Veículo' : 'Adicionar Veículo'"
+      :show-back-button="true"
+      back-path="/tabs/vehicles"
+    />
 
     <ion-content>
       <div class="form-page">
@@ -413,6 +410,7 @@ import {
 import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles'
 import { fipeApi, type FipeVehicleType } from '@/services/fipeApi'
 import MSearchableSelectFipe from '@/components/molecules/MSearchableSelectFipe.vue'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const router = useRouter()
 const route = useRoute()

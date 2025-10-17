@@ -1,13 +1,10 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar class="toolbar-dark">
-        <ion-buttons slot="start">
-          <ion-back-button default-href="/tabs/maintenance" text="Voltar"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{ isEdit ? 'Editar' : 'Registrar' }} Manutenção</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader
+      :title="`${isEdit ? 'Editar' : 'Registrar'} Manutenção`"
+      :show-back-button="true"
+      back-path="/tabs/maintenance"
+    />
 
     <ion-content :fullscreen="true" class="bg-gray-900">
       <div class="min-h-screen py-8">
@@ -426,6 +423,7 @@ import { useVehiclesStore } from '@/stores/vehicles'
 import type { MaintenanceType, MaintenanceAttachment } from '@/stores/vehicles'
 import { MAINTENANCE_TYPE_OPTIONS } from '@/constants/vehicles'
 import { applyCurrencyMask, applyMileageMask, unmaskCurrency, unmaskMileage } from '@/utils/masks'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import AAlert from '@/components/atoms/AAlert.vue'
 import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue'
 

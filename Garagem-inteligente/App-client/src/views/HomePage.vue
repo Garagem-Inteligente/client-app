@@ -1,15 +1,6 @@
 <template>
   <ion-page>
-    <ion-header class="dashboard-header">
-      <ion-toolbar class="dashboard-toolbar">
-        <ion-title class="dashboard-title">Dashboard</ion-title>
-        <ion-buttons slot="end">
-          <ion-button class="logout-btn" @click="handleLogout">
-            <ion-icon :icon="logOut"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader title="Dashboard" />
 
     <ion-content :fullscreen="true" class="dashboard-content">
       <div class="dashboard-container">
@@ -374,6 +365,7 @@ import { logOut } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

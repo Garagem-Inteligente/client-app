@@ -1,21 +1,14 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar class="detail-toolbar">
-        <ion-buttons slot="start">
-          <ion-back-button default-href="/tabs/maintenance"></ion-back-button>
-        </ion-buttons>
-        <ion-title>Detalhes da Manutenção</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="handleEdit">
-            <ion-icon :icon="createOutline"></ion-icon>
-          </ion-button>
-          <ion-button color="danger" @click="handleDelete">
-            <ion-icon :icon="trashOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader
+      title="Detalhes da Manutenção"
+      :show-back-button="true"
+      back-path="/tabs/maintenance"
+      :secondary-actions="[
+        { icon: createOutline, handler: handleEdit },
+        { icon: trashOutline, handler: handleDelete }
+      ]"
+    />
 
     <ion-content :fullscreen="true" class="detail-content">
       <!-- Loading State -->
@@ -354,6 +347,7 @@ import {
 import { useVehiclesStore } from '@/stores/vehicles'
 import type { MaintenanceType } from '@/stores/vehicles'
 import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
 
