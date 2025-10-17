@@ -83,6 +83,19 @@
         <ion-icon :icon="logOut" slot="start"></ion-icon>
         Sair da Conta
       </ion-button>
+
+      <!-- Version Info -->
+      <div class="version-info ion-text-center ion-margin-top">
+        <p class="version-text">
+          {{ fullVersionString }}
+        </p>
+        <p class="build-info" v-if="isProduction">
+          {{ formattedBuildDate }} • {{ shortSha }}
+        </p>
+        <p class="build-info" v-else>
+          Ambiente de Desenvolvimento
+        </p>
+      </div>
     </ion-content>
 
     <!-- Edit Profile Modal -->
@@ -248,11 +261,13 @@ import {
 } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
+import { useVersion } from '@/composables/useVersion'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const vehiclesStore = useVehiclesStore()
+const { fullVersionString, formattedBuildDate, shortSha, isProduction } = useVersion()
 
 const showEditModal = ref(false)
 const showNotificationsModal = ref(false)
@@ -348,6 +363,29 @@ const showAbout = () => {
 .about-content p {
   margin: 0.5rem 0;
   color: var(--ion-color-medium);
+}
+
+/* Version Info */
+.version-info {
+  margin: 2rem 0 1.5rem 0;
+  padding: 1rem;
+}
+
+.version-text {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+  opacity: 0.7;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.build-info {
+  font-size: 0.65rem;
+  color: var(--ion-color-medium);
+  margin: 0.25rem 0 0 0;
+  opacity: 0.5;
+  font-family: 'Courier New', monospace;
 }
 </style>
 
