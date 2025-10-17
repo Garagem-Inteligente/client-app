@@ -300,8 +300,6 @@ const handleBack = () => {
   .modern-toolbar {
     --min-height: 64px;
     padding: 8px 24px;
-    max-width: 1200px;
-    margin: 0 auto;
     border-radius: 0;
   }
 
