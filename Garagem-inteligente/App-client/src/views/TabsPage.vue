@@ -9,12 +9,6 @@
         <div class="tab-bar-gradient"></div>
         <div class="tab-bar-glow"></div>
         
-        <!-- Fluid Animated Blob Indicator -->
-        <div class="blob-indicator" :style="blobStyle">
-          <div class="blob-inner"></div>
-          <div class="blob-pulse"></div>
-        </div>
-        
         <!-- Tab Buttons with Micro-interactions -->
         <ion-tab-button 
           v-for="(tab, index) in tabs" 
@@ -22,9 +16,6 @@
           :tab="tab.name" 
           :href="tab.href" 
           class="premium-tab-button"
-          @click="handleTabClick(index)"
-          @mouseenter="handleTabHover(index)"
-          @mouseleave="hoveredIndex = null"
         >
           <div class="tab-wrapper">
             <!-- Icon Container with Ripple Effect -->
@@ -50,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue'
 import { 
@@ -76,29 +67,6 @@ const tabs: Tab[] = [
 
 const route = useRoute()
 const activeTabIndex = ref(0)
-const hoveredIndex = ref<number | null>(null)
-
-// Fluid Blob Indicator Position with Elastic Animation
-const blobStyle = computed(() => {
-  const tabWidth = 100 / tabs.length
-  const left = activeTabIndex.value * tabWidth + tabWidth / 2
-  
-  return {
-    left: `${left}%`,
-    transform: `translateX(-50%)`,
-    transition: 'all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-  }
-})
-
-const handleTabClick = (index: number) => {
-  activeTabIndex.value = index
-  hoveredIndex.value = null
-}
-
-const handleTabHover = (index: number) => {
-  // Hover effect removed - blob only moves on selection
-  // Keep this function for potential future use
-}
 
 // Watch route changes to update active tab
 watch(() => route.path, (newPath) => {
@@ -187,64 +155,6 @@ onMounted(() => {
   }
   50% {
     opacity: 0.12;
-  }
-}
-
-/* ====================================
-   FLUID BLOB INDICATOR
-   ==================================== */
-
-.blob-indicator {
-  position: absolute;
-  top: 12px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 
-    0 8px 32px rgba(102, 126, 234, 0.5),
-    0 0 0 4px rgba(102, 126, 234, 0.15),
-    inset 0 2px 8px rgba(255, 255, 255, 0.25);
-  z-index: 1;
-  pointer-events: none;
-  will-change: left, transform;
-  animation: blobEntry 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s backwards;
-}
-
-@keyframes blobEntry {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) scale(0);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-}
-
-.blob-inner {
-  position: absolute;
-  inset: 4px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
-}
-
-.blob-pulse {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 2px solid rgba(102, 126, 234, 0.3);
-  animation: blobPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes blobPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0;
   }
 }
 
@@ -511,12 +421,6 @@ onMounted(() => {
     border-radius: 28px;
   }
 
-  .blob-indicator {
-    width: 50px;
-    height: 50px;
-    top: 10px;
-  }
-
   .icon-container {
     width: 50px;
     height: 50px;
@@ -541,12 +445,6 @@ onMounted(() => {
     padding: 12px 24px 16px;
     margin: 0 16px 16px;
     border-radius: 36px;
-  }
-
-  .blob-indicator {
-    width: 62px;
-    height: 62px;
-    top: 10px;
   }
 
   .icon-container {
