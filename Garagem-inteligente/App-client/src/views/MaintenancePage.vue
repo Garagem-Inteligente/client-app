@@ -19,7 +19,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="vehiclesStore.allMaintenanceRecords.length === 0" class="empty-state-container">
+      <div v-else-if="vehiclesStore.maintenanceRecords.length === 0" class="empty-state-container">
         <div class="empty-state">
           <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -109,7 +109,7 @@
                 <div class="card-title-section">
                   <span class="maintenance-icon">{{ getMaintenanceIcon(record.type) }}</span>
                   <div>
-                    <h3 class="maintenance-title">{{ MAINTENANCE_TYPE_LABELS[record.type] }}</h3>
+                    <h3 class="maintenance-title">{{ getMaintenanceTypeLabel(record.type) }}</h3>
                     <p class="maintenance-vehicle">
                       <ion-icon :icon="car" size="small"></ion-icon>
                       {{ getVehicleName(record.vehicleId) }}
@@ -200,7 +200,7 @@ import {
   searchOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '../stores/vehicles'
-import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '../constants/maintenance'
+import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles'
 import type { MaintenanceRecord } from '../stores/vehicles'
 
 const router = useRouter()
@@ -208,7 +208,7 @@ const vehiclesStore = useVehiclesStore()
 const selectedFilter = ref<'all' | 'upcoming' | 'overdue'>('all')
 
 const filteredMaintenanceRecords = computed(() => {
-  const records = vehiclesStore.allMaintenanceRecords
+  const records = vehiclesStore.maintenanceRecords
   
   switch (selectedFilter.value) {
     case 'upcoming':
@@ -221,7 +221,11 @@ const filteredMaintenanceRecords = computed(() => {
 })
 
 const getMaintenanceIcon = (type: string): string => {
-  return MAINTENANCE_TYPE_ICONS[type] || '🔧'
+  return MAINTENANCE_TYPE_ICONS[type as keyof typeof MAINTENANCE_TYPE_ICONS] || '🔧'
+}
+
+const getMaintenanceTypeLabel = (type: string): string => {
+  return MAINTENANCE_TYPE_LABELS[type as keyof typeof MAINTENANCE_TYPE_LABELS] || type
 }
 
 const getVehicleName = (vehicleId: string): string => {
@@ -229,9 +233,9 @@ const getVehicleName = (vehicleId: string): string => {
   return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Veículo não encontrado'
 }
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+const formatDate = (date: Date | string): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const formatMileage = (mileage: number): string => {
@@ -243,12 +247,12 @@ const formatCurrency = (value: number): string => {
 }
 
 const getStatusLabel = (record: MaintenanceRecord): string => {
-  if (!record.nextMaintenanceDate && !record.nextMaintenanceMileage) {
+  if (!record.nextDueDate && !record.nextDueMileage) {
     return 'Concluída'
   }
   
-  if (record.nextMaintenanceDate) {
-    const nextDate = new Date(record.nextMaintenanceDate)
+  if (record.nextDueDate) {
+    const nextDate = new Date(record.nextDueDate)
     const today = new Date()
     if (nextDate < today) {
       return 'Atrasada'
@@ -288,7 +292,7 @@ const confirmDelete = async (record: MaintenanceRecord) => {
         text: 'Excluir',
         role: 'destructive',
         handler: () => {
-          handleDelete(record.vehicleId, record.id)
+          handleDelete(record.id)
         }
       }
     ]
@@ -296,9 +300,9 @@ const confirmDelete = async (record: MaintenanceRecord) => {
   await alert.present()
 }
 
-const handleDelete = async (vehicleId: string, recordId: string) => {
+const handleDelete = async (recordId: string) => {
   try {
-    await vehiclesStore.deleteMaintenanceRecord(vehicleId, recordId)
+    await vehiclesStore.deleteMaintenanceRecord(recordId)
   } catch (error) {
     console.error('Error deleting maintenance record:', error)
   }
