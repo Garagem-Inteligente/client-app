@@ -293,21 +293,50 @@ const handleBack = () => {
 }
 
 @media (min-width: 768px) {
+  .modern-app-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
   .modern-toolbar {
-    --min-height: 60px;
-    padding: 6px 12px;
-    max-width: 800px;
+    --min-height: 64px;
+    padding: 8px 24px;
+    max-width: 1200px;
     margin: 0 auto;
+    border-radius: 0;
   }
 
   .modern-title-centered {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
   }
 
-  .back-button-modern,
-  .primary-action-button,
+  .back-button-modern {
+    height: 44px;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --border-radius: 12px;
+    font-weight: 500;
+  }
+
+  .primary-action-button {
+    height: 44px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --border-radius: 14px;
+    font-size: 1rem;
+  }
+
   .secondary-action-button {
     height: 44px;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --border-radius: 12px;
+  }
+
+  .action-text {
+    display: inline-block;
+    font-size: 0.938rem;
   }
 }
 
