@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
-import { useAuthStore } from '@/stores/auth'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -82,6 +81,7 @@ const router = createRouter({
 
 // Navigation guards for authentication
 router.beforeEach(async (to, _from, next) => {
+  const { useAuthStore } = await import('../stores/auth')
   const authStore = useAuthStore()
   
   // Wait for auth state to be initialized
