@@ -54,24 +54,7 @@
         </div>
 
         <!-- Modern Filter Pills Tabs -->
-        <div class="tabs-container">
-          <div class="filter-pills-wrapper">
-            <div class="filter-pills">
-              <button 
-                v-for="tab in tabs" 
-                :key="tab.id"
-                class="filter-pill"
-                :class="{ active: activeTab === tab.id, disabled: tab.disabled }"
-                @click="!tab.disabled && handleTabChange(tab.id)"
-                :disabled="tab.disabled"
-              >
-                <span class="pill-icon">{{ tab.icon }}</span>
-                <span class="pill-label">{{ tab.label }}</span>
-                <span v-if="tab.badge" class="pill-count">{{ tab.badge }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <MFilterPills v-model="activeTab" :tabs="tabs" />
 
         <!-- Tab Content -->
         <div class="tab-content">
@@ -144,42 +127,10 @@
                         <h3 class="section-title">Identificação</h3>
                       </div>
                       <div class="info-grid">
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="businessOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Marca</span>
-                            <span class="info-value">{{ vehicle.make }}</span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="carOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Modelo</span>
-                            <span class="info-value">{{ vehicle.model }}</span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="calendarOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Ano</span>
-                            <span class="info-value">{{ vehicle.year }}</span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="documentTextOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Placa</span>
-                            <span class="info-value">{{ vehicle.plate }}</span>
-                          </div>
-                        </div>
+                        <MInfoItem :icon="businessOutline" label="Marca" :value="vehicle.make" />
+                        <MInfoItem :icon="carOutline" label="Modelo" :value="vehicle.model" />
+                        <MInfoItem :icon="calendarOutline" label="Ano" :value="vehicle.year" />
+                        <MInfoItem :icon="documentTextOutline" label="Placa" :value="vehicle.plate" />
                       </div>
                     </div>
 
@@ -190,33 +141,9 @@
                         <h3 class="section-title">Características</h3>
                       </div>
                       <div class="info-grid">
-                        <div class="info-item-modern" v-if="vehicle.color">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="colorPaletteOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Cor</span>
-                            <span class="info-value">{{ vehicle.color }}</span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="speedometerOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Quilometragem</span>
-                            <span class="info-value">{{ vehicle.mileage.toLocaleString('pt-BR') }} km</span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern">
-                          <div class="info-icon-wrapper">
-                            <ion-icon :icon="waterOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Combustível</span>
-                            <span class="info-value">{{ getFuelTypeLabel(vehicle.fuelType) }}</span>
-                          </div>
-                        </div>
+                        <MInfoItem v-if="vehicle.color" :icon="colorPaletteOutline" label="Cor" :value="vehicle.color" />
+                        <MInfoItem :icon="speedometerOutline" label="Quilometragem" :value="`${vehicle.mileage.toLocaleString('pt-BR')} km`" />
+                        <MInfoItem :icon="waterOutline" label="Combustível" :value="getFuelTypeLabel(vehicle.fuelType)" />
                       </div>
                     </div>
 
@@ -227,28 +154,18 @@
                         <h3 class="section-title">Histórico</h3>
                       </div>
                       <div class="info-grid">
-                        <div class="info-item-modern highlight">
-                          <div class="info-icon-wrapper highlight">
-                            <ion-icon :icon="timeOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Última Manutenção</span>
-                            <span class="info-value">
-                              {{ lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma' }}
-                            </span>
-                          </div>
-                        </div>
-                        <div class="info-item-modern highlight">
-                          <div class="info-icon-wrapper highlight">
-                            <ion-icon :icon="cashOutline"></ion-icon>
-                          </div>
-                          <div class="info-content">
-                            <span class="info-label">Custo Médio</span>
-                            <span class="info-value">
-                              {{ formatCurrency(averageMaintenanceCost) }}
-                            </span>
-                          </div>
-                        </div>
+                        <MInfoItem 
+                          :icon="timeOutline" 
+                          label="Última Manutenção" 
+                          :value="lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma'" 
+                          highlight 
+                        />
+                        <MInfoItem 
+                          :icon="cashOutline" 
+                          label="Custo Médio" 
+                          :value="formatCurrency(averageMaintenanceCost)" 
+                          highlight 
+                        />
                       </div>
                     </div>
                   </div>
@@ -734,6 +651,8 @@ import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import AButton from '@/components/atoms/AButton.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
+import MFilterPills from '@/components/molecules/MFilterPills.vue'
+import MInfoItem from '@/components/molecules/MInfoItem.vue'
 import MonthlyCostsChart from '@/components/charts/MonthlyCostsChart.vue'
 import CostsByTypeChart from '@/components/charts/CostsByTypeChart.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
@@ -902,10 +821,6 @@ const handleDelete = async () => {
   })
 
   await alert.present()
-}
-
-const handleTabChange = (tabId: string) => {
-  activeTab.value = tabId
 }
 
 const uploadDocument = async (docType: 'crlv' | 'insurance') => {

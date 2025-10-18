@@ -73,26 +73,37 @@ const linkingModalRef = ref<InstanceType<typeof AccountLinkingModal> | null>(nul
 
 const handleGoogleSignIn = async () => {
   loading.value = true
-  
   try {
     const success = await authStore.signInWithGoogle()
-    
     if (success) {
-      // Redirect to home after successful login
-      await router.push('/tabs/home')
+      // Aguarda o Pinia atualizar o usuário antes de redirecionar
+      const waitForAuth = async () => {
+        let tries = 0
+        while (!authStore.user && tries < 20) {
+          await new Promise(res => setTimeout(res, 100))
+          tries++
+        }
+      }
+      await waitForAuth()
+      if (authStore.user) {
+        // Feedback visual
+        const alert = await alertController.create({
+          header: 'Login realizado!',
+          message: `Bem-vindo, ${authStore.user.name || 'usuário'}!`,
+          buttons: ['OK']
+        })
+        await alert.present()
+        await alert.onDidDismiss()
+        await router.push('/tabs/home')
+      }
     } else if (authStore.error && authStore.error.includes('auth/account-exists-with-different-credential')) {
-      // Este erro específico indica conflito - mas vamos detectar antes
       console.error('Account conflict detected')
     }
   } catch (error: unknown) {
     console.error('Google Sign-In error:', error)
-    
-    // Verificar se é erro de conta existente
     if (error instanceof Error) {
       const errorCode = (error as { code?: string }).code
-      
       if (errorCode === 'auth/account-exists-with-different-credential') {
-        // Mostrar modal para vincular
         const errorEmail = (error as { customData?: { email?: string } }).customData?.email
         if (errorEmail) {
           emailToLink.value = errorEmail

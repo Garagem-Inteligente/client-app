@@ -87,6 +87,26 @@ onMounted(() => {
 
 <style scoped>
 /* ====================================
+   TABS PAGE BACKGROUND FIX
+   ==================================== */
+
+/* Fix: Remove black background from ion-page/ion-tabs */
+ion-page {
+  --background: transparent;
+  background: transparent;
+}
+
+ion-tabs {
+  --background: transparent;
+  background: transparent;
+}
+
+/* Ensure ion-router-outlet has transparent background */
+ion-router-outlet {
+  background: transparent;
+}
+
+/* ====================================
    ULTRA PREMIUM TAB BAR - 2025 DESIGN
    ==================================== */
 
