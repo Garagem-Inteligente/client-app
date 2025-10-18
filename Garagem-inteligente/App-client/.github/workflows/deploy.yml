@@ -138,7 +138,8 @@ jobs:
           echo "- **Build:** #${{ steps.version.outputs.BUILD_NUMBER }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Date:** ${{ steps.version.outputs.BUILD_DATE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Platform:** Web (Firebase Hosting)" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://app-garageminteligente.web.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL Principal:** https://app.garageminteligente.com.br" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL Firebase:** https://app-garageminteligente.web.app" >> $GITHUB_STEP_SUMMARY
 
   # Job 3: Build Android APK
   build-android:
@@ -264,8 +265,8 @@ jobs:
             - Android APK (Debug)
             
             ### 🌐 Web
-            - Live: https://app-garageminteligente.web.app
-            - Custom Domain: https://app.garageminteligente.com.br (se configurado)
+            - 🌐 Domínio Principal: https://app.garageminteligente.com.br
+            - 🔥 Firebase Hosting: https://app-garageminteligente.web.app
             
             ### 📝 Changes
             - Build #${{ github.run_number }}
