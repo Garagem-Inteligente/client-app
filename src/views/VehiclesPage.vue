@@ -51,21 +51,86 @@
 
       <!-- Vehicles Grid -->
       <div v-else class="vehicles-container">
-        <!-- Filter Tabs -->
-        <ion-segment v-model="selectedFilter" @ion-change="filterVehicles" class="filter-segment">
-          <ion-segment-button value="all">
-            <ion-label>Todos ({{ vehiclesStore.vehicleCount }})</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="car">
-            <ion-label>Carros</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="motorcycle">
-            <ion-label>Motos</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+        <!-- Modern Filter Pills -->
+        <div class="filter-pills">
+          <button 
+            class="filter-pill"
+            :class="{ active: selectedFilter === 'all' }"
+            @click="selectedFilter = 'all'"
+          >
+            <ion-icon :icon="apps" class="pill-icon"></ion-icon>
+            <span class="pill-label">Todos</span>
+            <span class="pill-count">{{ vehiclesStore.vehicleCount }}</span>
+          </button>
+          
+          <button 
+            class="filter-pill"
+            :class="{ active: selectedFilter === 'car' }"
+            @click="selectedFilter = 'car'"
+          >
+            <ion-icon :icon="car" class="pill-icon"></ion-icon>
+            <span class="pill-label">Carros</span>
+            <span class="pill-count">{{ vehicleTypeCount('car') }}</span>
+          </button>
+          
+          <button 
+            class="filter-pill"
+            :class="{ active: selectedFilter === 'motorcycle' }"
+            @click="selectedFilter = 'motorcycle'"
+          >
+            <ion-icon :icon="bicycle" class="pill-icon"></ion-icon>
+            <span class="pill-label">Motos</span>
+            <span class="pill-count">{{ vehicleTypeCount('motorcycle') }}</span>
+          </button>
+          
+          <button 
+            class="filter-pill"
+            :class="{ active: selectedFilter === 'van' }"
+            @click="selectedFilter = 'van'"
+          >
+            <ion-icon :icon="bus" class="pill-icon"></ion-icon>
+            <span class="pill-label">Vans</span>
+            <span class="pill-count">{{ vehicleTypeCount('van') }}</span>
+          </button>
+          
+          <button 
+            class="filter-pill"
+            :class="{ active: selectedFilter === 'heavy' }"
+            @click="selectedFilter = 'heavy'"
+          >
+            <ion-icon :icon="cube" class="pill-icon"></ion-icon>
+            <span class="pill-label">Pesados</span>
+            <span class="pill-count">{{ heavyVehiclesCount }}</span>
+          </button>
+        </div>
 
         <!-- Vehicles Grid -->
         <div class="vehicles-grid">
+          <!-- Empty Category CTA -->
+          <ion-card
+            v-if="filteredVehicles.length === 0"
+            class="empty-category-card"
+            button
+            @click="$router.push('/tabs/vehicle/new')"
+          >
+            <ion-card-content>
+              <div class="empty-category-content">
+                <ion-icon :icon="addCircle" class="empty-category-icon"></ion-icon>
+                <h3 class="empty-category-title">Nenhum veículo nesta categoria</h3>
+                <p class="empty-category-text">
+                  {{ getEmptyCategoryMessage() }}
+                </p>
+                <ion-button expand="block" class="empty-category-button">
+                  <template v-slot:start>
+                    <ion-icon :icon="add"></ion-icon>
+                  </template>
+                  Cadastrar Veículo
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Vehicle Cards -->
           <ion-card
             v-for="vehicle in filteredVehicles"
             :key="vehicle.id"
@@ -171,16 +236,17 @@ import {
   IonButton,
   IonIcon,
   IonSpinner,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
   IonChip,
   IonAlert
 } from '@ionic/vue'
 import {
   add,
+  addCircle,
   car,
   bicycle,
+  apps,
+  bus,
+  cube,
   alertCircle,
   create,
   trash
@@ -201,9 +267,24 @@ const filteredVehicles = computed(() => {
   if (selectedFilter.value === 'all') {
     return vehiclesStore.vehicles
   }
+  if (selectedFilter.value === 'heavy') {
+    return vehiclesStore.vehicles.filter(
+      vehicle => vehicle.vehicleType === 'truck' || vehicle.vehicleType === 'bus'
+    )
+  }
   return vehiclesStore.vehicles.filter(
     vehicle => vehicle.vehicleType === selectedFilter.value
   )
+})
+
+const vehicleTypeCount = (type: VehicleType) => {
+  return vehiclesStore.vehicles.filter(v => v.vehicleType === type).length
+}
+
+const heavyVehiclesCount = computed(() => {
+  return vehiclesStore.vehicles.filter(
+    v => v.vehicleType === 'truck' || v.vehicleType === 'bus'
+  ).length
 })
 
 const getVehicleIcon = (type: VehicleType) => {
@@ -212,6 +293,14 @@ const getVehicleIcon = (type: VehicleType) => {
       return car
     case 'motorcycle':
       return bicycle
+    case 'van':
+      return bus
+    case 'truck':
+      return cube
+    case 'bus':
+      return bus
+    case 'pickup':
+      return car
     default:
       return car
   }
@@ -235,8 +324,14 @@ const getFuelTypeColor = (type: FuelType) => {
   return colors[type] || 'medium'
 }
 
-const filterVehicles = () => {
-  // Filter is handled by computed property
+const getEmptyCategoryMessage = () => {
+  const messages: Record<string, string> = {
+    car: 'Adicione seu primeiro carro para começar a gerenciar manutenções e histórico.',
+    motorcycle: 'Cadastre sua primeira moto e mantenha tudo organizado.',
+    van: 'Registre sua van para acompanhar manutenções e custos.',
+    heavy: 'Adicione caminhões ou ônibus para gerenciar sua frota pesada.'
+  }
+  return messages[selectedFilter.value] || 'Cadastre um veículo nesta categoria.'
 }
 
 const handleViewDetails = (vehicleId: string) => {
@@ -448,61 +543,120 @@ ion-card.error-state-card {
   margin: 0 auto;
 }
 
-/* Filter Segment - Enhanced Glassmorphism */
-.filter-segment {
-  margin-bottom: 28px;
-  background: rgba(31, 41, 55, 0.75);
-  backdrop-filter: blur(15px);
-  border-radius: 18px;
-  padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+/* Modern Filter Pills */
+.filter-pills {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.filter-segment::part(indicator) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 14px;
-  box-shadow: 
-    0 6px 12px rgba(102, 126, 234, 0.5),
-    0 0 24px rgba(102, 126, 234, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.filter-segment ion-segment-button {
-  --color: rgba(255, 255, 255, 0.6);
-  --color-checked: white;
-  --indicator-color: transparent;
-  min-height: 48px;
+.filter-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.938rem;
   font-weight: 600;
-  font-size: 1rem;
   letter-spacing: -0.2px;
+  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.filter-segment ion-segment-button::part(native) {
+.filter-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.filter-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.filter-pill:hover::before {
+  opacity: 1;
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: rgba(129, 140, 248, 0.6);
+  color: white;
+  box-shadow: 
+    0 8px 24px rgba(102, 126, 234, 0.5),
+    0 0 32px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.filter-pill.active::before {
+  opacity: 0;
+}
+
+.filter-pill .pill-icon {
+  font-size: 1.25rem;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.filter-pill:hover .pill-icon {
+  transform: scale(1.15);
+}
+
+.filter-pill.active .pill-icon {
+  transform: scale(1.1) rotate(-5deg);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.filter-pill .pill-label {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+}
+
+.filter-pill .pill-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 0.813rem;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
   transition: all 0.3s ease;
 }
 
-.filter-segment ion-segment-button.segment-button-checked {
-  --color: white;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.filter-pill.active .pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.filter-segment ion-segment-button:hover:not(.segment-button-checked) {
-  --color: rgba(255, 255, 255, 0.85);
-}
-
-/* Vehicles Grid - Responsive */
+/* Vehicles Grid - Responsive: Mobile 1, Desktop 3 */
 .vehicles-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .vehicles-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -515,10 +669,97 @@ ion-card.error-state-card {
   }
 }
 
-@media (min-width: 1400px) {
-  .vehicles-grid {
-    grid-template-columns: repeat(4, 1fr);
+/* Empty Category CTA Card */
+.empty-category-card {
+  background: rgba(31, 41, 55, 0.75);
+  backdrop-filter: blur(15px);
+  border-radius: 24px;
+  border: 2px dashed rgba(129, 140, 248, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  grid-column: 1 / -1;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.empty-category-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(129, 140, 248, 0.7);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(129, 140, 248, 0.2);
+}
+
+.empty-category-card ion-card-content {
+  padding: 48px 32px;
+}
+
+.empty-category-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.empty-category-icon {
+  font-size: 5rem;
+  color: rgba(129, 140, 248, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 0.6;
+    transform: scale(1);
   }
+  50% { 
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.empty-category-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.empty-category-text {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.empty-category-button {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background-hover: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+  --color: white;
+  --border-radius: 14px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  margin-top: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.2px;
+  text-transform: none;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.empty-category-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+}
+
+.empty-category-button ion-icon {
+  font-size: 1.25rem;
 }
 
 /* Vehicle Card - Dark Glassmorphism Design System */
@@ -828,14 +1069,24 @@ ion-card.error-state-card {
     padding: 32px;
   }
 
-  .filter-segment {
-    margin-bottom: 36px;
-    padding: 8px;
+  .filter-pills {
+    margin-bottom: 40px;
+    gap: 16px;
   }
 
-  .filter-segment ion-segment-button {
-    min-height: 52px;
-    font-size: 1.063rem;
+  .filter-pill {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  .filter-pill .pill-icon {
+    font-size: 1.375rem;
+  }
+
+  .filter-pill .pill-count {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
   }
 
   .vehicle-card ion-card-content {
