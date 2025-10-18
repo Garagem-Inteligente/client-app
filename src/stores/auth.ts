@@ -327,12 +327,28 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err: unknown) {
       console.error('❌ Erro no login Google:', err)
       
+      // Log detalhado do erro para diagnóstico
+      if (err && typeof err === 'object') {
+        console.error('🔍 Detalhes completos do erro:', {
+          name: (err as any).name,
+          message: (err as any).message,
+          code: (err as any).code,
+          errorCode: (err as any).errorCode,
+          serverResponse: (err as any).serverResponse,
+          customData: (err as any).customData,
+          stack: (err as any).stack
+        })
+      }
+      
       // Se já setamos um erro específico, não sobrescrever
       if (!error.value) {
         let errorMessage = 'Erro ao fazer login com Google'
         
         if (err instanceof Error) {
           const message = err.message
+          const errorCode = (err as any).code || (err as any).errorCode
+          
+          console.error('📝 Código do erro:', errorCode)
           console.error('📝 Mensagem de erro detalhada:', message)
           
           // Tratamento específico para erros do Android
@@ -348,10 +364,16 @@ export const useAuthStore = defineStore('auth', () => {
             errorMessage = 'Plugin de autenticação não está disponível. Reinstale o aplicativo.'
           } else if (message.includes('10')) {
             errorMessage = 'Timeout na autenticação. Tente novamente.'
+          } else if (errorCode === '10' || errorCode === 10 || message.includes('10:')) {
+            errorMessage = 'Erro 10: Configuração OAuth inválida. Verifique o SHA-1 e Web Client ID no Google Cloud Console.'
+          } else if (message.includes('12500') || errorCode === '12500') {
+            errorMessage = 'Erro 12500: Falha na autenticação. Verifique se o app está registrado no Google Cloud Console com o SHA-1 correto.'
           } else if (message.includes('missing') || message.includes('insufficient') || message.includes('permission')) {
             errorMessage = 'Erro de permissões OAuth. Verifique a configuração no Google Cloud Console. O app pode estar em modo de teste.'
           } else if (message.includes('unauthorized') || message.includes('forbidden')) {
-            errorMessage = 'Acesso negado. Verifique se o OAuth consent screen está configurado corretamente.'
+            errorMessage = 'Acesso negado. Verifique se o OAuth consent screen está configurado corretamente e em modo PRODUÇÃO.'
+          } else if (message.includes('DEVELOPER_ERROR') || errorCode === 'DEVELOPER_ERROR') {
+            errorMessage = 'Erro de desenvolvedor: Verifique se o Web Client ID (server_client_id) está correto no strings.xml e se o SHA-1 está cadastrado no Firebase Console.'
           } else {
             errorMessage = message
           }
