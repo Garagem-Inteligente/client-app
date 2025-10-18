@@ -33,12 +33,15 @@ export interface Vehicle {
   mileage: number
   fuelType: FuelType
   imageUrl?: string // Base64 da imagem do veículo
+  fipeValue?: number // Valor atual do veículo na tabela FIPE
+  fipeCode?: string // Código FIPE para consultas futuras
   // Dados do Seguro
   insuranceCompany?: string
   insurancePhone?: string
   insurancePolicyNumber?: string
   insuranceExpiryDate?: Date
   insuranceValue?: number
+  brokerContact?: string // Telefone do corretor de seguro
   // Documentos
   documentCRLV?: string // Base64 do CRLV
   documentInsurancePolicy?: string // Base64 da apólice

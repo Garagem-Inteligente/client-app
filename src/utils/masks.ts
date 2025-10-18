@@ -122,3 +122,90 @@ export function parseDateBR(date: string): string {
   const [day, month, year] = parts
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
+
+/**
+ * Máscara de placa de veículo (Mercosul e antiga)
+ * Entrada: "ABC1D23" -> Saída: "ABC-1D23"
+ * Entrada: "ABC1234" -> Saída: "ABC-1234"
+ */
+export function maskPlate(value: string): string {
+  if (!value) return ''
+  
+  // Remove tudo exceto letras e números
+  const cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+  
+  if (cleaned.length <= 3) return cleaned
+  
+  // Formato: ABC-1234 ou ABC-1D23
+  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}`
+}
+
+/**
+ * Aplica máscara de placa enquanto digita
+ */
+export function applyPlateMask(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+  
+  if (value.length <= 3) {
+    input.value = value
+  } else {
+    input.value = `${value.slice(0, 3)}-${value.slice(3, 7)}`
+  }
+}
+
+/**
+ * Remove máscara de placa
+ */
+export function unmaskPlate(value: string): string {
+  return value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+}
+
+/**
+ * Máscara de telefone brasileiro
+ * Entrada: "11987654321" -> Saída: "(11) 98765-4321"
+ * Entrada: "1133334444" -> Saída: "(11) 3333-4444"
+ */
+export function maskPhone(value: string): string {
+  if (!value) return ''
+  
+  const cleaned = value.replace(/\D/g, '')
+  
+  if (cleaned.length <= 10) {
+    // Telefone fixo: (11) 3333-4444
+    return cleaned
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4})(\d)/, '$1-$2')
+  } else {
+    // Celular: (11) 98765-4321
+    return cleaned
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+  }
+}
+
+/**
+ * Aplica máscara de telefone enquanto digita
+ */
+export function applyPhoneMask(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const value = input.value.replace(/\D/g, '')
+  
+  if (value.length <= 10) {
+    input.value = value
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4})(\d)/, '$1-$2')
+  } else {
+    input.value = value
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+      .slice(0, 15) // Limita a 15 caracteres
+  }
+}
+
+/**
+ * Remove máscara de telefone
+ */
+export function unmaskPhone(value: string): string {
+  return value.replace(/\D/g, '')
+}
