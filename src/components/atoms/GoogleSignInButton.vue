@@ -56,11 +56,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { alertController } from '@ionic/vue'
+import { alertController, toastController, IonSpinner } from '@ionic/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import AccountLinkingModal from '../molecules/AccountLinkingModal.vue'
-import { toastController } from '@ionic/vue'
 const showToast = async (message: string, color: string = 'success') => {
   const toast = await toastController.create({
     message,
