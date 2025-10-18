@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@capacitor-firebase/authentication':
-        specifier: ^7.3.1
-        version: 7.3.1(@capacitor/core@7.4.3)(firebase@12.4.0)
       '@capacitor/android':
         specifier: ^7.4.3
         version: 7.4.3(@capacitor/core@7.4.3)
@@ -44,6 +41,9 @@ importers:
       '@capacitor/status-bar':
         specifier: 7.0.3
         version: 7.0.3(@capacitor/core@7.4.3)
+      '@capgo/capacitor-social-login':
+        specifier: ^7.11.21
+        version: 7.11.21(@capacitor/core@7.4.3)
       '@ionic/vue':
         specifier: ^8.0.0
         version: 8.7.7(@stencil/core@4.38.2)(vue-router@4.6.3(vue@3.5.22(typescript@5.6.3)))(vue@3.5.22(typescript@5.6.3))
@@ -627,15 +627,6 @@ packages:
     resolution: {integrity: sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==}
     engines: {node: '>=6.9.0'}
 
-  '@capacitor-firebase/authentication@7.3.1':
-    resolution: {integrity: sha512-xuy2K7GXFc3c5mlfI4U9yp/qPlnkF+8IC5FEAQ3Vx4RXYgn/hDAybaZJMzKZ8eQkfttUaBJjADqnfMrYKG70Qw==}
-    peerDependencies:
-      '@capacitor/core': '>=7.0.0'
-      firebase: ^11.2.0
-    peerDependenciesMeta:
-      firebase:
-        optional: true
-
   '@capacitor/android@7.4.3':
     resolution: {integrity: sha512-VpjvnOcmYGPLgvXRhe3CGLs62Cg7sxOyp77NddCr+Y06qqgnoaj6OGeBVTc2DZlqZ6bSmh15JvFu82pkvmdgfQ==}
     peerDependencies:
@@ -696,6 +687,11 @@ packages:
 
   '@capacitor/synapse@1.0.4':
     resolution: {integrity: sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==}
+
+  '@capgo/capacitor-social-login@7.11.21':
+    resolution: {integrity: sha512-LNY4BBQrsktQjObV819c/LvXez3jyPPq7/1h/KXvHZ1ApcrOLoydCEPgAJ1pkNdIe5ZCep5VlIofbkpTCkqJwg==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -4594,12 +4590,6 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@capacitor-firebase/authentication@7.3.1(@capacitor/core@7.4.3)(firebase@12.4.0)':
-    dependencies:
-      '@capacitor/core': 7.4.3
-    optionalDependencies:
-      firebase: 12.4.0
-
   '@capacitor/android@7.4.3(@capacitor/core@7.4.3)':
     dependencies:
       '@capacitor/core': 7.4.3
@@ -4668,6 +4658,10 @@ snapshots:
       '@capacitor/core': 7.4.3
 
   '@capacitor/synapse@1.0.4': {}
+
+  '@capgo/capacitor-social-login@7.11.21(@capacitor/core@7.4.3)':
+    dependencies:
+      '@capacitor/core': 7.4.3
 
   '@colors/colors@1.5.0':
     optional: true

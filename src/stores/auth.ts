@@ -9,13 +9,14 @@ import {
   sendPasswordResetEmail,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithCredential,
   fetchSignInMethodsForEmail,
   type User as FirebaseUser
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/firebase/config'
 import { Capacitor } from '@capacitor/core'
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
+import { SocialLogin } from '@capgo/capacitor-social-login'
 
 export interface User {
   id: string
@@ -179,89 +180,61 @@ export const useAuthStore = defineStore('auth', () => {
       let firebaseUser: FirebaseUser
       
       if (isNative) {
-        // Fluxo nativo para Android/iOS usando Capacitor Firebase Authentication
-        console.log('🔐 Login Google via Capacitor (Nativo)')
+        // Fluxo nativo usando @capgo/capacitor-social-login
+        console.log('🔐 Login Google via @capgo/capacitor-social-login (Nativo)')
         
-        // Verificar se o plugin está disponível
-        if (!FirebaseAuthentication || typeof FirebaseAuthentication.signInWithGoogle !== 'function') {
-          console.error('❌ Plugin FirebaseAuthentication não está disponível')
-          throw new Error('Plugin de autenticação não está disponível. Reinstale o aplicativo.')
-        }
+        // Web Client ID do OAuth 2.0 (OBRIGATÓRIO para Android)
+        const WEB_CLIENT_ID = '868408826724-fraf20uj8jeflctur19rif19lbgiapse.apps.googleusercontent.com'
         
-        // Verificar se estamos realmente em uma plataforma nativa
-        console.log('🔍 Detalhes da plataforma:', {
-          isNative: Capacitor.isNativePlatform(),
-          platform: Capacitor.getPlatform(),
-          isPluginAvailable: Capacitor.isPluginAvailable('FirebaseAuthentication')
+        // Inicializar o plugin com o Web Client ID
+        await SocialLogin.initialize({
+          google: {
+            webClientId: WEB_CLIENT_ID
+          }
         })
+        console.log('✅ Plugin @capgo inicializado com Web Client ID')
         
-        // CRÍTICO: passar o serverClientId (Web Client ID) para Android
-        const result = await FirebaseAuthentication.signInWithGoogle({
-          mode: 'redirect',
-          scopes: ['profile', 'email']
-        } as any)
-        console.log('📱 Resultado do FirebaseAuthentication:', result)
+        // Fazer login
+        const result = await SocialLogin.login({
+          provider: 'google',
+          options: {
+            scopes: ['profile', 'email']
+          }
+        })
+        console.log('📱 Resultado do login:', result)
         
-        if (!result.user) {
-          console.error('❌ Usuário não encontrado na resposta do Google')
-          throw new Error('Usuário não encontrado na resposta do Google')
+        // Validar estrutura da resposta
+        if (!result.result || result.result.responseType !== 'online') {
+          console.error('❌ Resposta inválida do Google - esperado modo online')
+          throw new Error('Erro no login do Google: resposta inválida')
         }
         
-        console.log('✅ Usuário recebido do plugin:', result.user.uid)
-        console.log('📧 Email do usuário:', result.user.email)
-        console.log('👤 Nome do usuário:', result.user.displayName)
-        
-        // Tentar usar o usuário retornado pelo plugin diretamente
-        if (result.user && result.user.uid) {
-          console.log('🔄 Usando usuário do plugin diretamente...')
-          // Converter o usuário do plugin para FirebaseUser
-          firebaseUser = {
-            uid: result.user.uid,
-            email: result.user.email || null,
-            displayName: result.user.displayName || null,
-            photoURL: result.user.photoUrl || null,
-            emailVerified: result.user.emailVerified || false,
-            isAnonymous: false,
-            metadata: {} as any,
-            providerData: [],
-            refreshToken: '',
-            tenantId: null,
-            phoneNumber: null,
-            providerId: 'google.com',
-            delete: async () => {},
-            getIdToken: async () => '',
-            getIdTokenResult: async () => ({} as any),
-            reload: async () => {},
-            toJSON: () => ({})
-          } as unknown as FirebaseUser
-        } else {
-          // Fallback: aguardar sincronização com Firebase Auth
-          console.log('🔄 Aguardando sincronização com Firebase Auth...')
-          let attempts = 0
-          let currentUser = auth.currentUser
-          
-          while (!currentUser && attempts < 10) {
-            console.log(`⏳ Aguardando sincronização com Firebase Auth... tentativa ${attempts + 1}`)
-            await new Promise(resolve => setTimeout(resolve, 500))
-            currentUser = auth.currentUser
-            attempts++
-          }
-          
-          if (!currentUser) {
-            console.error('❌ Erro ao sincronizar com Firebase Auth após 10 tentativas')
-            console.error('🔍 Estado do auth:', {
-              hasCurrentUser: !!auth.currentUser,
-              isSignedIn: !!auth.currentUser,
-              userUid: auth.currentUser?.uid
-            })
-            throw new Error('Erro ao sincronizar com Firebase Auth. O usuário foi autenticado no Google mas não foi sincronizado com o Firebase. Tente novamente.')
-          }
-          
-          console.log('✅ Firebase Auth sincronizado:', currentUser.uid)
-          console.log('📧 Email sincronizado:', currentUser.email)
-          console.log('👤 Nome sincronizado:', currentUser.displayName)
-          firebaseUser = currentUser
+        const profile = result.result.profile
+        if (!profile || !profile.id || !profile.email) {
+          console.error('❌ Perfil do usuário não encontrado na resposta')
+          throw new Error('Perfil do usuário não encontrado')
         }
+        
+        console.log('✅ Perfil recebido do Google:', profile.id)
+        console.log('📧 Email do usuário:', profile.email)
+        console.log('👤 Nome do usuário:', profile.name)
+        
+        // Obter ID Token do Firebase usando a credencial do Google
+        const idToken = result.result.idToken
+        if (!idToken) {
+          console.error('❌ ID Token não encontrado na resposta')
+          throw new Error('ID Token não encontrado')
+        }
+        
+        // Autenticar no Firebase usando o ID Token do Google
+        console.log('� Autenticando no Firebase com ID Token...')
+        const credential = GoogleAuthProvider.credential(idToken)
+        const userCredential = await signInWithCredential(auth, credential)
+        firebaseUser = userCredential.user
+        
+        console.log('✅ Firebase Auth sincronizado:', firebaseUser.uid)
+        console.log('📧 Email sincronizado:', firebaseUser.email)
+        console.log('👤 Nome sincronizado:', firebaseUser.displayName)
       } else {
         // Fluxo web usando popup
         console.log('🔐 Login Google via Popup (Web)')
