@@ -1112,7 +1112,7 @@ onMounted(async () => {
 
 /* Content */
 .detail-content {
-  --background: #111827;
+  --background: var(--ion-background-color);
 }
 
 .detail-container {

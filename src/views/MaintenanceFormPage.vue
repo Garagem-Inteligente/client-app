@@ -257,9 +257,9 @@
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Before Photo -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-300 mb-2">
+                      <p class="block text-sm font-medium text-gray-300 mb-2">
                         Foto ANTES da Manutenção
-                      </label>
+                      </p>
                       <div class="flex gap-2">
                         <button
                           type="button"
@@ -308,9 +308,9 @@
 
                     <!-- After Photo -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-300 mb-2">
+                      <p class="block text-sm font-medium text-gray-300 mb-2">
                         Foto DEPOIS da Manutenção
-                      </label>
+                      </p>
                       <div class="flex gap-2">
                         <button
                           type="button"
@@ -395,7 +395,7 @@
                   type="submit"
                   :disabled="loading || !isFormValid"
                 >
-                  <ion-spinner v-if="loading" slot="start" name="crescent"></ion-spinner>
+                  <ion-spinner v-if="loading" name="crescent"></ion-spinner>
                   {{ isEdit ? 'Atualizar' : 'Registrar' }}
                 </ion-button>
               </div>
@@ -412,13 +412,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButtons,
   IonButton,
-  IonBackButton,
   IonSpinner,
   toastController
 } from '@ionic/vue'
@@ -428,7 +423,7 @@ import type { MaintenanceType, MaintenanceAttachment } from '@/stores/vehicles'
 import { MAINTENANCE_TYPE_OPTIONS } from '@/constants/vehicles'
 import { applyCurrencyMask, applyMileageMask, unmaskCurrency, unmaskMileage } from '@/utils/masks'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
-import AAlert from '@/components/atoms/AAlert.vue'
+import { AAlert, AInput } from '@/components'
 import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue'
 
 const route = useRoute()
@@ -467,7 +462,7 @@ const displayMileage = ref('')
 const displayNextMileage = ref('')
 
 const toNumber = (val: string | number): number => {
-  if (typeof val === 'string') return parseFloat(val) || 0
+  if (typeof val === 'string') return Number.parseFloat(val) || 0
   return val || 0
 }
 
@@ -588,11 +583,11 @@ const takePicture = async (photoType: 'before' | 'after', sourceType: 'camera' |
       })
       await toast.present()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error taking/selecting picture:', error)
     
     // Only show error if user didn't cancel
-    if (error.message !== 'User cancelled photos app') {
+    if (error instanceof Error && error.message !== 'User cancelled photos app') {
       const toast = await toastController.create({
         message: '❌ Erro ao carregar foto.',
         duration: 2000,
@@ -729,7 +724,7 @@ onMounted(async () => {
 
 /* Garantir que as classes Tailwind sejam aplicadas */
 ion-content {
-  --background: #111827;
+  --background: var(--ion-background-color);
 }
 
 /* Labels - replicar Tailwind */
