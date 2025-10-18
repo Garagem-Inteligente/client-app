@@ -5,13 +5,12 @@
 /* ====================================
    GLOBAL SMOOTH SCROLL
    ==================================== */
-* {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
 html, body {
-  scroll-behavior: smooth;
+
+ion-content {
+  --background: #111827 !important;
+  background: #111827 !important;
+}
 }
 
 ion-content {

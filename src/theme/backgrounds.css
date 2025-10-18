@@ -9,19 +9,29 @@
   --background: transparent !important;
 }
 
-/* Background Gradient Layer */
-.background-gradient {
+
+/* Global Background Gradient - cobre toda a viewport inclusive atrás da tab bar */
+html::before, body::before {
+  content: '';
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
   background: linear-gradient(
     180deg,
-    #0f172a 0%, 
-    #1e293b 50%, 
+    #0f172a 0%,
+    #1e293b 50%,
     #0f172a 100%
   );
-  z-index: 0;
 }
 
+/* Remove fundo preto do ion-app/ion-content para garantir transparência do gradiente */
+ion-app, ion-content {
+  background: transparent !important;
+  --background: transparent !important;
+}
 /* Background Pattern Layer with animations */
 .background-pattern {
   position: fixed;
