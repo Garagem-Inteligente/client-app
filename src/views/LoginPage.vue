@@ -1,3 +1,11 @@
+/* Versão do app no rodapé */
+.version-text {
+  font-size: 0.75rem;
+  color: #a3e635;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 <template>
   <ion-page>
     <ion-content :fullscreen="true" class="auth-content">
@@ -104,6 +112,9 @@
             <a href="#" class="footer-link">Termos de Uso</a> e
             <a href="#" class="footer-link">Política de Privacidade</a>
           </p>
+          <p class="footer-text version-text">
+            Versão: {{ shortVersion }} | Build: {{ version.buildNumber }} | SHA: {{ shortSha }}
+          </p>
         </div>
       </div>
     </ion-content>
@@ -123,6 +134,8 @@ import {
 } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { GoogleSignInButton } from '@/components'
+import { useVersion } from '@/composables/useVersion'
+const { shortVersion, shortSha, version } = useVersion()
 
 const router = useRouter()
 const authStore = useAuthStore()
