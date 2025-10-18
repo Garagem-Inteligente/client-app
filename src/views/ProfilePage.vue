@@ -6,9 +6,13 @@
       back-path="/tabs/home"
     />
 
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="true" class="app-content ion-padding">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
       <!-- Desktop Layout Container -->
-      <div class="profile-container">
+      <div class="page-content-wrapper profile-container">
         <!-- Left Column - User Info & Stats -->
         <div class="profile-left">
           <!-- User Info Card -->

@@ -1,6 +1,16 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
 
+/** Global Font Size Configuration **/
+html {
+  /* Base font size - increased by 2px (16px -> 18px) */
+  font-size: 18px;
+}
+
+body {
+  font-size: 18px;
+}
+
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
@@ -74,6 +84,17 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-contrast-rgb: 255, 255, 255;
   --ion-color-light-shade: #303947;
   --ion-color-light-tint: #4b5462;
+  
+  /** Custom Font Sizes - Base increased by 2px (16px -> 18px) **/
+  /* All rem values will be based on 18px now */
+  --font-size-xs: 0.75rem;      /* 13.5px (was 12px) */
+  --font-size-sm: 0.875rem;     /* 15.75px (was 14px) */
+  --font-size-base: 1rem;       /* 18px (was 16px) */
+  --font-size-md: 1.125rem;     /* 20.25px (was 18px) */
+  --font-size-lg: 1.25rem;      /* 22.5px (was 20px) */
+  --font-size-xl: 1.5rem;       /* 27px (was 24px) */
+  --font-size-2xl: 1.875rem;    /* 33.75px (was 30px) */
+  --font-size-3xl: 2.25rem;     /* 40.5px (was 36px) */
 }
 
 /* Dark Mode (Default) - Matching Tailwind gray-900 theme */
@@ -334,4 +355,48 @@ ion-searchbar {
   --color: #ffffff;
   --placeholder-color: var(--gray-500);
   --border-radius: 6px;
+}
+
+/* ====================================
+   GLOBAL FONT SIZE APPLICATION
+   ==================================== */
+
+/* Apply increased font size to Ionic components */
+ion-app,
+ion-page,
+ion-content,
+ion-header,
+ion-toolbar,
+ion-title,
+ion-button,
+ion-label,
+ion-item,
+ion-card,
+ion-card-header,
+ion-card-title,
+ion-card-subtitle,
+ion-card-content,
+ion-list,
+ion-list-header,
+ion-note,
+ion-text,
+ion-badge,
+ion-chip {
+  font-size: inherit;
+}
+
+/* Ensure all text inherits the base 18px */
+p, span, div, a, button, input, textarea, select, label {
+  font-size: inherit;
+}
+
+/* Ionic tab bar labels */
+ion-tab-button ion-label {
+  font-size: 0.75rem; /* 13.5px - slightly larger than before (12px) */
+}
+
+/* Ensure input placeholders are readable */
+::placeholder {
+  font-size: inherit;
+  opacity: 0.7;
 }

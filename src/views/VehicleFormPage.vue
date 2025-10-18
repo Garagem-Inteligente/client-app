@@ -6,8 +6,12 @@
       back-path="/tabs/vehicles"
     />
 
-    <ion-content>
-      <div class="form-page">
+    <ion-content class="app-content">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
+      <div class="page-content-wrapper form-page">
         <form @submit.prevent="handleSubmit" class="form-content">
           <!-- Error Alert -->
           <div v-if="vehiclesStore.error" class="alert alert-error">

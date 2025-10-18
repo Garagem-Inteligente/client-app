@@ -6,8 +6,12 @@
       back-path="/tabs/maintenance"
     />
 
-    <ion-content :fullscreen="true" class="bg-gray-900">
-      <div class="min-h-screen py-8">
+    <ion-content :fullscreen="true" class="app-content">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
+      <div class="page-content-wrapper min-h-screen py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <!-- Card Container -->
           <div class="bg-gray-800 rounded-xl p-6 space-y-6 shadow-xl">
@@ -391,9 +395,7 @@
                   type="submit"
                   :disabled="loading || !isFormValid"
                 >
-                  <template v-slot:start>
-<ion-spinner v-if="loading"  name="crescent"></ion-spinner>
-</template>
+                  <ion-spinner v-if="loading" slot="start" name="crescent"></ion-spinner>
                   {{ isEdit ? 'Atualizar' : 'Registrar' }}
                 </ion-button>
               </div>

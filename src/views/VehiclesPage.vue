@@ -6,9 +6,14 @@
       back-path="/tabs/home"
     />
 
-    <ion-content :fullscreen="true">
-      <!-- Loading State -->
-      <div v-if="vehiclesStore.loading" class="loading-container">
+    <ion-content :fullscreen="true" class="app-content">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
+      <div class="page-content-wrapper">
+        <!-- Loading State -->
+        <div v-if="vehiclesStore.loading" class="loading-container">
         <ion-spinner name="crescent"></ion-spinner>
         <p>Carregando veículos...</p>
       </div>
@@ -140,6 +145,7 @@
             </ion-card-content>
           </ion-card>
         </div>
+      </div>
       </div>
     </ion-content>
 
@@ -287,7 +293,8 @@ onMounted(async () => {
 
 <style scoped>
 /* ====================================
-   MODERN VEHICLES PAGE - 2025 DESIGN
+   VEHICLES PAGE - NEW DESIGN SYSTEM 2025
+   Dark Glassmorphism + Modern Typography
    ==================================== */
 
 /* Loading State */
@@ -298,34 +305,65 @@ onMounted(async () => {
   justify-content: center;
   padding: 3rem 1rem;
   min-height: 300px;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+.loading-container ion-spinner {
+  --color: #818cf8;
+  transform: scale(1.5);
 }
 
 .loading-container p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.938rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 500;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; }
+  0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
 
 /* Error State */
+ion-card.error-state-card {
+  background: rgba(31, 41, 55, 0.75);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  margin: 16px;
+}
+
 .error-state {
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1.5rem;
+}
+
+.error-state ion-icon {
+  margin-bottom: 1rem;
 }
 
 .error-state h3 {
-  margin: 1rem 0 0.5rem 0;
-  color: var(--ion-color-danger);
+  margin: 0 0 0.75rem 0;
+  color: #fca5a5;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .error-state p {
-  margin: 0 0 1rem 0;
-  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1.5rem 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.938rem;
+  line-height: 1.6;
+}
+
+.error-state ion-button {
+  --background: rgba(239, 68, 68, 0.15);
+  --background-hover: rgba(239, 68, 68, 0.25);
+  --color: #fca5a5;
+  --border-radius: 12px;
+  font-weight: 600;
 }
 
 /* Empty State */
@@ -339,70 +377,107 @@ onMounted(async () => {
 
 .empty-state {
   text-align: center;
-  max-width: 420px;
+  max-width: 480px;
+  background: rgba(31, 41, 55, 0.75);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .empty-icon {
-  width: 5rem;
-  height: 5rem;
-  margin: 0 auto 1.5rem;
-  color: rgba(255, 255, 255, 0.3);
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 2rem;
+  color: rgba(129, 140, 248, 0.4);
   animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(129, 140, 248, 0.3));
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
 }
 
 .empty-state h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: white;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .empty-state p {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 2rem;
-  line-height: 1.6;
-  font-size: 0.938rem;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.empty-state ion-button {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background-hover: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+  --color: white;
+  --border-radius: 14px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.2px;
+  text-transform: none;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.empty-state ion-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
 }
 
 /* Vehicles Container */
 .vehicles-container {
-  padding: 16px;
+  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Filter Segment - Modern Tabs */
+/* Filter Segment - Enhanced Glassmorphism */
 .filter-segment {
-  margin-bottom: 24px;
-  background: rgba(31, 41, 55, 0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 4px;
+  margin-bottom: 28px;
+  background: rgba(31, 41, 55, 0.75);
+  backdrop-filter: blur(15px);
+  border-radius: 18px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    0 4px 6px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .filter-segment::part(indicator) {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 
-    0 4px 8px rgba(102, 126, 234, 0.4),
-    0 0 20px rgba(102, 126, 234, 0.2);
+    0 6px 12px rgba(102, 126, 234, 0.5),
+    0 0 24px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .filter-segment ion-segment-button {
   --color: rgba(255, 255, 255, 0.6);
   --color-checked: white;
   --indicator-color: transparent;
-  min-height: 44px;
-  font-weight: 500;
-  font-size: 0.938rem;
+  min-height: 48px;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.2px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -412,26 +487,31 @@ onMounted(async () => {
 
 .filter-segment ion-segment-button.segment-button-checked {
   --color: white;
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filter-segment ion-segment-button:hover:not(.segment-button-checked) {
+  --color: rgba(255, 255, 255, 0.85);
 }
 
 /* Vehicles Grid - Responsive */
 .vehicles-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (min-width: 640px) {
   .vehicles-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
   }
 }
 
 @media (min-width: 1024px) {
   .vehicles-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
   }
 }
 
@@ -441,17 +521,17 @@ onMounted(async () => {
   }
 }
 
-/* Vehicle Card - Modern Glassmorphism */
+/* Vehicle Card - Dark Glassmorphism Design System */
 .vehicle-card {
   margin: 0;
   overflow: hidden;
-  background: rgba(31, 41, 55, 0.8);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(31, 41, 55, 0.75);
+  backdrop-filter: blur(15px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -461,28 +541,25 @@ onMounted(async () => {
 .vehicle-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 240px;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.3) 100%
+  inset: -1px;
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0) 0%,
+    rgba(102, 126, 234, 0.3) 50%,
+    rgba(139, 92, 246, 0.3) 100%
   );
+  border-radius: 24px;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
+  transition: opacity 0.4s ease;
+  z-index: -1;
 }
 
 .vehicle-card:hover {
   transform: translateY(-8px) scale(1.02);
-  border-color: rgba(102, 126, 234, 0.3);
+  border-color: rgba(129, 140, 248, 0.4);
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(102, 126, 234, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(129, 140, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .vehicle-card:hover::before {
@@ -503,16 +580,14 @@ onMounted(async () => {
 .vehicle-placeholder::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.6) 100%
+    rgba(0, 0, 0, 0.7) 100%
   );
   pointer-events: none;
+  z-index: 1;
 }
 
 .vehicle-image img {
@@ -523,7 +598,7 @@ onMounted(async () => {
 }
 
 .vehicle-card:hover .vehicle-image img {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .vehicle-placeholder {
@@ -538,49 +613,60 @@ onMounted(async () => {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.2) 0%,
-    transparent 60%
-  );
-  animation: shimmer 3s infinite;
+  background: 
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.25) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(139, 92, 246, 0.3) 0%,
+      transparent 50%
+    );
+  animation: shimmer 4s ease-in-out infinite;
+  z-index: 0;
 }
 
 @keyframes shimmer {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 .vehicle-placeholder ion-icon {
-  font-size: 5rem;
+  font-size: 6rem;
   color: white;
-  opacity: 0.8;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  z-index: 1;
-  transition: transform 0.3s ease;
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+  z-index: 2;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .vehicle-card:hover .vehicle-placeholder ion-icon {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.15) rotate(-5deg);
+  opacity: 1;
 }
 
-/* Card Content - Enhanced */
+/* Card Content */
 .vehicle-card ion-card-content {
-  padding: 20px;
+  padding: 24px;
+  background: transparent;
 }
 
 .vehicle-title {
-  margin: 0 0 16px 0;
-  font-size: 1.375rem;
-  font-weight: 700;
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: white;
-  line-height: 1.3;
-  letter-spacing: -0.5px;
-  transition: color 0.3s ease;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .vehicle-card:hover .vehicle-title {
-  color: #a5b4fc;
+  color: #c7d2fe;
+  transform: translateX(4px);
 }
 
 /* Header Section */
@@ -588,166 +674,208 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 20px;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vehicle-year {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .vehicle-year .label {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .vehicle-year .value {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1.375rem;
+  font-weight: 800;
   color: white;
   letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Fuel Chip - Modern Badge */
 .fuel-chip {
   height: auto;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 12px;
+  font-size: 0.813rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 14px;
   letter-spacing: 0.3px;
-  background: rgba(102, 126, 234, 0.2);
-  color: #a5b4fc;
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(129, 140, 248, 0.2);
+  color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  text-transform: uppercase;
 }
 
 .vehicle-card:hover .fuel-chip {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(129, 140, 248, 0.35);
+  border-color: rgba(129, 140, 248, 0.6);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 
+    0 6px 16px rgba(129, 140, 248, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 /* Vehicle Details - Clean Grid */
 .vehicle-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 10px 0;
+  transition: background 0.2s ease;
 }
 
 .detail-row:not(:last-child) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .detail-row .label {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 500;
+  font-size: 0.938rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  letter-spacing: -0.1px;
 }
 
 .detail-row .value {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.938rem;
+  font-weight: 700;
   color: white;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Vehicle Actions - Modern Buttons */
 .vehicle-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vehicle-actions ion-button {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  height: 40px;
-  --border-radius: 12px;
-  --box-shadow: none;
+  font-size: 0.938rem;
+  font-weight: 700;
+  height: 44px;
+  letter-spacing: -0.2px;
+  --border-radius: 14px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: none;
 }
 
 .vehicle-actions ion-button:not([color="danger"]) {
-  --background: rgba(102, 126, 234, 0.1);
-  --background-hover: rgba(102, 126, 234, 0.2);
-  --border-color: rgba(102, 126, 234, 0.3);
-  --color: #a5b4fc;
+  --background: rgba(129, 140, 248, 0.15);
+  --background-hover: rgba(129, 140, 248, 0.25);
+  --background-activated: rgba(129, 140, 248, 0.3);
+  --border-color: rgba(129, 140, 248, 0.4);
+  --color: #c7d2fe;
+  --border-width: 1px;
+  --border-style: solid;
 }
 
 .vehicle-actions ion-button[color="danger"] {
-  --background: rgba(239, 68, 68, 0.1);
-  --background-hover: rgba(239, 68, 68, 0.2);
-  --border-color: rgba(239, 68, 68, 0.3);
+  --background: rgba(239, 68, 68, 0.15);
+  --background-hover: rgba(239, 68, 68, 0.25);
+  --background-activated: rgba(239, 68, 68, 0.3);
+  --border-color: rgba(239, 68, 68, 0.4);
   --color: #fca5a5;
+  --border-width: 1px;
+  --border-style: solid;
 }
 
 .vehicle-actions ion-button:hover {
-  transform: translateY(-2px);
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+  --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.vehicle-actions ion-button ion-icon {
+  font-size: 1.125rem;
 }
 
 /* Desktop Enhancements */
 @media (min-width: 768px) {
   .vehicles-container {
-    padding: 24px;
+    padding: 32px;
   }
 
   .filter-segment {
-    margin-bottom: 32px;
-    padding: 6px;
+    margin-bottom: 36px;
+    padding: 8px;
   }
 
   .filter-segment ion-segment-button {
-    min-height: 48px;
-    font-size: 1rem;
+    min-height: 52px;
+    font-size: 1.063rem;
   }
 
   .vehicle-card ion-card-content {
-    padding: 24px;
+    padding: 28px;
   }
 
   .vehicle-title {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
+    font-size: 1.625rem;
+    margin-bottom: 24px;
   }
 
   .vehicle-actions {
-    gap: 12px;
+    gap: 14px;
   }
 
   .vehicle-actions ion-button {
-    height: 44px;
-    font-size: 0.938rem;
+    height: 48px;
+    font-size: 1rem;
   }
 }
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Optimization (already dark, but ensures consistency) */
+@media (prefers-color-scheme: dark) {
+  .vehicle-card {
+    background: rgba(31, 41, 55, 0.85);
+  }
+  
+  .vehicle-title {
+    color: #f9fafb;
   }
 }
 </style>

@@ -94,8 +94,8 @@ onMounted(() => {
   --background: transparent;
   --border: none;
   position: relative;
-  height: 76px;
-  padding: 10px 16px 14px;
+  height: 65px;
+  padding: 8px 16px 12px;
   margin: 0 16px 16px;
   border-radius: 32px;
   overflow: visible;
@@ -202,6 +202,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  margin-top: -2px;
   position: relative;
   z-index: 3;
 }
@@ -212,8 +213,8 @@ onMounted(() => {
 
 .icon-container {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;

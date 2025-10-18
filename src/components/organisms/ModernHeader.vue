@@ -1,9 +1,9 @@
 <template>
-  <ion-header :translucent="true" class="modern-app-header">
+  <ion-header :translucent="true" class="modern-app-header ion-no-border">
     <ion-toolbar class="modern-toolbar">
       <!-- Back Button -->
       <template v-slot:start>
-<ion-buttons v-if="showBackButton" >
+<ion-buttons v-if="showBackButton">
         <ion-button class="back-button-modern" @click="handleBack">
           <ion-icon :icon="arrowBack" class="back-icon"></ion-icon>
         </ion-button>
@@ -93,6 +93,7 @@ const handleBack = () => {
 
 .modern-app-header {
   --background: transparent;
+  padding-top: env(safe-area-inset-top);
 }
 
 .modern-toolbar {

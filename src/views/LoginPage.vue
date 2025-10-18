@@ -1,11 +1,11 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" class="login-content">
+    <ion-content :fullscreen="true" class="auth-content">
       <!-- Background Gradient -->
       <div class="background-gradient"></div>
       <div class="background-pattern"></div>
 
-      <div class="login-container">
+      <div class="page-content-wrapper login-container">
         <!-- Logo Section -->
         <div class="logo-section">
           <div class="logo-wrapper">
@@ -186,48 +186,8 @@ const handleForgotPassword = async () => {
    MODERN LOGIN PAGE - 2025 DESIGN
    ==================================== */
 
-.login-content {
-  --background: #0f172a;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Background Effects */
-.background-gradient {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, 
-    #0f172a 0%, 
-    #1e293b 50%, 
-    #0f172a 100%
-  );
-  z-index: 0;
-}
-
-.background-pattern {
-  position: fixed;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
-  z-index: 1;
-  animation: patternFloat 20s ease-in-out infinite;
-}
-
-@keyframes patternFloat {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(30px, -30px) scale(1.1);
-  }
-}
-
 /* Container */
 .login-container {
-  position: relative;
-  z-index: 2;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
