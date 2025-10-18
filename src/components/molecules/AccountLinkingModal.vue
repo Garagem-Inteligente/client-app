@@ -7,13 +7,11 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Vincular Conta Google</ion-title>
-        <template v-slot:end>
-          <ion-buttons>
-            <ion-button @click="handleCancel" :disabled="loading">
-              <ion-icon :icon="closeOutline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </template>
+        <ion-buttons slot="end">
+          <ion-button @click="handleCancel" :disabled="loading">
+            <ion-icon :icon="closeOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 

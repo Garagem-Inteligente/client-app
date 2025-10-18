@@ -72,8 +72,11 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     
     try {
+      console.log('🔐 Tentando login com email/senha:', email)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const firebaseUser = userCredential.user
+      console.log('✅ Login bem-sucedido! UID:', firebaseUser.uid)
+      console.log('📋 Provedores disponíveis:', firebaseUser.providerData.map(p => p.providerId))
       
       // Buscar userType do Firestore (com fallback para 'user')
       let userType: 'user' | 'workshop' = 'user'
@@ -96,8 +99,29 @@ export const useAuthStore = defineStore('auth', () => {
       
       return true
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login'
-      error.value = errorMessage
+      console.error('❌ Erro no login:', err)
+      
+      let friendlyError = 'Erro ao fazer login'
+      
+      if (err instanceof Error) {
+        const errorMessage = err.message
+        console.error('📝 Mensagem de erro:', errorMessage)
+        
+        // Mensagens amigáveis para erros comuns
+        if (errorMessage.includes('invalid-credential') || errorMessage.includes('wrong-password')) {
+          friendlyError = 'Senha incorreta. Se você vinculou sua conta com o Google, use o botão "Continuar com Google" ou clique em "Esqueceu a senha?" para redefinir.'
+        } else if (errorMessage.includes('user-not-found')) {
+          friendlyError = 'Usuário não encontrado. Verifique o email digitado.'
+        } else if (errorMessage.includes('too-many-requests')) {
+          friendlyError = 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.'
+        } else if (errorMessage.includes('invalid-email')) {
+          friendlyError = 'Email inválido. Verifique o formato do email.'
+        } else {
+          friendlyError = errorMessage
+        }
+      }
+      
+      error.value = friendlyError
       return false
     } finally {
       loading.value = false

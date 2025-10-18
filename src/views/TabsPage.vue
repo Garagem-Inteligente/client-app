@@ -3,11 +3,10 @@
     <ion-tabs>
       <ion-router-outlet />
       
-      <template v-slot:bottom>
-        <ion-tab-bar class="premium-tab-bar">
-          <!-- Animated Background Gradient -->
-          <div class="tab-bar-gradient"></div>
-          <div class="tab-bar-glow"></div>
+      <ion-tab-bar slot="bottom" class="premium-tab-bar">
+        <!-- Animated Background Gradient -->
+        <div class="tab-bar-gradient"></div>
+        <div class="tab-bar-glow"></div>
         
         <!-- Tab Buttons with Micro-interactions -->
         <ion-tab-button 
@@ -35,8 +34,7 @@
             </ion-label>
           </div>
         </ion-tab-button>
-        </ion-tab-bar>
-      </template>
+      </ion-tab-bar>
     </ion-tabs>
   </ion-page>
 </template>

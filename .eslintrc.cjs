@@ -18,6 +18,17 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'vue/multi-word-component-names': 'off',
+    // Allow slot attributes for Ionic Web Components (ion-*)
+    'vue/no-deprecated-slot-attribute': ['error', {
+      ignore: [
+        'ion-toolbar',
+        'ion-tab-bar',
+        'ion-tabs',
+        'ion-header',
+        'ion-footer',
+        'ion-buttons',
+      ],
+    }],
   },
   ignorePatterns: [
     'dist',
