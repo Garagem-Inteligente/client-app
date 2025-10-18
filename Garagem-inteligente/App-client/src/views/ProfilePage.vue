@@ -7,94 +7,103 @@
     />
 
     <ion-content :fullscreen="true" class="ion-padding">
-      <!-- User Info Card -->
-      <ion-card>
-        <ion-card-content class="user-info">
-          <div class="avatar-section">
-            <ion-avatar>
-              <ion-icon :icon="person" size="large"></ion-icon>
-            </ion-avatar>
-            <h2>{{ authStore.userName }}</h2>
-            <p>{{ authStore.userEmail }}</p>
+      <!-- Desktop Layout Container -->
+      <div class="profile-container">
+        <!-- Left Column - User Info & Stats -->
+        <div class="profile-left">
+          <!-- User Info Card -->
+          <ion-card class="user-info-card">
+            <ion-card-content class="user-info">
+              <div class="avatar-section">
+                <ion-avatar>
+                  <ion-icon :icon="person" size="large"></ion-icon>
+                </ion-avatar>
+                <h2>{{ authStore.userName }}</h2>
+                <p>{{ authStore.userEmail }}</p>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Account Stats -->
+          <ion-grid class="stats-grid">
+            <ion-row>
+              <ion-col size="6" size-md="12">
+                <ion-card class="stat-card-wrapper">
+                  <ion-card-content class="stat-card">
+                    <ion-icon :icon="car" color="primary" size="large"></ion-icon>
+                    <h3>{{ vehiclesStore.vehicleCount }}</h3>
+                    <p>Veículos</p>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6" size-md="12">
+                <ion-card class="stat-card-wrapper">
+                  <ion-card-content class="stat-card">
+                    <ion-icon :icon="documentText" color="success" size="large"></ion-icon>
+                    <h3>0</h3>
+                    <p>Serviços</p>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <!-- Right Column - Menu & Actions -->
+        <div class="profile-right">
+          <!-- Menu Options -->
+          <ion-list class="menu-list">
+            <ion-item button @click="editProfile" class="menu-item">
+              <ion-icon :icon="personCircle" slot="start" color="primary"></ion-icon>
+              <ion-label>Editar Perfil</ion-label>
+            </ion-item>
+
+            <ion-item button @click="showNotificationsSettings" class="menu-item">
+              <ion-icon :icon="notifications" slot="start" color="warning"></ion-icon>
+              <ion-label>Notificações</ion-label>
+            </ion-item>
+
+            <ion-item button @click="showPrivacySettings" class="menu-item">
+              <ion-icon :icon="shield" slot="start" color="success"></ion-icon>
+              <ion-label>Privacidade</ion-label>
+            </ion-item>
+
+            <ion-item button @click="showHelp" class="menu-item">
+              <ion-icon :icon="helpCircle" slot="start" color="medium"></ion-icon>
+              <ion-label>Ajuda</ion-label>
+            </ion-item>
+
+            <ion-item button @click="showAbout" class="menu-item">
+              <ion-icon :icon="informationCircle" slot="start" color="medium"></ion-icon>
+              <ion-label>Sobre</ion-label>
+            </ion-item>
+          </ion-list>
+
+          <!-- Logout Button -->
+          <ion-button
+            expand="block"
+            color="danger"
+            fill="outline"
+            @click="handleLogout"
+            class="logout-button"
+          >
+            <ion-icon :icon="logOut" slot="start"></ion-icon>
+            Sair da Conta
+          </ion-button>
+
+          <!-- Version Info -->
+          <div class="version-info">
+            <p class="version-text">
+              {{ fullVersionString }}
+            </p>
+            <p class="build-info" v-if="isProduction">
+              {{ formattedBuildDate }} • {{ shortSha }}
+            </p>
+            <p class="build-info" v-else>
+              Ambiente de Desenvolvimento
+            </p>
           </div>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Account Stats -->
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-card>
-              <ion-card-content class="stat-card">
-                <ion-icon :icon="car" color="primary" size="large"></ion-icon>
-                <h3>{{ vehiclesStore.vehicleCount }}</h3>
-                <p>Veículos</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-          <ion-col size="6">
-            <ion-card>
-              <ion-card-content class="stat-card">
-                <ion-icon :icon="documentText" color="success" size="large"></ion-icon>
-                <h3>0</h3>
-                <p>Serviços</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-
-      <!-- Menu Options -->
-      <ion-list>
-        <ion-item button @click="editProfile">
-          <ion-icon :icon="personCircle" slot="start" color="primary"></ion-icon>
-          <ion-label>Editar Perfil</ion-label>
-        </ion-item>
-
-        <ion-item button @click="showNotificationsSettings">
-          <ion-icon :icon="notifications" slot="start" color="warning"></ion-icon>
-          <ion-label>Notificações</ion-label>
-        </ion-item>
-
-        <ion-item button @click="showPrivacySettings">
-          <ion-icon :icon="shield" slot="start" color="success"></ion-icon>
-          <ion-label>Privacidade</ion-label>
-        </ion-item>
-
-        <ion-item button @click="showHelp">
-          <ion-icon :icon="helpCircle" slot="start" color="medium"></ion-icon>
-          <ion-label>Ajuda</ion-label>
-        </ion-item>
-
-        <ion-item button @click="showAbout">
-          <ion-icon :icon="informationCircle" slot="start" color="medium"></ion-icon>
-          <ion-label>Sobre</ion-label>
-        </ion-item>
-      </ion-list>
-
-      <!-- Logout Button -->
-      <ion-button
-        expand="block"
-        color="danger"
-        fill="outline"
-        @click="handleLogout"
-        class="ion-margin-top"
-      >
-        <ion-icon :icon="logOut" slot="start"></ion-icon>
-        Sair da Conta
-      </ion-button>
-
-      <!-- Version Info -->
-      <div class="version-info ion-text-center ion-margin-top">
-        <p class="version-text">
-          {{ fullVersionString }}
-        </p>
-        <p class="build-info" v-if="isProduction">
-          {{ formattedBuildDate }} • {{ shortSha }}
-        </p>
-        <p class="build-info" v-else>
-          Ambiente de Desenvolvimento
-        </p>
+        </div>
       </div>
     </ion-content>
 
@@ -609,11 +618,51 @@ ion-button[color="danger"]:hover {
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* ====================================
+   DESKTOP LAYOUT - RESPONSIVE DESIGN
+   ==================================== */
+
+/* Profile Container - Desktop Layout */
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-left,
+.profile-right {
+  width: 100%;
+}
+
 /* Desktop Enhancements */
 @media (min-width: 768px) {
   ion-content {
     --padding-start: 24px;
     --padding-end: 24px;
+  }
+
+  /* Desktop Layout - Two Columns */
+  .profile-container {
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .profile-left {
+    flex: 0 0 400px;
+    max-width: 400px;
+  }
+
+  .profile-right {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* User Info Card - Desktop */
+  .user-info-card {
+    margin-bottom: 24px;
   }
 
   .user-info {
@@ -629,6 +678,15 @@ ion-button[color="danger"]:hover {
     font-size: 2rem;
   }
 
+  /* Stats Grid - Desktop */
+  .stats-grid {
+    padding: 0;
+  }
+
+  .stat-card-wrapper {
+    margin-bottom: 16px;
+  }
+
   .stat-card {
     padding: 2rem 1.5rem;
   }
@@ -637,13 +695,62 @@ ion-button[color="danger"]:hover {
     font-size: 2.5rem;
   }
 
-  ion-item {
+  /* Menu List - Desktop */
+  .menu-list {
+    padding: 0;
+  }
+
+  .menu-item {
     --min-height: 72px;
     margin-bottom: 12px;
   }
 
-  ion-button[color="danger"] {
-    margin: 32px 24px 24px 24px;
+  /* Logout Button - Desktop */
+  .logout-button {
+    margin: 24px 0;
+  }
+
+  /* Version Info - Desktop */
+  .version-info {
+    margin: 2rem 0 1.5rem 0;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1024px) {
+  .profile-container {
+    gap: 48px;
+  }
+
+  .profile-left {
+    flex: 0 0 450px;
+    max-width: 450px;
+  }
+
+  .user-info {
+    padding: 3.5rem 2.5rem;
+  }
+
+  .avatar-section ion-avatar {
+    width: 140px;
+    height: 140px;
+  }
+
+  .avatar-section h2 {
+    font-size: 2.25rem;
+  }
+
+  .stat-card {
+    padding: 2.5rem 2rem;
+  }
+
+  .stat-card h3 {
+    font-size: 3rem;
+  }
+
+  .menu-item {
+    --min-height: 80px;
+    margin-bottom: 16px;
   }
 }
 
