@@ -60,6 +60,18 @@ import { IonSpinner, alertController } from '@ionic/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import AccountLinkingModal from '../molecules/AccountLinkingModal.vue'
+import { toastController } from '@ionic/vue'
+const showToast = async (message: string) => {
+  const toast = await toastController.create({
+    message,
+    duration: 2000,
+    color: 'success',
+    position: 'top',
+    cssClass: 'toast-top-end',
+  })
+  await toast.present()
+}
+// Adicione o CSS global para alinhar o toast no topo à direita
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -86,14 +98,8 @@ const handleGoogleSignIn = async () => {
       }
       await waitForAuth()
       if (authStore.user) {
-        // Feedback visual
-        const alert = await alertController.create({
-          header: 'Login realizado!',
-          message: `Bem-vindo, ${authStore.user.name || 'usuário'}!`,
-          buttons: ['OK']
-        })
-        await alert.present()
-        await alert.onDidDismiss()
+        // Feedback visual: Toast
+          await showToast(`Bem-vindo, ${authStore.user.name || 'usuário'}!`)
         await router.push('/tabs/home')
       }
     } else if (authStore.error && authStore.error.includes('auth/account-exists-with-different-credential')) {
