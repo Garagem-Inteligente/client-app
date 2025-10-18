@@ -3,7 +3,6 @@
     <ion-tabs>
       <ion-router-outlet />
       
-      <!-- Note: slot="bottom" is Ionic-specific, Vue warning can be ignored -->
       <ion-tab-bar slot="bottom" class="premium-tab-bar">
         <!-- Animated Background Gradient -->
         <div class="tab-bar-gradient"></div>
