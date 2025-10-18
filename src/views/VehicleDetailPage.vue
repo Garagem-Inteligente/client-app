@@ -11,598 +11,662 @@
     />
 
     <ion-content :fullscreen="true" class="app-content detail-content">
-      <!-- Background layers -->
       <div class="background-gradient"></div>
       <div class="background-pattern"></div>
-      
+
       <div class="page-content-wrapper">
-        <!-- Loading State -->
         <div v-if="!vehicle" class="loading-container">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p class="loading-text">Carregando informações do veículo...</p>
-      </div>
-
-      <div v-else class="detail-container">
-        <!-- Vehicle Header -->
-        <div class="vehicle-header">
-          <div class="vehicle-header-content">
-            <h1 class="vehicle-title">
-              {{ vehicle.make }} {{ vehicle.model }}
-            </h1>
-            <div class="vehicle-badges">
-              <ABadge :variant="getFuelTypeBadgeVariant(vehicle.fuelType)">
-                {{ getFuelTypeLabel(vehicle.fuelType) }}
-              </ABadge>
-              <span class="vehicle-info-text">{{ vehicle.year }}</span>
-              <span class="vehicle-info-separator">•</span>
-              <span class="vehicle-info-text">{{ vehicle.plate }}</span>
-              <template v-if="vehicle.color">
-                <span class="vehicle-info-separator">•</span>
-                <span class="vehicle-info-text">{{ vehicle.color }}</span>
-              </template>
-            </div>
-          </div>
-
-          <div class="header-actions">
-            <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
-              <template v-slot:start>
-<ion-icon :icon="addCircleOutline" ></ion-icon>
-</template>
-              Nova Manutenção
-            </AButton>
-          </div>
+          <ion-spinner name="crescent"></ion-spinner>
+          <p class="loading-text">Carregando informações do veículo...</p>
         </div>
 
-        <!-- Modern Filter Pills Tabs -->
-        <MFilterPills v-model="activeTab" :tabs="tabs" />
-
-        <!-- Tab Content -->
-        <div class="tab-content">
-          <!-- TAB: Informações -->
-          <div v-if="activeTab === 'info'" class="tab-panel">
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-              <!-- Quilometragem -->
-              <div class="stat-card blue-gradient">
-                <div class="stat-icon-wrapper blue">
-                  <ion-icon :icon="speedometerOutline"></ion-icon>
-                </div>
-                <div class="stat-value">
-                  {{ vehicle.mileage.toLocaleString('pt-BR') }} km
-                </div>
-                <p class="stat-label">Quilometragem atual</p>
-              </div>
-
-              <!-- Total Manutenções -->
-              <div class="stat-card green-gradient">
-                <div class="stat-icon-wrapper green">
-                  <ion-icon :icon="checkmarkDoneOutline"></ion-icon>
-                </div>
-                <div class="stat-value">
-                  {{ maintenanceHistory.length }}
-                </div>
-                <p class="stat-label">Manutenções realizadas</p>
-              </div>
-
-              <!-- Custo Total -->
-              <div class="stat-card purple-gradient">
-                <div class="stat-icon-wrapper purple">
-                  <ion-icon :icon="cashOutline"></ion-icon>
-                </div>
-                <div class="stat-value">
-                  {{ formatCurrency(totalMaintenanceCost) }}
-                </div>
-                <p class="stat-label">Investido em manutenções</p>
-              </div>
-
-              <!-- Próxima Manutenção -->
-              <div class="stat-card yellow-gradient">
-                <div class="stat-icon-wrapper yellow">
-                  <ion-icon :icon="timeOutline"></ion-icon>
-                </div>
-                <div class="stat-value">
-                  {{ nextMaintenanceDate ? daysUntilNext(nextMaintenanceDate) + ' dias' : 'N/A' }}
-                </div>
-                <p class="stat-label">Próxima manutenção</p>
+        <div v-else class="detail-container">
+          <!-- Vehicle Header -->
+          <div class="vehicle-header">
+            <div class="vehicle-header-content">
+              <h1 class="vehicle-title">
+                {{ vehicle.make }} {{ vehicle.model }}
+              </h1>
+              <div class="vehicle-badges">
+                <ABadge :variant="getFuelTypeBadgeVariant(vehicle.fuelType)">
+                  {{ getFuelTypeLabel(vehicle.fuelType) }}
+                </ABadge>
+                <span class="vehicle-info-text">{{ vehicle.year }}</span>
+                <span class="vehicle-info-separator">•</span>
+                <span class="vehicle-info-text">{{ vehicle.plate }}</span>
+                <template v-if="vehicle.color">
+                  <span class="vehicle-info-separator">•</span>
+                  <span class="vehicle-info-text">{{ vehicle.color }}</span>
+                </template>
               </div>
             </div>
 
-            <!-- Main Info Grid: Informações à esquerda, Seguro e Próximas Manutenções à direita -->
-            <div class="main-info-grid">
-              <!-- Left Column: Informações do Veículo -->
-              <div class="vehicle-info-column">
-                <ACard class="vehicle-info-card">
-                  <template v-slot:title>
-                    <div class="card-title-with-icon">
-                      <ion-icon :icon="carSportOutline"></ion-icon>
-                      <span>Informações do Veículo</span>
-                    </div>
-                  </template>
-                  
-                  <div class="vehicle-info-content">
-                    <!-- Seção Principal: Identificação -->
-                    <div class="info-section">
-                      <div class="section-header">
-                        <ion-icon :icon="informationCircleOutline" class="section-icon"></ion-icon>
-                        <h3 class="section-title">Identificação</h3>
-                      </div>
-                      <div class="info-grid">
-                        <MInfoItem :icon="businessOutline" label="Marca" :value="vehicle.make" />
-                        <MInfoItem :icon="carOutline" label="Modelo" :value="vehicle.model" />
-                        <MInfoItem :icon="calendarOutline" label="Ano" :value="vehicle.year" />
-                        <MInfoItem :icon="documentTextOutline" label="Placa" :value="vehicle.plate" />
-                      </div>
-                    </div>
-
-                    <!-- Seção: Características -->
-                    <div class="info-section">
-                      <div class="section-header">
-                        <ion-icon :icon="settingsOutline" class="section-icon"></ion-icon>
-                        <h3 class="section-title">Características</h3>
-                      </div>
-                      <div class="info-grid">
-                        <MInfoItem v-if="vehicle.color" :icon="colorPaletteOutline" label="Cor" :value="vehicle.color" />
-                        <MInfoItem :icon="speedometerOutline" label="Quilometragem" :value="`${vehicle.mileage.toLocaleString('pt-BR')} km`" />
-                        <MInfoItem :icon="waterOutline" label="Combustível" :value="getFuelTypeLabel(vehicle.fuelType)" />
-                      </div>
-                    </div>
-
-                    <!-- Seção: Manutenção -->
-                    <div class="info-section">
-                      <div class="section-header">
-                        <ion-icon :icon="constructOutline" class="section-icon"></ion-icon>
-                        <h3 class="section-title">Histórico</h3>
-                      </div>
-                      <div class="info-grid">
-                        <MInfoItem 
-                          :icon="timeOutline" 
-                          label="Última Manutenção" 
-                          :value="lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma'" 
-                          highlight 
-                        />
-                        <MInfoItem 
-                          :icon="cashOutline" 
-                          label="Custo Médio" 
-                          :value="formatCurrency(averageMaintenanceCost)" 
-                          highlight 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </ACard>
-              </div>
-
-              <!-- Right Column: Seguro e Próximas Manutenções -->
-              <div class="quick-access-column">
-                <!-- Seguro Card Redesenhado -->
-                <ACard class="insurance-modern-card">
-                  <template v-slot:title>
-                    <div class="card-title-with-icon">
-                      <ion-icon :icon="shieldCheckmarkOutline" class="title-icon"></ion-icon>
-                      <span>Seguro</span>
-                    </div>
-                  </template>
-
-                  <div v-if="vehicle.insuranceCompany" class="insurance-modern-content">
-                    <!-- Status Badge -->
-                    <div class="insurance-status-badge" :class="{
-                      'status-active': !isInsuranceExpired && !isInsuranceExpiringSoon,
-                      'status-expiring': isInsuranceExpiringSoon,
-                      'status-expired': isInsuranceExpired
-                    }">
-                      <ion-icon 
-                        :icon="isInsuranceExpired ? closeCircleOutline : (isInsuranceExpiringSoon ? warningOutline : shieldCheckmarkOutline)"
-                        class="status-icon"
-                      ></ion-icon>
-                      <span class="status-text">
-                        {{ isInsuranceExpired ? 'Vencido' : (isInsuranceExpiringSoon ? 'Vence em breve' : 'Ativo') }}
-                      </span>
-                    </div>
-
-                    <!-- Company Name -->
-                    <div class="insurance-company-name">
-                      {{ vehicle.insuranceCompany }}
-                    </div>
-
-                    <!-- Expiry Info -->
-                    <div class="insurance-expiry-info">
-                      <div class="expiry-label">
-                        <ion-icon :icon="calendarOutline"></ion-icon>
-                        <span>{{ isInsuranceExpired ? 'Venceu em' : 'Vence em' }}</span>
-                      </div>
-                      <div class="expiry-date">
-                        {{ vehicle.insuranceExpiryDate ? formatDate(vehicle.insuranceExpiryDate) : 'N/A' }}
-                      </div>
-                    </div>
-
-                    <!-- Action Button -->
-                    <AButton 
-                      variant="outline" 
-                      size="small" 
-                      class="insurance-action-button"
-                      @click="activeTab = 'insurance'"
-                    >
-                      Ver Detalhes
-                    </AButton>
-                  </div>
-
-                  <div v-else class="insurance-empty-state">
-                    <ion-icon :icon="shieldCheckmarkOutline" class="empty-icon"></ion-icon>
-                    <p class="empty-title">Sem dados de seguro</p>
-                    <p class="empty-subtitle">Adicione as informações do seu seguro para acompanhar a validade</p>
-                    <AButton 
-                      size="small"
-                      @click="activeTab = 'insurance'"
-                    >
-                      Adicionar Seguro
-                    </AButton>
-                  </div>
-                </ACard>
-
-                <!-- Próximas Manutenções Card -->
-                <ACard class="upcoming-maintenance-card">
-                  <template v-slot:title>
-                    <div class="card-title-with-icon">
-                      <ion-icon :icon="timeOutline" class="title-icon"></ion-icon>
-                      <span>Próximas Manutenções</span>
-                    </div>
-                  </template>
-
-                  <div v-if="upcomingMaintenance.length === 0" class="upcoming-empty-state">
-                    <ion-icon :icon="checkmarkCircleOutline" class="empty-icon"></ion-icon>
-                    <p class="empty-title">Tudo em dia!</p>
-                    <p class="empty-subtitle">Nenhuma manutenção agendada no momento</p>
-                    <AButton 
-                      size="small"
-                      @click="router.push(`/tabs/maintenance/new?vehicleId=${vehicleId}`)"
-                    >
-                      Agendar Manutenção
-                    </AButton>
-                  </div>
-
-                  <div v-else class="upcoming-maintenance-list">
-                    <div
-                      v-for="maintenance in upcomingMaintenance.slice(0, 3)"
-                      :key="maintenance.id"
-                      class="upcoming-maintenance-item"
-                      @click="router.push(`/tabs/maintenance/${maintenance.id}`)"
-                    >
-                      <div class="maintenance-type">
-                        <ion-icon :icon="construct" class="type-icon"></ion-icon>
-                        <span class="type-label">{{ getMaintenanceTypeLabel(maintenance.type) }}</span>
-                      </div>
-                      
-                      <div class="maintenance-due-info">
-                        <div class="due-date">
-                          <ion-icon :icon="calendarOutline"></ion-icon>
-                          <span>{{ formatDate(maintenance.nextDueDate!) }}</span>
-                        </div>
-                        <ABadge 
-                          :variant="daysUntilNext(maintenance.nextDueDate!) <= 7 ? 'error' : 'warning'" 
-                          size="small"
-                        >
-                          {{ daysUntilNext(maintenance.nextDueDate!) }} dias
-                        </ABadge>
-                      </div>
-
-                      <div v-if="maintenance.nextDueMileage" class="maintenance-mileage-info">
-                        <ion-icon :icon="speedometerOutline"></ion-icon>
-                        <span>{{ maintenance.nextDueMileage.toLocaleString('pt-BR') }} km</span>
-                      </div>
-                    </div>
-
-                    <AButton 
-                      v-if="upcomingMaintenance.length > 3"
-                      variant="outline" 
-                      size="small" 
-                      class="view-all-button"
-                      @click="activeTab = 'maintenance'"
-                    >
-                      Ver todas ({{ upcomingMaintenance.length }})
-                    </AButton>
-                  </div>
-                </ACard>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB: Manutenções -->
-          <div v-if="activeTab === 'maintenance'" class="tab-panel">
-            <div class="tab-header">
-              <AButton 
-                @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)"
-              >
-                <template v-slot:start>
-<ion-icon :icon="addCircleOutline" ></ion-icon>
-</template>
-                Registrar Manutenção
+            <div class="header-actions">
+              <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
+                <template #start>
+                  <ion-icon :icon="addCircleOutline" />
+                </template>
+                Nova Manutenção
               </AButton>
             </div>
-
-            <ACard title="Histórico Completo de Manutenções">
-              <div v-if="completedMaintenance.length === 0" class="empty-maintenance">
-                <ion-icon :icon="documentTextOutline" class="empty-icon"></ion-icon>
-                <p class="empty-text">Nenhuma manutenção registrada</p>
-                <AButton size="small" @click="router.push('/tabs/maintenance')">
-                  Registrar primeira manutenção
-                </AButton>
-              </div>
-
-              <div v-else class="maintenance-history-list">
-                <div
-                  v-for="maintenance in completedMaintenance"
-                  :key="maintenance.id"
-                  class="maintenance-history-item clickable"
-                  @click="router.push(`/tabs/maintenance/${maintenance.id}`)"
-                >
-                  <div class="maintenance-content">
-                    <div class="maintenance-type-header">
-                      <h4 class="maintenance-type-title">
-                        {{ getMaintenanceTypeLabel(maintenance.type) }}
-                      </h4>
-                      <ABadge variant="success" size="small">Concluída</ABadge>
-                    </div>
-                    
-                    <div class="maintenance-details">
-                      <div class="maintenance-detail">
-                        <ion-icon :icon="calendarOutline"></ion-icon>
-                        {{ formatDate(maintenance.date) }}
-                      </div>
-                      
-                      <div class="maintenance-detail">
-                        <ion-icon :icon="speedometerOutline"></ion-icon>
-                        {{ maintenance.mileage.toLocaleString('pt-BR') }} km
-                      </div>
-                      
-                      <div v-if="maintenance.cost" class="maintenance-detail">
-                        <ion-icon :icon="cashOutline"></ion-icon>
-                        {{ formatCurrency(maintenance.cost) }}
-                      </div>
-
-                      <div v-if="maintenance.description" class="maintenance-description">
-                        {{ maintenance.description }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="maintenance.nextDueDate" class="maintenance-next">
-                    <p class="maintenance-next-label">Próxima manutenção</p>
-                    <p class="maintenance-next-date">
-                      {{ formatDate(maintenance.nextDueDate) }}
-                    </p>
-                    <p class="maintenance-next-mileage" v-if="maintenance.nextDueMileage">
-                      {{ maintenance.nextDueMileage.toLocaleString('pt-BR') }} km
-                    </p>
-                    <ABadge 
-                      :variant="daysUntilNext(maintenance.nextDueDate!) < 0 ? 'error' : 'warning'" 
-                      size="small"
-                      class="maintenance-next-badge"
-                    >
-                      {{ Math.abs(daysUntilNext(maintenance.nextDueDate!)) }} dias
-                      {{ daysUntilNext(maintenance.nextDueDate!) < 0 ? 'atraso' : 'restantes' }}
-                    </ABadge>
-                  </div>
-                </div>
-              </div>
-            </ACard>
           </div>
 
-          <!-- TAB: Estatísticas -->
-          <div v-if="activeTab === 'stats'" class="tab-panel">
-            <ACard title="Custos Mensais" class="chart-card">
-              <MonthlyCostsChart :maintenance-history="maintenanceHistory" />
-            </ACard>
+          <!-- Tabs -->
+          <MFilterPills v-model="activeTab" :tabs="tabs" />
 
-            <div class="charts-grid">
-              <ACard title="Custos por Tipo" class="chart-card">
-                <CostsByTypeChart :maintenance-history="maintenanceHistory" />
-              </ACard>
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- TAB: Informações -->
+            <div v-if="activeTab === 'info'" class="tab-panel">
+              <!-- Stats Cards -->
+              <div class="stats-grid">
+                <!-- Quilometragem -->
+                <div class="stat-card blue-gradient">
+                  <div class="stat-icon-wrapper blue">
+                    <ion-icon :icon="speedometerOutline"></ion-icon>
+                  </div>
+                  <div class="stat-value">
+                    {{ vehicle.mileage.toLocaleString('pt-BR') }} km
+                  </div>
+                  <p class="stat-label">Quilometragem atual</p>
+                </div>
 
-              <ACard title="Preventiva vs Corretiva" class="chart-card">
-                <PreventiveVsCorrectiveChart :maintenance-history="maintenanceHistory" />
-              </ACard>
+                <!-- Total Manutenções -->
+                <div class="stat-card green-gradient">
+                  <div class="stat-icon-wrapper green">
+                    <ion-icon :icon="checkmarkDoneOutline"></ion-icon>
+                  </div>
+                  <div class="stat-value">
+                    {{ maintenanceHistory.length }}
+                  </div>
+                  <p class="stat-label">Manutenções realizadas</p>
+                </div>
+
+                <!-- Custo Total -->
+                <div class="stat-card purple-gradient">
+                  <div class="stat-icon-wrapper purple">
+                    <ion-icon :icon="cashOutline"></ion-icon>
+                  </div>
+                  <div class="stat-value">
+                    {{ formatCurrency(totalMaintenanceCost) }}
+                  </div>
+                  <p class="stat-label">Investido em manutenções</p>
+                </div>
+
+                <!-- Próxima Manutenção -->
+                <div class="stat-card yellow-gradient">
+                  <div class="stat-icon-wrapper yellow">
+                    <ion-icon :icon="timeOutline"></ion-icon>
+                  </div>
+                  <div class="stat-value">
+                    {{ nextMaintenanceDate ? daysUntilNext(nextMaintenanceDate) + ' dias' : 'N/A' }}
+                  </div>
+                  <p class="stat-label">Próxima manutenção</p>
+                </div>
+              </div>
+
+              <!-- Main Info Grid: Left info and Right quick access -->
+              <div class="main-info-grid">
+                <div class="vehicle-info-column">
+                  <ACard class="vehicle-info-card">
+                    <template #title>
+                      <div class="card-title-with-icon">
+                        <ion-icon :icon="carSportOutline"></ion-icon>
+                        <span>Informações do Veículo</span>
+                      </div>
+                    </template>
+
+                    <div class="vehicle-info-content">
+                      <!-- Identificação -->
+                      <div class="info-section">
+                        <div class="section-header">
+                          <ion-icon :icon="informationCircleOutline" class="section-icon"></ion-icon>
+                          <h3 class="section-title">Identificação</h3>
+                        </div>
+                        <div class="info-grid">
+                          <MInfoItem :icon="businessOutline" label="Marca" :value="vehicle.make" />
+                          <MInfoItem :icon="carOutline" label="Modelo" :value="vehicle.model" />
+                          <MInfoItem :icon="calendarOutline" label="Ano" :value="vehicle.year" />
+                          <MInfoItem :icon="documentTextOutline" label="Placa" :value="vehicle.plate" />
+                        </div>
+                      </div>
+
+                      <!-- Características -->
+                      <div class="info-section">
+                        <div class="section-header">
+                          <ion-icon :icon="settingsOutline" class="section-icon"></ion-icon>
+                          <h3 class="section-title">Características</h3>
+                        </div>
+                        <div class="info-grid">
+                          <MInfoItem v-if="vehicle.color" :icon="colorPaletteOutline" label="Cor" :value="vehicle.color" />
+                          <MInfoItem :icon="speedometerOutline" label="Quilometragem" :value="`${vehicle.mileage.toLocaleString('pt-BR')} km`" />
+                          <MInfoItem :icon="waterOutline" label="Combustível" :value="getFuelTypeLabel(vehicle.fuelType)" />
+                        </div>
+                      </div>
+
+                      <!-- Histórico -->
+                      <div class="info-section">
+                        <div class="section-header">
+                          <ion-icon :icon="constructOutline" class="section-icon"></ion-icon>
+                          <h3 class="section-title">Histórico</h3>
+                        </div>
+                        <div class="info-grid">
+                          <MInfoItem 
+                            :icon="timeOutline" 
+                            label="Última Manutenção" 
+                            :value="lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma'" 
+                            highlight 
+                          />
+                          <MInfoItem 
+                            :icon="cashOutline" 
+                            label="Custo Médio" 
+                            :value="formatCurrency(averageMaintenanceCost)" 
+                            highlight 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </ACard>
+                </div>
+
+                <div class="quick-access-column">
+                  <!-- Insurance card (modern) -->
+                  <ACard class="insurance-modern-card">
+                    <template #title>
+                      <div class="card-title-with-icon">
+                        <ion-icon :icon="shieldCheckmarkOutline" class="title-icon"></ion-icon>
+                        <span>Seguro</span>
+                      </div>
+                    </template>
+
+                    <div v-if="vehicle.insuranceCompany" class="insurance-modern-content">
+                      <div class="insurance-status-badge" :class="{
+                        'status-active': !isInsuranceExpired && !isInsuranceExpiringSoon,
+                        'status-expiring': isInsuranceExpiringSoon,
+                        'status-expired': isInsuranceExpired
+                      }">
+                        <ion-icon 
+                          :icon="isInsuranceExpired ? closeCircleOutline : (isInsuranceExpiringSoon ? warningOutline : shieldCheckmarkOutline)"
+                          class="status-icon"
+                        ></ion-icon>
+                        <span class="status-text">
+                          {{ isInsuranceExpired ? 'Vencido' : (isInsuranceExpiringSoon ? 'Vence em breve' : 'Ativo') }}
+                        </span>
+                      </div>
+
+                      <div class="insurance-company-name">
+                        {{ vehicle.insuranceCompany }}
+                      </div>
+
+                      <div class="insurance-expiry-info">
+                        <div class="expiry-label">
+                          <ion-icon :icon="calendarOutline"></ion-icon>
+                          <span>{{ isInsuranceExpired ? 'Venceu em' : 'Vence em' }}</span>
+                        </div>
+                        <div class="expiry-date">
+                          {{ vehicle.insuranceExpiryDate ? formatDate(vehicle.insuranceExpiryDate) : 'N/A' }}
+                        </div>
+                      </div>
+
+                      <AButton 
+                        variant="outline" 
+                        size="small" 
+                        class="insurance-action-button"
+                        @click="activeTab = 'insurance'"
+                      >
+                        Ver Detalhes
+                      </AButton>
+                    </div>
+
+                    <div v-else class="insurance-empty-state">
+                      <ion-icon :icon="shieldCheckmarkOutline" class="empty-icon"></ion-icon>
+                      <p class="empty-title">Sem dados de seguro</p>
+                      <p class="empty-subtitle">Adicione as informações do seu seguro para acompanhar a validade</p>
+                      <AButton 
+                        size="small"
+                        @click="activeTab = 'insurance'"
+                      >
+                        Adicionar Seguro
+                      </AButton>
+                    </div>
+                  </ACard>
+
+                  <!-- Próximas Manutenções -->
+                  <ACard class="upcoming-maintenance-card">
+                    <template #title>
+                      <div class="card-title-with-icon">
+                        <ion-icon :icon="timeOutline" class="title-icon"></ion-icon>
+                        <span>Próximas Manutenções</span>
+                      </div>
+                    </template>
+
+                    <div v-if="upcomingMaintenance.length === 0" class="upcoming-empty-state">
+                      <ion-icon :icon="checkmarkCircleOutline" class="empty-icon"></ion-icon>
+                      <p class="empty-title">Tudo em dia!</p>
+                      <p class="empty-subtitle">Nenhuma manutenção agendada no momento</p>
+                      <AButton 
+                        size="small"
+                        @click="router.push(`/tabs/maintenance/new?vehicleId=${vehicleId}`)"
+                      >
+                        Agendar Manutenção
+                      </AButton>
+                    </div>
+
+                    <div v-else class="upcoming-maintenance-list">
+                      <div
+                        v-for="maintenance in upcomingMaintenance.slice(0, 3)"
+                        :key="maintenance.id"
+                        class="upcoming-maintenance-item"
+                        @click="router.push(`/tabs/maintenance/${maintenance.id}`)"
+                      >
+                        <div class="maintenance-type">
+                          <ion-icon :icon="construct" class="type-icon"></ion-icon>
+                          <span class="type-label">{{ getMaintenanceTypeLabel(maintenance.type) }}</span>
+                        </div>
+                        
+                        <div class="maintenance-due-info">
+                          <div class="due-date">
+                            <ion-icon :icon="calendarOutline"></ion-icon>
+                            <span>{{ formatDate(maintenance.nextDueDate!) }}</span>
+                          </div>
+                          <ABadge 
+                            :variant="daysUntilNext(maintenance.nextDueDate!) <= 7 ? 'error' : 'warning'" 
+                            size="small"
+                          >
+                            {{ daysUntilNext(maintenance.nextDueDate!) }} dias
+                          </ABadge>
+                        </div>
+
+                        <div v-if="maintenance.nextDueMileage" class="maintenance-mileage-info">
+                          <ion-icon :icon="speedometerOutline"></ion-icon>
+                          <span>{{ maintenance.nextDueMileage.toLocaleString('pt-BR') }} km</span>
+                        </div>
+                      </div>
+
+                      <AButton 
+                        v-if="upcomingMaintenance.length > 3"
+                        variant="outline" 
+                        size="small" 
+                        class="view-all-button"
+                        @click="activeTab = 'maintenance'"
+                      >
+                        Ver todas ({{ upcomingMaintenance.length }})
+                      </AButton>
+                    </div>
+                  </ACard>
+                </div>
+              </div>
             </div>
 
-            <!-- Resumo Estatístico -->
-            <ACard title="Resumo Estatístico">
-              <div class="stats-summary-grid">
-                <div class="stats-summary-item">
-                  <span class="stats-summary-label">Total de Manutenções</span>
-                  <span class="stats-summary-value">{{ maintenanceHistory.length }}</span>
-                </div>
-                <div class="stats-summary-item">
-                  <span class="stats-summary-label">Custo Total</span>
-                  <span class="stats-summary-value">{{ formatCurrency(totalMaintenanceCost) }}</span>
-                </div>
-                <div class="stats-summary-item">
-                  <span class="stats-summary-label">Custo Médio</span>
-                  <span class="stats-summary-value">{{ formatCurrency(averageMaintenanceCost) }}</span>
-                </div>
-                <div class="stats-summary-item">
-                  <span class="stats-summary-label">Custo por KM</span>
-                  <span class="stats-summary-value">
-                    {{ formatCurrency(vehicle.mileage > 0 ? totalMaintenanceCost / vehicle.mileage : 0) }}
-                  </span>
-                </div>
-              </div>
-            </ACard>
-          </div>
+            <!-- TAB: Manutenções -->
+            <div v-else-if="activeTab === 'maintenance'" class="tab-panel">
+              <MaintenanceSection :vehicle-id="vehicleId" />
+            </div>
 
-          <!-- TAB: Documentos -->
-          <div v-if="activeTab === 'documents'" class="tab-panel">
-            <ACard title="CRLV (Documento do Veículo)">
-              <div v-if="!vehicle.documentCRLV" class="document-empty">
-                <p class="document-empty-text">Nenhum documento cadastrado</p>
-                <AButton size="small" @click="uploadDocument('crlv')">
-                  <template v-slot:start>
-<ion-icon :icon="cloudUploadOutline" ></ion-icon>
-</template>
-                  Adicionar CRLV
+            <!-- TAB: Estatísticas -->
+            <div v-else-if="activeTab === 'stats'" class="tab-panel">
+              <!-- Empty State -->
+              <div v-if="maintenanceHistory.length === 0" class="stats-empty-state">
+                <div class="empty-icon-wrapper">
+                  <ion-icon :icon="statsChartOutline" class="empty-icon" />
+                </div>
+                <h3 class="empty-title">Sem Dados Estatísticos</h3>
+                <p class="empty-text">
+                  Registre manutenções para visualizar estatísticas detalhadas sobre custos,
+                  padrões de manutenção e análises do seu veículo.
+                </p>
+                <AButton @click="router.push(`/tabs/maintenance/new?vehicleId=${vehicleId}`)">
+                  <template #start>
+                    <ion-icon :icon="addCircleOutline" />
+                  </template>
+                  Registrar Primeira Manutenção
                 </AButton>
               </div>
-              <div v-else class="document-preview">
-                <img 
-                  v-if="vehicle.documentCRLV.startsWith('data:image')" 
-                  :src="vehicle.documentCRLV" 
-                  alt="CRLV"
-                  class="document-image"
-                  @click="viewDocument(vehicle.documentCRLV)"
-                />
-                <div v-else class="document-file">
-                  <ion-icon :icon="documentTextOutline"></ion-icon>
-                  <span>Documento PDF</span>
+
+              <!-- Stats Content -->
+              <div v-else class="stats-content">
+                <!-- Stats Cards Grid -->
+                <div class="stats-cards-grid">
+                  <div class="stat-detail-card blue-gradient">
+                    <div class="stat-detail-header">
+                      <div class="stat-detail-icon blue">
+                        <ion-icon :icon="constructOutline"></ion-icon>
+                      </div>
+                      <span class="stat-detail-label">Total de Manutenções</span>
+                    </div>
+                    <div class="stat-detail-value">{{ maintenanceHistory.length }}</div>
+                    <div class="stat-detail-meta">
+                      <span class="meta-item">
+                        <ion-icon :icon="trendingUpOutline"></ion-icon>
+                        Histórico completo
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="stat-detail-card green-gradient">
+                    <div class="stat-detail-header">
+                      <div class="stat-detail-icon green">
+                        <ion-icon :icon="cashOutline"></ion-icon>
+                      </div>
+                      <span class="stat-detail-label">Custo Total Investido</span>
+                    </div>
+                    <div class="stat-detail-value">{{ formatCurrency(totalMaintenanceCost) }}</div>
+                    <div class="stat-detail-meta">
+                      <span class="meta-item">
+                        <ion-icon :icon="walletOutline"></ion-icon>
+                        Valor acumulado
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="stat-detail-card purple-gradient">
+                    <div class="stat-detail-header">
+                      <div class="stat-detail-icon purple">
+                        <ion-icon :icon="calculatorOutline"></ion-icon>
+                      </div>
+                      <span class="stat-detail-label">Custo Médio</span>
+                    </div>
+                    <div class="stat-detail-value">{{ formatCurrency(averageMaintenanceCost) }}</div>
+                    <div class="stat-detail-meta">
+                      <span class="meta-item">
+                        <ion-icon :icon="analyticsOutline"></ion-icon>
+                        Por manutenção
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="stat-detail-card orange-gradient">
+                    <div class="stat-detail-header">
+                      <div class="stat-detail-icon orange">
+                        <ion-icon :icon="speedometerOutline"></ion-icon>
+                      </div>
+                      <span class="stat-detail-label">Custo por Km</span>
+                    </div>
+                    <div class="stat-detail-value">
+                      {{ formatCurrency(vehicle.mileage > 0 ? totalMaintenanceCost / vehicle.mileage : 0) }}
+                    </div>
+                    <div class="stat-detail-meta">
+                      <span class="meta-item">
+                        <ion-icon :icon="pulseOutline"></ion-icon>
+                        Eficiência
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="document-actions">
-                  <AButton 
-                    size="small" 
-                    variant="outline"
-                    @click="viewDocument(vehicle.documentCRLV)"
-                  >
-                    <template v-slot:start>
-<ion-icon :icon="eyeOutline" ></ion-icon>
-</template>
-                    Visualizar
-                  </AButton>
-                  <AButton 
-                    size="small" 
-                    variant="outline"
-                    color="danger"
-                    @click="deleteDocument('crlv')"
-                  >
-                    <template v-slot:start>
-<ion-icon :icon="trashOutline" ></ion-icon>
-</template>
-                    Remover
-                  </AButton>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                  <div class="section-header-simple">
+                    <h3 class="section-title-simple">
+                      <ion-icon :icon="pieChartOutline"></ion-icon>
+                      Análise de Manutenções
+                    </h3>
+                    <p class="section-subtitle-simple">Distribuição entre preventivas e corretivas</p>
+                  </div>
+                  <div class="chart-card-modern">
+                    <PreventiveVsCorrectiveChart :maintenance-history="maintenanceHistory" />
+                  </div>
                 </div>
               </div>
-            </ACard>
+            </div>
 
-            <ACard title="Apólice de Seguro">
-              <div v-if="!vehicle.documentInsurancePolicy" class="document-empty">
-                <p class="document-empty-text">Nenhuma apólice cadastrada</p>
-                <AButton size="small" @click="uploadDocument('insurance')">
+            <!-- TAB: Documentos -->
+            <div v-else-if="activeTab === 'documents'" class="tab-panel">
+              <div class="documents-grid">
+                <!-- CRLV Card -->
+                <div class="document-card modern-card">
+                  <div class="document-card-header">
+                    <div class="document-icon-wrapper blue-gradient">
+                      <ion-icon :icon="documentTextOutline"></ion-icon>
+                    </div>
+                    <div class="document-header-text">
+                      <h3 class="document-title">CRLV</h3>
+                      <p class="document-subtitle">Documento do Veículo</p>
+                    </div>
+                  </div>
+
+                  <div v-if="!vehicle.documentCRLV" class="document-empty-state">
+                    <div class="empty-doc-icon">
+                      <ion-icon :icon="cloudUploadOutline"></ion-icon>
+                    </div>
+                    <p class="empty-doc-text">Nenhum documento cadastrado</p>
+                    <AButton variant="gradient" @click="uploadDocument('crlv')">
+                      <template v-slot:start>
+                        <ion-icon :icon="addCircleOutline"></ion-icon>
+                      </template>
+                      Adicionar CRLV
+                    </AButton>
+                  </div>
+
+                  <div v-else class="document-content">
+                    <div class="document-preview-wrapper" @click="viewDocument(vehicle.documentCRLV)">
+                      <img 
+                        v-if="!isPDF(vehicle.documentCRLV)" 
+                        :src="vehicle.documentCRLV" 
+                        alt="CRLV"
+                        class="document-image-preview"
+                      />
+                      <div v-else class="document-file-preview">
+                        <ion-icon :icon="documentTextOutline"></ion-icon>
+                        <span class="pdf-label">Documento PDF</span>
+                        <span class="pdf-hint">Clique para abrir</span>
+                      </div>
+                      <div class="preview-overlay">
+                        <ion-icon :icon="eyeOutline"></ion-icon>
+                        <span>Clique para visualizar</span>
+                      </div>
+                    </div>
+                    <div class="document-actions-modern">
+                      <AButton 
+                        size="small" 
+                        variant="outline"
+                        @click="viewDocument(vehicle.documentCRLV)"
+                      >
+                        <template v-slot:start>
+                          <ion-icon :icon="eyeOutline"></ion-icon>
+                        </template>
+                        Visualizar
+                      </AButton>
+                      <AButton 
+                        size="small" 
+                        variant="outline"
+                        color="danger"
+                        @click="deleteDocument('crlv')"
+                      >
+                        <template v-slot:start>
+                          <ion-icon :icon="trashOutline"></ion-icon>
+                        </template>
+                        Remover
+                      </AButton>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Insurance Policy Card -->
+                <div class="document-card modern-card">
+                  <div class="document-card-header">
+                    <div class="document-icon-wrapper purple-gradient">
+                      <ion-icon :icon="shieldCheckmarkOutline"></ion-icon>
+                    </div>
+                    <div class="document-header-text">
+                      <h3 class="document-title">Apólice de Seguro</h3>
+                      <p class="document-subtitle">Documento de Cobertura</p>
+                    </div>
+                  </div>
+
+                  <div v-if="!vehicle.documentInsurancePolicy" class="document-empty-state">
+                    <div class="empty-doc-icon">
+                      <ion-icon :icon="cloudUploadOutline"></ion-icon>
+                    </div>
+                    <p class="empty-doc-text">Nenhuma apólice cadastrada</p>
+                    <AButton variant="gradient" @click="uploadDocument('insurance')">
+                      <template v-slot:start>
+                        <ion-icon :icon="addCircleOutline"></ion-icon>
+                      </template>
+                      Adicionar Apólice
+                    </AButton>
+                  </div>
+
+                  <div v-else class="document-content">
+                    <div class="document-preview-wrapper" @click="viewDocument(vehicle.documentInsurancePolicy)">
+                      <img 
+                        v-if="!isPDF(vehicle.documentInsurancePolicy)" 
+                        :src="vehicle.documentInsurancePolicy" 
+                        alt="Apólice"
+                        class="document-image-preview"
+                      />
+                      <div v-else class="document-file-preview">
+                        <ion-icon :icon="documentTextOutline"></ion-icon>
+                        <span class="pdf-label">Documento PDF</span>
+                        <span class="pdf-hint">Clique para abrir</span>
+                      </div>
+                      <div class="preview-overlay">
+                        <ion-icon :icon="eyeOutline"></ion-icon>
+                        <span>Clique para visualizar</span>
+                      </div>
+                    </div>
+                    <div class="document-actions-modern">
+                      <AButton 
+                        size="small" 
+                        variant="outline"
+                        @click="viewDocument(vehicle.documentInsurancePolicy)"
+                      >
+                        <template v-slot:start>
+                          <ion-icon :icon="eyeOutline"></ion-icon>
+                        </template>
+                        Visualizar
+                      </AButton>
+                      <AButton 
+                        size="small" 
+                        variant="outline"
+                        color="danger"
+                        @click="deleteDocument('insurance')"
+                      >
+                        <template v-slot:start>
+                          <ion-icon :icon="trashOutline"></ion-icon>
+                        </template>
+                        Remover
+                      </AButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: Seguro -->
+            <div v-else-if="activeTab === 'insurance'" class="tab-panel">
+              <!-- Empty State -->
+              <div v-if="!vehicle.insuranceCompany" class="insurance-empty-modern">
+                <div class="empty-insurance-icon">
+                  <ion-icon :icon="shieldCheckmarkOutline"></ion-icon>
+                </div>
+                <h3>Nenhum seguro cadastrado</h3>
+                <p>Adicione as informações do seu seguro para melhor controle</p>
+                <AButton variant="gradient" @click="router.push(`/tabs/vehicle/${vehicleId}`)">
                   <template v-slot:start>
-<ion-icon :icon="cloudUploadOutline" ></ion-icon>
-</template>
-                  Adicionar Apólice
-                </AButton>
-              </div>
-              <div v-else class="document-preview">
-                <img 
-                  v-if="vehicle.documentInsurancePolicy.startsWith('data:image')" 
-                  :src="vehicle.documentInsurancePolicy" 
-                  alt="Apólice"
-                  class="document-image"
-                  @click="viewDocument(vehicle.documentInsurancePolicy)"
-                />
-                <div v-else class="document-file">
-                  <ion-icon :icon="documentTextOutline"></ion-icon>
-                  <span>Documento PDF</span>
-                </div>
-                <div class="document-actions">
-                  <AButton 
-                    size="small" 
-                    variant="outline"
-                    @click="viewDocument(vehicle.documentInsurancePolicy)"
-                  >
-                    <template v-slot:start>
-<ion-icon :icon="eyeOutline" ></ion-icon>
-</template>
-                    Visualizar
-                  </AButton>
-                  <AButton 
-                    size="small" 
-                    variant="outline"
-                    color="danger"
-                    @click="deleteDocument('insurance')"
-                  >
-                    <template v-slot:start>
-<ion-icon :icon="trashOutline" ></ion-icon>
-</template>
-                    Remover
-                  </AButton>
-                </div>
-              </div>
-            </ACard>
-          </div>
-
-          <!-- TAB: Seguro -->
-          <div v-if="activeTab === 'insurance'" class="tab-panel">
-            <ACard title="Informações do Seguro">
-              <div v-if="!vehicle.insuranceCompany" class="insurance-empty-state">
-                <ion-icon :icon="shieldCheckmarkOutline" class="empty-icon"></ion-icon>
-                <p class="empty-text">Nenhum seguro cadastrado</p>
-                <AButton size="small" @click="router.push(`/tabs/vehicle/${vehicleId}`)">
+                    <ion-icon :icon="addCircleOutline"></ion-icon>
+                  </template>
                   Adicionar Seguro
                 </AButton>
               </div>
 
-              <div v-else class="insurance-details">
-                <!-- Status do Seguro -->
-                <div class="insurance-status-card" :class="{
-                  'expired': isInsuranceExpired,
-                  'expiring': isInsuranceExpiringSoon,
-                  'active': !isInsuranceExpired && !isInsuranceExpiringSoon
+              <!-- Insurance Details -->
+              <div v-else class="insurance-content-modern">
+                <!-- Status Card with Gradient -->
+                <div class="insurance-status-modern" :class="{
+                  'status-expired': isInsuranceExpired,
+                  'status-expiring': isInsuranceExpiringSoon,
+                  'status-active': !isInsuranceExpired && !isInsuranceExpiringSoon
                 }">
-                  <div class="insurance-status-icon">
+                  <div class="status-icon-modern">
                     <ion-icon 
                       :icon="isInsuranceExpired ? closeCircleOutline : 
                              isInsuranceExpiringSoon ? warningOutline : 
                              checkmarkCircleOutline"
                     ></ion-icon>
                   </div>
-                  <div class="insurance-status-text">
-                    <template v-if="isInsuranceExpired">
-                      ⚠️ Seguro Vencido
-                    </template>
-                    <template v-else-if="isInsuranceExpiringSoon">
-                      📅 Renovar em Breve
-                    </template>
-                    <template v-else>
-                      ✓ Seguro em Dia
-                    </template>
+                  <div class="status-info-modern">
+                    <h3 class="status-title">
+                      <template v-if="isInsuranceExpired">Seguro Vencido</template>
+                      <template v-else-if="isInsuranceExpiringSoon">Renovar em Breve</template>
+                      <template v-else>Seguro em Dia</template>
+                    </h3>
+                    <p class="status-subtitle">
+                      <template v-if="isInsuranceExpired">Renove seu seguro o quanto antes</template>
+                      <template v-else-if="isInsuranceExpiringSoon">Seu seguro vence em breve</template>
+                      <template v-else>Seu seguro está ativo e protegido</template>
+                    </p>
                   </div>
                 </div>
 
-                <div class="insurance-info-list">
-                  <div class="insurance-info-item">
-                    <span class="insurance-info-label">Seguradora</span>
-                    <span class="insurance-info-value">{{ vehicle.insuranceCompany }}</span>
+                <!-- Insurance Info Grid -->
+                <div class="insurance-info-grid">
+                  <div class="insurance-info-card">
+                    <div class="info-card-icon blue-gradient">
+                      <ion-icon :icon="businessOutline"></ion-icon>
+                    </div>
+                    <div class="info-card-content">
+                      <span class="info-card-label">Seguradora</span>
+                      <span class="info-card-value">{{ vehicle.insuranceCompany }}</span>
+                    </div>
                   </div>
-                  <div class="insurance-info-item" v-if="vehicle.insurancePhone">
-                    <span class="insurance-info-label">Telefone</span>
-                    <span class="insurance-info-value">{{ vehicle.insurancePhone }}</span>
+
+                  <div v-if="vehicle.insurancePolicyNumber" class="insurance-info-card">
+                    <div class="info-card-icon purple-gradient">
+                      <ion-icon :icon="documentTextOutline"></ion-icon>
+                    </div>
+                    <div class="info-card-content">
+                      <span class="info-card-label">Número da Apólice</span>
+                      <span class="info-card-value">{{ vehicle.insurancePolicyNumber }}</span>
+                    </div>
                   </div>
-                  <div class="insurance-info-item" v-if="vehicle.insurancePolicyNumber">
-                    <span class="insurance-info-label">Número da Apólice</span>
-                    <span class="insurance-info-value">{{ vehicle.insurancePolicyNumber }}</span>
+
+                  <div v-if="vehicle.insuranceExpiryDate" class="insurance-info-card">
+                    <div class="info-card-icon orange-gradient">
+                      <ion-icon :icon="calendarOutline"></ion-icon>
+                    </div>
+                    <div class="info-card-content">
+                      <span class="info-card-label">Data de Vencimento</span>
+                      <span class="info-card-value">{{ formatDate(vehicle.insuranceExpiryDate) }}</span>
+                    </div>
                   </div>
-                  <div class="insurance-info-item" v-if="vehicle.insuranceExpiryDate">
-                    <span class="insurance-info-label">Data de Vencimento</span>
-                    <span class="insurance-info-value">{{ formatDate(vehicle.insuranceExpiryDate) }}</span>
+
+                  <div v-if="vehicle.insuranceValue" class="insurance-info-card">
+                    <div class="info-card-icon green-gradient">
+                      <ion-icon :icon="cashOutline"></ion-icon>
+                    </div>
+                    <div class="info-card-content">
+                      <span class="info-card-label">Valor do Seguro</span>
+                      <span class="info-card-value">{{ formatCurrency(vehicle.insuranceValue) }}</span>
+                    </div>
                   </div>
-                  <div class="insurance-info-item" v-if="vehicle.insuranceValue">
-                    <span class="insurance-info-label">Valor do Seguro</span>
-                    <span class="insurance-info-value">{{ formatCurrency(vehicle.insuranceValue) }}</span>
+
+                  <div v-if="vehicle.insurancePhone" class="insurance-info-card">
+                    <div class="info-card-icon blue-gradient">
+                      <ion-icon :icon="callOutline"></ion-icon>
+                    </div>
+                    <div class="info-card-content">
+                      <span class="info-card-label">Telefone</span>
+                      <span class="info-card-value">{{ vehicle.insurancePhone }}</span>
+                    </div>
                   </div>
                 </div>
 
+                <!-- Edit Button -->
                 <AButton 
-                  variant="outline"
-                  class="edit-insurance-button"
+                  variant="gradient"
+                  class="edit-insurance-modern"
                   @click="router.push(`/tabs/vehicle/${vehicleId}`)"
                 >
                   <template v-slot:start>
-<ion-icon :icon="createOutline" ></ion-icon>
-</template>
-                  Editar Informações
+                    <ion-icon :icon="createOutline"></ion-icon>
+                  </template>
+                  Editar Informações do Seguro
                 </AButton>
               </div>
-            </ACard>
-          </div>
+            </div>
+          </div> <!-- tab-content -->
         </div>
-      </div>
       </div>
     </ion-content>
   </ion-page>
@@ -611,21 +675,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  IonPage,
-  IonContent,
-  IonIcon,
-  IonSpinner,
-  alertController
-} from '@ionic/vue'
+import { alertController, actionSheetController } from '@ionic/vue'
 import {
   createOutline,
   trashOutline,
   addCircleOutline,
   speedometerOutline,
-  checkmarkDoneOutline,
   cashOutline,
   timeOutline,
+  checkmarkDoneOutline,
   checkmarkCircleOutline,
   documentTextOutline,
   calendarOutline,
@@ -642,7 +700,18 @@ import {
   settingsOutline,
   colorPaletteOutline,
   waterOutline,
-  constructOutline
+  constructOutline,
+  statsChartOutline,
+  trendingUpOutline,
+  walletOutline,
+  calculatorOutline,
+  analyticsOutline,
+  pulseOutline,
+  pieChartOutline,
+  callOutline,
+  imageOutline,
+  documentOutline,
+  closeOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
@@ -653,9 +722,8 @@ import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
 import MFilterPills from '@/components/molecules/MFilterPills.vue'
 import MInfoItem from '@/components/molecules/MInfoItem.vue'
-import MonthlyCostsChart from '@/components/charts/MonthlyCostsChart.vue'
-import CostsByTypeChart from '@/components/charts/CostsByTypeChart.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
+import MaintenanceSection from '@/components/organisms/MaintenanceSection.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -748,6 +816,12 @@ const isInsuranceExpiringSoon = computed(() => {
   return daysUntilExpiry > 0 && daysUntilExpiry <= 30
 })
 
+// Helper to check if document is PDF
+const isPDF = (dataUrl: string | undefined) => {
+  if (!dataUrl) return false
+  return dataUrl.startsWith('data:application/pdf')
+}
+
 const getMaintenanceTypeLabel = (type: string) => {
   return MAINTENANCE_TYPE_LABELS[type as import('@/stores/vehicles').MaintenanceType] || type
 }
@@ -825,6 +899,40 @@ const handleDelete = async () => {
 
 const uploadDocument = async (docType: 'crlv' | 'insurance') => {
   try {
+    // Show action sheet to choose between image or PDF
+    const actionSheet = await actionSheetController.create({
+      header: 'Escolha o tipo de arquivo',
+      buttons: [
+        {
+          text: 'Imagem (JPG, PNG)',
+          icon: imageOutline,
+          handler: async () => {
+            await uploadImage(docType)
+          }
+        },
+        {
+          text: 'Documento PDF',
+          icon: documentOutline,
+          handler: async () => {
+            await uploadPDF(docType)
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: closeOutline,
+          role: 'cancel'
+        }
+      ]
+    })
+
+    await actionSheet.present()
+  } catch (error) {
+    console.error('Erro ao abrir seleção:', error)
+  }
+}
+
+const uploadImage = async (docType: 'crlv' | 'insurance') => {
+  try {
     const image = await Camera.getPhoto({
       quality: 90,
       allowEditing: false,
@@ -844,16 +952,99 @@ const uploadDocument = async (docType: 'crlv' | 'insurance') => {
       
       const alert = await alertController.create({
         header: 'Sucesso',
-        message: 'Documento adicionado com sucesso!',
+        message: 'Imagem adicionada com sucesso!',
         buttons: ['OK']
       })
       await alert.present()
     }
   } catch (error) {
-    console.error('Erro ao fazer upload do documento:', error)
+    console.error('Erro ao fazer upload da imagem:', error)
     const alert = await alertController.create({
       header: 'Erro',
-      message: 'Erro ao fazer upload do documento. Tente novamente.',
+      message: 'Erro ao fazer upload da imagem. Tente novamente.',
+      buttons: ['OK']
+    })
+    await alert.present()
+  }
+}
+
+const uploadPDF = async (docType: 'crlv' | 'insurance') => {
+  try {
+    // Create file input element
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/pdf'
+    
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement
+      const file = target.files?.[0]
+      
+      if (!file) return
+      
+      // Check if it's a PDF
+      if (file.type !== 'application/pdf') {
+        const alert = await alertController.create({
+          header: 'Erro',
+          message: 'Por favor, selecione apenas arquivos PDF.',
+          buttons: ['OK']
+        })
+        await alert.present()
+        return
+      }
+      
+      // Check file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) {
+        const alert = await alertController.create({
+          header: 'Erro',
+          message: 'O arquivo deve ter no máximo 5MB.',
+          buttons: ['OK']
+        })
+        await alert.present()
+        return
+      }
+      
+      // Convert to base64
+      const reader = new FileReader()
+      reader.onload = async (event) => {
+        const dataUrl = event.target?.result as string
+        
+        const updateData: Record<string, string> = {}
+        if (docType === 'crlv') {
+          updateData.documentCRLV = dataUrl
+        } else {
+          updateData.documentInsurancePolicy = dataUrl
+        }
+
+        await vehiclesStore.updateVehicle(vehicleId, updateData)
+        
+        const alert = await alertController.create({
+          header: 'Sucesso',
+          message: 'PDF adicionado com sucesso!',
+          buttons: ['OK']
+        })
+        await alert.present()
+      }
+      
+      reader.onerror = async () => {
+        const alert = await alertController.create({
+          header: 'Erro',
+          message: 'Erro ao ler o arquivo. Tente novamente.',
+          buttons: ['OK']
+        })
+        await alert.present()
+      }
+      
+      reader.readAsDataURL(file)
+    }
+    
+    // Trigger file selection
+    input.click()
+  } catch (error) {
+    console.error('Erro ao fazer upload do PDF:', error)
+    const alert = await alertController.create({
+      header: 'Erro',
+      message: 'Erro ao fazer upload do PDF. Tente novamente.',
       buttons: ['OK']
     })
     await alert.present()
@@ -919,7 +1110,6 @@ onMounted(async () => {
 
 .detail-container {
   min-height: 100%;
-  background: #111827;
   padding: 1rem;
   padding-bottom: 2rem;
 }
@@ -2085,6 +2275,795 @@ onMounted(async () => {
   opacity: 1;
   transform: translateY(-50%) translateX(4px);
 }
+
+/* ====================================
+   STATISTICS TAB - MODERN DESIGN
+   ==================================== */
+
+.stats-empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.empty-icon-wrapper {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(129, 140, 248, 0.2);
+}
+
+.empty-icon-wrapper ion-icon {
+  font-size: 4rem;
+  color: #667eea;
+}
+
+.stats-empty-state h3 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.stats-empty-state p {
+  color: #9ca3af;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.stats-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.stats-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-detail-card {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.6s ease-out;
+  animation-fill-mode: both;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-detail-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-detail-card.blue-gradient::before {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-detail-card.green-gradient::before {
+  background: linear-gradient(90deg, #10b981 0%, #22c55e 100%);
+}
+
+.stat-detail-card.purple-gradient::before {
+  background: linear-gradient(90deg, #a855f7 0%, #d946ef 100%);
+}
+
+.stat-detail-card.orange-gradient::before {
+  background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
+}
+
+.stat-detail-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.stat-detail-card:hover::before {
+  opacity: 1;
+}
+
+.stat-detail-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.stat-detail-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.stat-detail-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.stat-detail-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.stat-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-detail-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+}
+
+.blue-gradient .stat-detail-icon {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.08) 100%);
+}
+
+.green-gradient .stat-detail-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+}
+
+.purple-gradient .stat-detail-icon {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(217, 70, 239, 0.08) 100%);
+}
+
+.orange-gradient .stat-detail-icon {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(251, 146, 60, 0.08) 100%);
+}
+
+.stat-detail-card:hover .stat-detail-icon {
+  transform: rotate(5deg) scale(1.1);
+}
+
+.stat-detail-icon ion-icon {
+  font-size: 1.75rem;
+}
+
+.blue-gradient .stat-detail-icon ion-icon {
+  color: #667eea;
+}
+
+.green-gradient .stat-detail-icon ion-icon {
+  color: #10b981;
+}
+
+.purple-gradient .stat-detail-icon ion-icon {
+  color: #a855f7;
+}
+
+.orange-gradient .stat-detail-icon ion-icon {
+  color: #f97316;
+}
+
+.stat-detail-label {
+  font-size: 0.938rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.stat-detail-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.stat-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.813rem;
+  color: #6b7280;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-detail-meta ion-icon {
+  font-size: 1rem;
+}
+
+.chart-section {
+  animation: slideInUp 0.6s ease-out 0.25s;
+  animation-fill-mode: both;
+}
+
+.section-header-simple {
+  margin-bottom: 1.5rem;
+}
+
+.section-title-simple {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.25rem 0;
+}
+
+.section-subtitle-simple {
+  font-size: 0.938rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.chart-card-modern {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chart-card-modern:hover {
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 767px) {
+  .stats-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-detail-value {
+    font-size: 1.75rem;
+  }
+  
+  .chart-card-modern {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .stats-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ====================================
+   DOCUMENTS TAB - MODERN DESIGN
+   ==================================== */
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.document-card {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.document-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.document-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.document-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.document-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.document-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+
+.document-icon-wrapper.blue-gradient {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.08) 100%);
+}
+
+.document-icon-wrapper.purple-gradient {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(217, 70, 239, 0.08) 100%);
+}
+
+.document-card:hover .document-icon-wrapper {
+  transform: rotate(5deg) scale(1.1);
+}
+
+.document-icon-wrapper ion-icon {
+  font-size: 1.75rem;
+}
+
+.document-icon-wrapper.blue-gradient ion-icon {
+  color: #667eea;
+}
+
+.document-icon-wrapper.purple-gradient ion-icon {
+  color: #a855f7;
+}
+
+.document-header-text {
+  flex: 1;
+}
+
+.document-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.25rem 0;
+}
+
+.document-subtitle {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.document-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.empty-doc-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(129, 140, 248, 0.15);
+}
+
+.empty-doc-icon ion-icon {
+  font-size: 2.5rem;
+  color: #667eea;
+}
+
+.empty-doc-text {
+  color: #9ca3af;
+  font-size: 0.938rem;
+  margin: 0 0 1.25rem 0;
+}
+
+.document-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.document-preview-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.document-preview-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.document-preview-wrapper:hover .preview-overlay {
+  opacity: 1;
+}
+
+.document-image-preview {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+
+.document-file-preview {
+  height: 200px;
+  background: rgba(31, 41, 55, 0.4);
+  border: 2px dashed rgba(129, 140, 248, 0.3);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.document-file-preview ion-icon {
+  font-size: 3rem;
+  color: #667eea;
+}
+
+.document-file-preview .pdf-label {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.document-file-preview .pdf-hint {
+  color: #9ca3af;
+  font-size: 0.813rem;
+  font-style: italic;
+}
+
+.preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+}
+
+.preview-overlay ion-icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.preview-overlay span {
+  color: white;
+  font-size: 0.938rem;
+  font-weight: 500;
+}
+
+.document-actions-modern {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.document-actions-modern a-button {
+  flex: 1;
+  min-width: 140px;
+}
+
+@media (max-width: 767px) {
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .document-actions-modern {
+    flex-direction: column;
+  }
+  
+  .document-actions-modern a-button {
+    width: 100%;
+  }
+}
+
+/* ====================================
+   INSURANCE TAB - MODERN DESIGN
+   ==================================== */
+
+.insurance-empty-modern {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.empty-insurance-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(129, 140, 248, 0.2);
+}
+
+.empty-insurance-icon ion-icon {
+  font-size: 4rem;
+  color: #667eea;
+}
+
+.insurance-empty-modern h3 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.insurance-empty-modern p {
+  color: #9ca3af;
+  font-size: 1rem;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+}
+
+.insurance-content-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.insurance-status-modern {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.insurance-status-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.insurance-status-modern.status-active::before {
+  background: linear-gradient(90deg, #10b981 0%, #22c55e 100%);
+}
+
+.insurance-status-modern.status-expiring::before {
+  background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
+}
+
+.insurance-status-modern.status-expired::before {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.insurance-status-modern:hover {
+  transform: translateY(-2px);
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.status-icon-modern {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+
+.status-active .status-icon-modern {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+}
+
+.status-expiring .status-icon-modern {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(251, 146, 60, 0.08) 100%);
+}
+
+.status-expired .status-icon-modern {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.08) 100%);
+}
+
+.insurance-status-modern:hover .status-icon-modern {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.status-icon-modern ion-icon {
+  font-size: 2.25rem;
+}
+
+.status-active .status-icon-modern ion-icon {
+  color: #10b981;
+}
+
+.status-expiring .status-icon-modern ion-icon {
+  color: #f97316;
+}
+
+.status-expired .status-icon-modern ion-icon {
+  color: #ef4444;
+}
+
+.status-info-modern {
+  flex: 1;
+}
+
+.status-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.5rem 0;
+}
+
+.status-subtitle {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.insurance-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  animation: slideInUp 0.6s ease-out 0.1s;
+  animation-fill-mode: both;
+}
+
+.insurance-info-card {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.insurance-info-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.info-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+
+.info-card-icon.blue-gradient {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.08) 100%);
+}
+
+.info-card-icon.purple-gradient {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(217, 70, 239, 0.08) 100%);
+}
+
+.info-card-icon.orange-gradient {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(251, 146, 60, 0.08) 100%);
+}
+
+.info-card-icon.green-gradient {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+}
+
+.insurance-info-card:hover .info-card-icon {
+  transform: rotate(5deg) scale(1.1);
+}
+
+.info-card-icon ion-icon {
+  font-size: 1.5rem;
+}
+
+.info-card-icon.blue-gradient ion-icon {
+  color: #667eea;
+}
+
+.info-card-icon.purple-gradient ion-icon {
+  color: #a855f7;
+}
+
+.info-card-icon.orange-gradient ion-icon {
+  color: #f97316;
+}
+
+.info-card-icon.green-gradient ion-icon {
+  color: #10b981;
+}
+
+.info-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-card-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.info-card-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.edit-insurance-modern {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  animation: slideInUp 0.6s ease-out 0.2s;
+  animation-fill-mode: both;
+}
+
+@media (max-width: 767px) {
+  .insurance-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insurance-status-modern {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .status-title {
+    font-size: 1.25rem;
+  }
+  
+  .edit-insurance-modern {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .insurance-info-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 
 .clickable:active {
   transform: scale(0.98) translateX(4px);

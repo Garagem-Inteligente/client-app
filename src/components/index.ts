@@ -19,6 +19,9 @@ export { default as MInfoItem } from './molecules/MInfoItem.vue'
 export { default as MStatusBadge } from './molecules/MStatusBadge.vue'
 export { default as MCardTitle } from './molecules/MCardTitle.vue'
 
+// Organisms
+export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue'
+
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue'
 export type { SelectOption } from './molecules/MSearchableSelect.vue'
