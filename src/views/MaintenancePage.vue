@@ -25,7 +25,9 @@
             Comece registrando a primeira manutenção do seu veículo e mantenha um histórico completo
           </p>
           <ion-button @click="$router.push('/tabs/maintenance/new')" color="primary">
-            <ion-icon slot="start" :icon="add"></ion-icon>
+            <template v-slot:start>
+<ion-icon  :icon="add"></ion-icon>
+</template>
             Registrar primeira manutenção
           </ion-button>
         </div>
@@ -140,7 +142,9 @@
               <!-- Actions -->
               <div class="card-actions">
                 <ion-button size="small" fill="clear" @click.stop="viewDetails(record)">
-                  <ion-icon slot="start" :icon="eye" size="small"></ion-icon>
+                  <template v-slot:start>
+<ion-icon  :icon="eye" size="small"></ion-icon>
+</template>
                   Ver Detalhes
                 </ion-button>
                 <ion-button size="small" fill="clear" color="danger" @click.stop="confirmDelete(record)">

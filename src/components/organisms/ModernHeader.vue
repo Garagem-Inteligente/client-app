@@ -2,17 +2,20 @@
   <ion-header :translucent="true" class="modern-app-header">
     <ion-toolbar class="modern-toolbar">
       <!-- Back Button -->
-      <ion-buttons v-if="showBackButton" slot="start">
+      <template v-slot:start>
+<ion-buttons v-if="showBackButton" >
         <ion-button class="back-button-modern" @click="handleBack">
           <ion-icon :icon="arrowBack" class="back-icon"></ion-icon>
         </ion-button>
       </ion-buttons>
+</template>
 
       <!-- Centered Title -->
       <ion-title class="modern-title-centered">{{ title }}</ion-title>
 
       <!-- Action Buttons -->
-      <ion-buttons slot="end">
+      <template v-slot:end>
+<ion-buttons >
         <!-- Primary Action Button (e.g., Add, Save) -->
         <ion-button
           v-if="primaryAction"
@@ -40,6 +43,7 @@
           <ion-icon :icon="action.icon"></ion-icon>
         </ion-button>
       </ion-buttons>
+</template>
     </ion-toolbar>
   </ion-header>
 </template>

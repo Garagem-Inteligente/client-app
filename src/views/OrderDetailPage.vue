@@ -2,9 +2,11 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-buttons slot="start">
+        <template v-slot:start>
+<ion-buttons >
           <ion-back-button></ion-back-button>
         </ion-buttons>
+</template>
         <ion-title>Detalhes do Serviço</ion-title>
       </ion-toolbar>
     </ion-header>

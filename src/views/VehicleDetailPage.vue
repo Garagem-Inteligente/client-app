@@ -40,7 +40,9 @@
 
           <div class="header-actions">
             <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
-              <ion-icon :icon="addCircleOutline" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="addCircleOutline" ></ion-icon>
+</template>
               Nova Manutenção
             </AButton>
           </div>
@@ -241,7 +243,9 @@
               <AButton 
                 @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)"
               >
-                <ion-icon :icon="addCircleOutline" slot="start"></ion-icon>
+                <template v-slot:start>
+<ion-icon :icon="addCircleOutline" ></ion-icon>
+</template>
                 Registrar Manutenção
               </AButton>
             </div>
@@ -360,7 +364,9 @@
               <div v-if="!vehicle.documentCRLV" class="document-empty">
                 <p class="document-empty-text">Nenhum documento cadastrado</p>
                 <AButton size="small" @click="uploadDocument('crlv')">
-                  <ion-icon :icon="cloudUploadOutline" slot="start"></ion-icon>
+                  <template v-slot:start>
+<ion-icon :icon="cloudUploadOutline" ></ion-icon>
+</template>
                   Adicionar CRLV
                 </AButton>
               </div>
@@ -382,7 +388,9 @@
                     variant="outline"
                     @click="viewDocument(vehicle.documentCRLV)"
                   >
-                    <ion-icon :icon="eyeOutline" slot="start"></ion-icon>
+                    <template v-slot:start>
+<ion-icon :icon="eyeOutline" ></ion-icon>
+</template>
                     Visualizar
                   </AButton>
                   <AButton 
@@ -391,7 +399,9 @@
                     color="danger"
                     @click="deleteDocument('crlv')"
                   >
-                    <ion-icon :icon="trashOutline" slot="start"></ion-icon>
+                    <template v-slot:start>
+<ion-icon :icon="trashOutline" ></ion-icon>
+</template>
                     Remover
                   </AButton>
                 </div>
@@ -402,7 +412,9 @@
               <div v-if="!vehicle.documentInsurancePolicy" class="document-empty">
                 <p class="document-empty-text">Nenhuma apólice cadastrada</p>
                 <AButton size="small" @click="uploadDocument('insurance')">
-                  <ion-icon :icon="cloudUploadOutline" slot="start"></ion-icon>
+                  <template v-slot:start>
+<ion-icon :icon="cloudUploadOutline" ></ion-icon>
+</template>
                   Adicionar Apólice
                 </AButton>
               </div>
@@ -424,7 +436,9 @@
                     variant="outline"
                     @click="viewDocument(vehicle.documentInsurancePolicy)"
                   >
-                    <ion-icon :icon="eyeOutline" slot="start"></ion-icon>
+                    <template v-slot:start>
+<ion-icon :icon="eyeOutline" ></ion-icon>
+</template>
                     Visualizar
                   </AButton>
                   <AButton 
@@ -433,7 +447,9 @@
                     color="danger"
                     @click="deleteDocument('insurance')"
                   >
-                    <ion-icon :icon="trashOutline" slot="start"></ion-icon>
+                    <template v-slot:start>
+<ion-icon :icon="trashOutline" ></ion-icon>
+</template>
                     Remover
                   </AButton>
                 </div>
@@ -507,7 +523,9 @@
                   class="edit-insurance-button"
                   @click="router.push(`/tabs/vehicle/${vehicleId}`)"
                 >
-                  <ion-icon :icon="createOutline" slot="start"></ion-icon>
+                  <template v-slot:start>
+<ion-icon :icon="createOutline" ></ion-icon>
+</template>
                   Editar Informações
                 </AButton>
               </div>
@@ -524,13 +542,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButtons,
-  IonButton,
-  IonBackButton,
   IonIcon,
   IonSpinner,
   alertController

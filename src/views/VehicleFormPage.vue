@@ -400,12 +400,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
-  IonBackButton
+  IonContent
 } from '@ionic/vue'
 import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles'
 import { fipeApi, type FipeVehicleType } from '@/services/fipeApi'

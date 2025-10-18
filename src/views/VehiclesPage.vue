@@ -36,7 +36,9 @@
             Comece adicionando seu primeiro veículo e mantenha um histórico completo de manutenções
           </p>
           <ion-button @click="$router.push('/tabs/vehicle/new')" color="primary">
-            <ion-icon slot="start" :icon="add"></ion-icon>
+            <template v-slot:start>
+<ion-icon  :icon="add"></ion-icon>
+</template>
             Adicionar primeiro veículo
           </ion-button>
         </div>
@@ -117,7 +119,9 @@
                   expand="block"
                   @click.stop="handleEdit(vehicle)"
                 >
-                  <ion-icon slot="start" :icon="create"></ion-icon>
+                  <template v-slot:start>
+<ion-icon  :icon="create"></ion-icon>
+</template>
                   Editar
                 </ion-button>
                 <ion-button
@@ -127,7 +131,9 @@
                   color="danger"
                   @click.stop="handleDelete(vehicle)"
                 >
-                  <ion-icon slot="start" :icon="trash"></ion-icon>
+                  <template v-slot:start>
+<ion-icon  :icon="trash"></ion-icon>
+</template>
                   Excluir
                 </ion-button>
               </div>

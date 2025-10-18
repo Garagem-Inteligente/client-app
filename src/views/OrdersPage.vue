@@ -3,11 +3,13 @@
     <ion-header :translucent="true">
       <ion-toolbar>
         <ion-title>Serviços</ion-title>
-        <ion-buttons slot="end">
+        <template v-slot:end>
+<ion-buttons >
           <ion-button @click="showNewOrderModal = true">
             <ion-icon :icon="add"></ion-icon>
           </ion-button>
         </ion-buttons>
+</template>
       </ion-toolbar>
     </ion-header>
 
@@ -33,23 +35,33 @@
           <p>Esta funcionalidade está em desenvolvimento. Em breve você poderá:</p>
           <ion-list>
             <ion-item>
-              <ion-icon :icon="checkmark" color="success" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmark" color="success" ></ion-icon>
+</template>
               <ion-label>Solicitar serviços de manutenção</ion-label>
             </ion-item>
             <ion-item>
-              <ion-icon :icon="checkmark" color="success" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmark" color="success" ></ion-icon>
+</template>
               <ion-label>Acompanhar o status dos serviços</ion-label>
             </ion-item>
             <ion-item>
-              <ion-icon :icon="checkmark" color="success" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmark" color="success" ></ion-icon>
+</template>
               <ion-label>Receber notificações de atualizações</ion-label>
             </ion-item>
             <ion-item>
-              <ion-icon :icon="checkmark" color="success" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmark" color="success" ></ion-icon>
+</template>
               <ion-label>Visualizar histórico de serviços</ion-label>
             </ion-item>
             <ion-item>
-              <ion-icon :icon="checkmark" color="success" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmark" color="success" ></ion-icon>
+</template>
               <ion-label>Avaliar oficinas</ion-label>
             </ion-item>
           </ion-list>
@@ -62,11 +74,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Solicitar Serviço</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showNewOrderModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">

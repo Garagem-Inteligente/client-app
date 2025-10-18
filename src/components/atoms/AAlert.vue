@@ -9,7 +9,9 @@
         </div>
       </div>
       <ion-button v-if="closable" fill="clear" size="small" @click="handleClose">
-        <ion-icon slot="icon-only" :icon="closeIcon"></ion-icon>
+        <template v-slot:icon-only>
+<ion-icon  :icon="closeIcon"></ion-icon>
+</template>
       </ion-button>
     </div>
   </div>

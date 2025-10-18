@@ -2,9 +2,11 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-buttons slot="start">
+        <template v-slot:start>
+<ion-buttons >
           <ion-back-button></ion-back-button>
         </ion-buttons>
+</template>
         <ion-title>Cadastro</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -80,13 +82,17 @@
 
             <!-- Error Message -->
             <ion-item v-if="error" color="danger">
-              <ion-icon :icon="alertCircle" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="alertCircle" ></ion-icon>
+</template>
               <ion-label>{{ error }}</ion-label>
             </ion-item>
 
             <!-- Success Message -->
             <ion-item v-if="successMessage" color="success">
-              <ion-icon :icon="checkmarkCircle" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="checkmarkCircle" ></ion-icon>
+</template>
               <ion-label>{{ successMessage }}</ion-label>
             </ion-item>
 

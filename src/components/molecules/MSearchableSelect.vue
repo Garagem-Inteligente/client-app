@@ -19,7 +19,9 @@
         :class="{ 'option-selected': modelValue === option.value }"
       >
         <ion-label>{{ option.label }}</ion-label>
-        <ion-icon v-if="modelValue === option.value" slot="end" :icon="checkmark" color="primary"></ion-icon>
+        <template v-slot:end>
+<ion-icon v-if="modelValue === option.value"  :icon="checkmark" color="primary"></ion-icon>
+</template>
       </ion-item>
     </div>
 

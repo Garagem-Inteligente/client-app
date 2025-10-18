@@ -57,7 +57,9 @@
 
             <!-- Error Message -->
             <ion-item v-if="error" color="danger">
-              <ion-icon :icon="alertCircle" slot="start"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="alertCircle" ></ion-icon>
+</template>
               <ion-label>{{ error }}</ion-label>
             </ion-item>
 

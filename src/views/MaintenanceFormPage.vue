@@ -391,7 +391,9 @@
                   type="submit"
                   :disabled="loading || !isFormValid"
                 >
-                  <ion-spinner v-if="loading" slot="start" name="crescent"></ion-spinner>
+                  <template v-slot:start>
+<ion-spinner v-if="loading"  name="crescent"></ion-spinner>
+</template>
                   {{ isEdit ? 'Atualizar' : 'Registrar' }}
                 </ion-button>
               </div>

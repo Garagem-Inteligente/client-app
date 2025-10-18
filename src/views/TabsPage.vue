@@ -4,14 +4,15 @@
       <ion-router-outlet></ion-router-outlet>
       
       <!-- Ultra Modern Premium Tab Bar -->
-      <ion-tab-bar slot="bottom" class="premium-tab-bar">
+      <template v-slot:bottom>
+<ion-tab-bar  class="premium-tab-bar">
         <!-- Animated Background Gradient -->
         <div class="tab-bar-gradient"></div>
         <div class="tab-bar-glow"></div>
         
         <!-- Tab Buttons with Micro-interactions -->
         <ion-tab-button 
-          v-for="(tab, index) in tabs" 
+          v-for="tab in tabs" 
           :key="tab.name"
           :tab="tab.name" 
           :href="tab.href" 
@@ -36,6 +37,7 @@
           </div>
         </ion-tab-button>
       </ion-tab-bar>
+</template>
     </ion-tabs>
   </ion-page>
 </template>

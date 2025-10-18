@@ -63,7 +63,9 @@
               color="danger"
               @click="removeFile(index)"
             >
-              <ion-icon slot="start" :icon="trashOutline"></ion-icon>
+              <template v-slot:start>
+<ion-icon  :icon="trashOutline"></ion-icon>
+</template>
               Remover
             </ion-button>
           </div>
@@ -77,7 +79,9 @@
               color="danger"
               @click="removeFile(index)"
             >
-              <ion-icon slot="icon-only" :icon="trashOutline"></ion-icon>
+              <template v-slot:icon-only>
+<ion-icon  :icon="trashOutline"></ion-icon>
+</template>
             </ion-button>
           </div>
         </div>

@@ -60,27 +60,37 @@
           <!-- Menu Options -->
           <ion-list class="menu-list">
             <ion-item button @click="editProfile" class="menu-item">
-              <ion-icon :icon="personCircle" slot="start" color="primary"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="personCircle"  color="primary"></ion-icon>
+</template>
               <ion-label>Editar Perfil</ion-label>
             </ion-item>
 
             <ion-item button @click="showNotificationsSettings" class="menu-item">
-              <ion-icon :icon="notifications" slot="start" color="warning"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="notifications"  color="warning"></ion-icon>
+</template>
               <ion-label>Notificações</ion-label>
             </ion-item>
 
             <ion-item button @click="showPrivacySettings" class="menu-item">
-              <ion-icon :icon="shield" slot="start" color="success"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="shield"  color="success"></ion-icon>
+</template>
               <ion-label>Privacidade</ion-label>
             </ion-item>
 
             <ion-item button @click="showHelp" class="menu-item">
-              <ion-icon :icon="helpCircle" slot="start" color="medium"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="helpCircle"  color="medium"></ion-icon>
+</template>
               <ion-label>Ajuda</ion-label>
             </ion-item>
 
             <ion-item button @click="showAbout" class="menu-item">
-              <ion-icon :icon="informationCircle" slot="start" color="medium"></ion-icon>
+              <template v-slot:start>
+<ion-icon :icon="informationCircle"  color="medium"></ion-icon>
+</template>
               <ion-label>Sobre</ion-label>
             </ion-item>
           </ion-list>
@@ -93,7 +103,9 @@
             @click="handleLogout"
             class="logout-button"
           >
-            <ion-icon :icon="logOut" slot="start"></ion-icon>
+            <template v-slot:start>
+<ion-icon :icon="logOut" ></ion-icon>
+</template>
             Sair da Conta
           </ion-button>
 
@@ -118,11 +130,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Editar Perfil</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showEditModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -142,11 +156,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Notificações</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showNotificationsModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -166,11 +182,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Privacidade</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showPrivacyModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -190,11 +208,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Ajuda</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showHelpModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -214,11 +234,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Sobre</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showAboutModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -241,11 +263,13 @@
       <ion-header>
         <ion-toolbar>
           <ion-title>Foto do Perfil</ion-title>
-          <ion-buttons slot="end">
+          <template v-slot:end>
+<ion-buttons >
             <ion-button @click="showPhotoModal = false">
               <ion-icon :icon="close"></ion-icon>
             </ion-button>
           </ion-buttons>
+</template>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
@@ -256,7 +280,9 @@
             @click="takePhoto('camera')"
             class="photo-option-button"
           >
-            <ion-icon :icon="camera" slot="start"></ion-icon>
+            <template v-slot:start>
+<ion-icon :icon="camera" ></ion-icon>
+</template>
             Tirar Foto
           </ion-button>
           
@@ -266,7 +292,9 @@
             @click="takePhoto('gallery')"
             class="photo-option-button"
           >
-            <ion-icon :icon="images" slot="start"></ion-icon>
+            <template v-slot:start>
+<ion-icon :icon="images" ></ion-icon>
+</template>
             Escolher da Galeria
           </ion-button>
           
@@ -278,7 +306,9 @@
             color="danger"
             v-if="profilePhoto"
           >
-            <ion-icon :icon="trash" slot="start"></ion-icon>
+            <template v-slot:start>
+<ion-icon :icon="trash" ></ion-icon>
+</template>
             Remover Foto
           </ion-button>
         </div>
