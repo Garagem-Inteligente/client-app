@@ -56,16 +56,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { IonSpinner, alertController } from '@ionic/vue'
+import { alertController } from '@ionic/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import AccountLinkingModal from '../molecules/AccountLinkingModal.vue'
 import { toastController } from '@ionic/vue'
-const showToast = async (message: string) => {
+const showToast = async (message: string, color: string = 'success') => {
   const toast = await toastController.create({
     message,
     duration: 2000,
-    color: 'success',
+    color,
     position: 'top',
     cssClass: 'toast-top-end',
   })
@@ -86,8 +86,15 @@ const linkingModalRef = ref<InstanceType<typeof AccountLinkingModal> | null>(nul
 const handleGoogleSignIn = async () => {
   loading.value = true
   try {
+    console.log('Iniciando Google Sign-In...')
+    await showToast('Iniciando login com Google...', 'primary')
+    
     const success = await authStore.signInWithGoogle()
+    console.log('Resultado signInWithGoogle:', success)
+    
     if (success) {
+      await showToast('Login bem-sucedido! Aguardando sincronização...', 'success')
+      
       // Aguarda o Pinia atualizar o usuário antes de redirecionar
       const waitForAuth = async () => {
         let tries = 0
@@ -97,16 +104,24 @@ const handleGoogleSignIn = async () => {
         }
       }
       await waitForAuth()
+      
       if (authStore.user) {
-        // Feedback visual: Toast
-          await showToast(`Bem-vindo, ${authStore.user.name || 'usuário'}!`)
+        await showToast(`Bem-vindo, ${authStore.user.name || 'usuário'}!`)
         await router.push('/tabs/home')
+      } else {
+        console.error('Usuário não encontrado após login!')
+        await showToast('Erro: Usuário não encontrado após login. Verifique os logs.', 'danger')
       }
-    } else if (authStore.error && authStore.error.includes('auth/account-exists-with-different-credential')) {
-      console.error('Account conflict detected')
+    } else {
+      console.error('Google Sign-In falhou ou foi cancelado.')
+      const errorMsg = authStore.error || 'Falha ao conectar com Google. Tente novamente.'
+      await showToast(`Erro: ${errorMsg}`, 'danger')
     }
   } catch (error: unknown) {
     console.error('Google Sign-In error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+    await showToast(`Erro: ${errorMessage}`, 'danger')
+    
     if (error instanceof Error) {
       const errorCode = (error as { code?: string }).code
       if (errorCode === 'auth/account-exists-with-different-credential') {

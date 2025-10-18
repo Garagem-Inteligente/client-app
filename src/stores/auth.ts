@@ -182,20 +182,86 @@ export const useAuthStore = defineStore('auth', () => {
         // Fluxo nativo para Android/iOS usando Capacitor Firebase Authentication
         console.log('🔐 Login Google via Capacitor (Nativo)')
         
-        const result = await FirebaseAuthentication.signInWithGoogle()
+        // Verificar se o plugin está disponível
+        if (!FirebaseAuthentication || typeof FirebaseAuthentication.signInWithGoogle !== 'function') {
+          console.error('❌ Plugin FirebaseAuthentication não está disponível')
+          throw new Error('Plugin de autenticação não está disponível. Reinstale o aplicativo.')
+        }
+        
+        // Verificar se estamos realmente em uma plataforma nativa
+        console.log('🔍 Detalhes da plataforma:', {
+          isNative: Capacitor.isNativePlatform(),
+          platform: Capacitor.getPlatform(),
+          isPluginAvailable: Capacitor.isPluginAvailable('FirebaseAuthentication')
+        })
+        
+        // CRÍTICO: passar o serverClientId (Web Client ID) para Android
+        const result = await FirebaseAuthentication.signInWithGoogle({
+          mode: 'redirect',
+          scopes: ['profile', 'email']
+        } as any)
+        console.log('📱 Resultado do FirebaseAuthentication:', result)
         
         if (!result.user) {
+          console.error('❌ Usuário não encontrado na resposta do Google')
           throw new Error('Usuário não encontrado na resposta do Google')
         }
         
-        // O plugin já faz o signIn automaticamente no Firebase Auth
-        // Aguardar o onAuthStateChanged atualizar o usuário
-        const currentUser = auth.currentUser
-        if (!currentUser) {
-          throw new Error('Erro ao sincronizar com Firebase Auth')
-        }
+        console.log('✅ Usuário recebido do plugin:', result.user.uid)
+        console.log('📧 Email do usuário:', result.user.email)
+        console.log('👤 Nome do usuário:', result.user.displayName)
         
-        firebaseUser = currentUser
+        // Tentar usar o usuário retornado pelo plugin diretamente
+        if (result.user && result.user.uid) {
+          console.log('🔄 Usando usuário do plugin diretamente...')
+          // Converter o usuário do plugin para FirebaseUser
+          firebaseUser = {
+            uid: result.user.uid,
+            email: result.user.email || null,
+            displayName: result.user.displayName || null,
+            photoURL: result.user.photoUrl || null,
+            emailVerified: result.user.emailVerified || false,
+            isAnonymous: false,
+            metadata: {} as any,
+            providerData: [],
+            refreshToken: '',
+            tenantId: null,
+            phoneNumber: null,
+            providerId: 'google.com',
+            delete: async () => {},
+            getIdToken: async () => '',
+            getIdTokenResult: async () => ({} as any),
+            reload: async () => {},
+            toJSON: () => ({})
+          } as unknown as FirebaseUser
+        } else {
+          // Fallback: aguardar sincronização com Firebase Auth
+          console.log('🔄 Aguardando sincronização com Firebase Auth...')
+          let attempts = 0
+          let currentUser = auth.currentUser
+          
+          while (!currentUser && attempts < 10) {
+            console.log(`⏳ Aguardando sincronização com Firebase Auth... tentativa ${attempts + 1}`)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            currentUser = auth.currentUser
+            attempts++
+          }
+          
+          if (!currentUser) {
+            console.error('❌ Erro ao sincronizar com Firebase Auth após 10 tentativas')
+            console.error('🔍 Estado do auth:', {
+              hasCurrentUser: !!auth.currentUser,
+              isSignedIn: !!auth.currentUser,
+              userUid: auth.currentUser?.uid
+            })
+            throw new Error('Erro ao sincronizar com Firebase Auth. O usuário foi autenticado no Google mas não foi sincronizado com o Firebase. Tente novamente.')
+          }
+          
+          console.log('✅ Firebase Auth sincronizado:', currentUser.uid)
+          console.log('📧 Email sincronizado:', currentUser.email)
+          console.log('👤 Nome sincronizado:', currentUser.displayName)
+          firebaseUser = currentUser
+        }
       } else {
         // Fluxo web usando popup
         console.log('🔐 Login Google via Popup (Web)')
@@ -260,9 +326,37 @@ export const useAuthStore = defineStore('auth', () => {
       return true
     } catch (err: unknown) {
       console.error('❌ Erro no login Google:', err)
+      
       // Se já setamos um erro específico, não sobrescrever
       if (!error.value) {
-        const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login com Google'
+        let errorMessage = 'Erro ao fazer login com Google'
+        
+        if (err instanceof Error) {
+          const message = err.message
+          console.error('📝 Mensagem de erro detalhada:', message)
+          
+          // Tratamento específico para erros do Android
+          if (message.includes('signInWithGoogle')) {
+            errorMessage = 'Falha ao conectar com o Google. Verifique se o Google Play Services está atualizado e tente novamente.'
+          } else if (message.includes('network')) {
+            errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.'
+          } else if (message.includes('cancelled') || message.includes('canceled')) {
+            errorMessage = 'Login cancelado pelo usuário.'
+          } else if (message.includes('sincronizar')) {
+            errorMessage = 'Erro de sincronização. Tente novamente em alguns segundos.'
+          } else if (message.includes('Plugin de autenticação não está disponível')) {
+            errorMessage = 'Plugin de autenticação não está disponível. Reinstale o aplicativo.'
+          } else if (message.includes('10')) {
+            errorMessage = 'Timeout na autenticação. Tente novamente.'
+          } else if (message.includes('missing') || message.includes('insufficient') || message.includes('permission')) {
+            errorMessage = 'Erro de permissões OAuth. Verifique a configuração no Google Cloud Console. O app pode estar em modo de teste.'
+          } else if (message.includes('unauthorized') || message.includes('forbidden')) {
+            errorMessage = 'Acesso negado. Verifique se o OAuth consent screen está configurado corretamente.'
+          } else {
+            errorMessage = message
+          }
+        }
+        
         error.value = errorMessage
       }
       return false
