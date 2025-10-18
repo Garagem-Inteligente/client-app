@@ -1,0 +1,66 @@
+/**
+ * Global Background Styles
+ * Consistent background design across all pages
+ */
+
+/* Login/Register Background - Dark gradient with patterns */
+.auth-content,
+.app-content {
+  --background: transparent !important;
+}
+
+/* Background Gradient Layer */
+.background-gradient {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #0f172a 0%, 
+    #1e293b 50%, 
+    #0f172a 100%
+  );
+  z-index: 0;
+}
+
+/* Background Pattern Layer with animations */
+.background-pattern {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  z-index: 1;
+  animation: patternFloat 20s ease-in-out infinite;
+}
+
+@keyframes patternFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+}
+
+/* Alternative: Purple Gradient Background (Dashboard style) */
+.purple-gradient-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.purple-gradient-content::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Ensure content is above background layers */
+.page-content-wrapper {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}

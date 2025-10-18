@@ -6,9 +6,14 @@
       back-path="/tabs/home"
     />
 
-    <ion-content :fullscreen="true">
-      <!-- Loading State -->
-      <div v-if="vehiclesStore.loading" class="loading-container">
+    <ion-content :fullscreen="true" class="app-content">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
+      <div class="page-content-wrapper">
+        <!-- Loading State -->
+        <div v-if="vehiclesStore.loading" class="loading-container">
         <ion-spinner name="crescent"></ion-spinner>
         <p>Carregando veículos...</p>
       </div>
@@ -140,6 +145,7 @@
             </ion-card-content>
           </ion-card>
         </div>
+      </div>
       </div>
     </ion-content>
 

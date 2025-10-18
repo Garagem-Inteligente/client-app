@@ -10,9 +10,14 @@
       ]"
     />
 
-    <ion-content :fullscreen="true" class="detail-content">
-      <!-- Loading State -->
-      <div v-if="!maintenanceRecord" class="loading-container">
+    <ion-content :fullscreen="true" class="app-content detail-content">
+      <!-- Background layers -->
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+      
+      <div class="page-content-wrapper">
+        <!-- Loading State -->
+        <div v-if="!maintenanceRecord" class="loading-container">
         <ion-spinner name="crescent"></ion-spinner>
         <p class="loading-text">Carregando informações da manutenção...</p>
       </div>
@@ -304,6 +309,7 @@
             </div>
           </div>
         </ACard>
+      </div>
       </div>
     </ion-content>
   </ion-page>
