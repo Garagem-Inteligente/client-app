@@ -18,6 +18,7 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import type { MaintenanceRecord } from '@/stores/vehicles'
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -31,11 +32,6 @@ ChartJS.register(
   Filler
 )
 
-interface MaintenanceRecord {
-  date: string | Date
-  cost: number
-}
-
 interface Props {
   maintenanceHistory: MaintenanceRecord[]
 }
@@ -48,7 +44,7 @@ const chartData = computed(() => {
   const monthlyData: Record<string, number> = {}
   
   props.maintenanceHistory.forEach(record => {
-    const date = typeof record.date === 'string' ? new Date(record.date) : record.date
+    const date = record.date instanceof Date ? record.date : new Date(record.date)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
     
     if (!monthlyData[monthKey]) {
@@ -146,5 +142,7 @@ const chartOptions = computed(() => ({
 <style scoped>
 .chart-container {
   height: 300px;
+  width: 100%;
 }
 </style>
+

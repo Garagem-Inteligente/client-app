@@ -145,3 +145,4 @@ export function isValidationError(error: any): boolean {
     errorCode === 'failed-precondition'
   )
 }
+

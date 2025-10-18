@@ -1,16 +1,23 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
+/// <reference types="vitest" />
 
-// https://vite.dev/config/
+import legacy from '@vitejs/plugin-legacy'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
+import { defineConfig } from 'vite'
+
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    legacy()
+  ],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
-    }
+      '@': path.resolve(__dirname, './src'),
+    },
   },
-  build: {
-    chunkSizeWarningLimit: 1200
+  test: {
+    globals: true,
+    environment: 'jsdom'
   }
 })

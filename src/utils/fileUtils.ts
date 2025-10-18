@@ -190,3 +190,4 @@ export function getBase64Size(base64: string): number {
   const base64Length = base64.length - padding
   return (base64Length * 3) / 4
 }
+

@@ -14,7 +14,6 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
-import { translateFirebaseError } from '@/utils/errorMessages'
 
 // Tipos de veículos disponíveis no Brasil
 export type VehicleType = 'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'
@@ -45,23 +44,6 @@ export interface Vehicle {
   documentInsurancePolicy?: string // Base64 da apólice
   createdAt: Date
   updatedAt: Date
-}
-
-export interface VehicleInput {
-  vehicleType: VehicleType
-  make: string
-  model: string
-  year: number
-  plate: string
-  color?: string
-  mileage: number
-  fuelType: FuelType
-  imageUrl?: string
-  insuranceCompany?: string
-  insurancePhone?: string
-  insurancePolicyNumber?: string
-  insuranceExpiryDate?: Date
-  insuranceValue?: number
 }
 
 export interface MaintenanceAttachment {
@@ -126,6 +108,23 @@ export interface MaintenanceRecord {
   createdAt: Date
 }
 
+export interface VehicleInput {
+  vehicleType: VehicleType
+  make: string
+  model: string
+  year: number
+  plate: string
+  color?: string
+  mileage: number
+  fuelType: FuelType
+  imageUrl?: string
+  insuranceCompany?: string
+  insurancePhone?: string
+  insurancePolicyNumber?: string
+  insuranceExpiryDate?: Date | string
+  insuranceValue?: number
+}
+
 export const useVehiclesStore = defineStore('vehicles', () => {
   // State
   const vehicles = ref<Vehicle[]>([])
@@ -137,10 +136,23 @@ export const useVehiclesStore = defineStore('vehicles', () => {
   const vehicleCount = computed(() => vehicles.value.length)
   const totalMaintenanceRecords = computed(() => maintenanceRecords.value.length)
   
-  const getVehicleById = computed(() => {
-    return (id: string) => vehicles.value.find(v => v.id === id)
+  const vehiclesByType = computed(() => {
+    const grouped: Record<VehicleType, Vehicle[]> = {
+      car: [],
+      motorcycle: [],
+      van: [],
+      truck: [],
+      bus: [],
+      pickup: []
+    }
+    
+    vehicles.value.forEach(vehicle => {
+      grouped[vehicle.vehicleType].push(vehicle)
+    })
+    
+    return grouped
   })
-  
+
   const getMaintenanceByVehicle = computed(() => {
     return (vehicleId: string) => 
       maintenanceRecords.value
@@ -164,9 +176,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
 
   const recentMaintenance = computed(() => {
     return maintenanceRecords.value
-      .filter(record => record.date) // Apenas registros com data definida
-      .sort((a, b) => b.date.getTime() - a.date.getTime()) // Mais recentes primeiro
-      .slice(0, 5) // Limitar a 5 registros
+      .filter(record => record.date)
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 5)
   })
 
   const totalMaintenanceCost = computed(() => {
@@ -191,166 +203,155 @@ export const useVehiclesStore = defineStore('vehicles', () => {
 
   // Actions
   const fetchVehicles = async () => {
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) return
+
     loading.value = true
     error.value = null
-    
-    try {
-      const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
 
+    try {
       const vehiclesRef = collection(db, 'vehicles')
       const q = query(
-        vehiclesRef, 
-        where('userId', '==', authStore.user.id),
+        vehiclesRef,
+        where('userId', '==', authStore.user!.id),
         orderBy('createdAt', 'desc')
       )
       
       const querySnapshot = await getDocs(q)
-      const fetchedVehicles: Vehicle[] = []
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        fetchedVehicles.push({
-          id: doc.id,
-          userId: data.userId,
-          vehicleType: data.vehicleType || 'car', // Migração: padrão carro
-          make: data.make,
-          model: data.model,
-          year: data.year,
-          plate: data.plate,
-          color: data.color,
-          mileage: data.mileage,
-          fuelType: data.fuelType || 'flex', // Migração: padrão flex
-          imageUrl: data.imageUrl,
-          insuranceCompany: data.insuranceCompany,
-          insurancePhone: data.insurancePhone,
-          insurancePolicyNumber: data.insurancePolicyNumber,
-          insuranceExpiryDate: data.insuranceExpiryDate?.toDate(),
-          insuranceValue: data.insuranceValue,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
-        })
-      })
-      
-      vehicles.value = fetchedVehicles
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao buscar veículos')
-      console.error('Error fetching vehicles:', err)
+      vehicles.value = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        insuranceExpiryDate: doc.data().insuranceExpiryDate?.toDate()
+      })) as Vehicle[]
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao carregar veículos'
     } finally {
       loading.value = false
     }
   }
 
   const addVehicle = async (vehicleData: VehicleInput) => {
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) return false
+
     loading.value = true
     error.value = null
-    
-    try {
-      const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
 
-      const vehiclesRef = collection(db, 'vehicles')
-      const now = Timestamp.now()
-      
-      const newVehicleData = {
+    try {
+      // Converter insuranceExpiryDate para Date se for string
+      const insuranceDate = vehicleData.insuranceExpiryDate 
+        ? (typeof vehicleData.insuranceExpiryDate === 'string' 
+            ? new Date(vehicleData.insuranceExpiryDate) 
+            : vehicleData.insuranceExpiryDate)
+        : undefined
+
+      const vehicleRef = collection(db, 'vehicles')
+      const docRef = await addDoc(vehicleRef, {
         ...vehicleData,
-        userId: authStore.user.id,
-        createdAt: now,
-        updatedAt: now
-      }
-      
-      const docRef = await addDoc(vehiclesRef, newVehicleData)
-      
+        userId: authStore.user!.id,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
+      })
+
+      // Adicionar o novo veículo à lista local
       const newVehicle: Vehicle = {
         id: docRef.id,
         ...vehicleData,
-        userId: authStore.user.id,
-        createdAt: now.toDate(),
-        updatedAt: now.toDate()
+        userId: authStore.user!.id,
+        insuranceExpiryDate: insuranceDate,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
-      
       vehicles.value.unshift(newVehicle)
-      return newVehicle
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao adicionar veículo')
-      console.error('Error adding vehicle:', err)
-      throw err
+
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao adicionar veículo'
+      return false
     } finally {
       loading.value = false
     }
   }
 
-  const updateVehicle = async (id: string, vehicleData: Partial<VehicleInput>) => {
+  const updateVehicle = async (vehicleId: string, vehicleData: Partial<VehicleInput>) => {
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) return false
+
     loading.value = true
     error.value = null
-    
-    try {
-      const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
 
-      const vehicleRef = doc(db, 'vehicles', id)
-      const updateData = {
+    try {
+      // Converter insuranceExpiryDate para Date se for string
+      const insuranceDate = vehicleData.insuranceExpiryDate 
+        ? (typeof vehicleData.insuranceExpiryDate === 'string' 
+            ? new Date(vehicleData.insuranceExpiryDate) 
+            : vehicleData.insuranceExpiryDate)
+        : undefined
+
+      const vehicleRef = doc(db, 'vehicles', vehicleId)
+      await updateDoc(vehicleRef, {
         ...vehicleData,
-        updatedAt: Timestamp.now()
-      }
-      
-      await updateDoc(vehicleRef, updateData)
-      
-      const index = vehicles.value.findIndex(v => v.id === id)
+        updatedAt: Timestamp.now(),
+        insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
+      })
+
+      // Atualizar o veículo na lista local
+      const index = vehicles.value.findIndex(v => v.id === vehicleId)
       if (index !== -1) {
         vehicles.value[index] = {
           ...vehicles.value[index],
           ...vehicleData,
+          insuranceExpiryDate: insuranceDate,
           updatedAt: new Date()
         }
       }
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao atualizar veículo')
-      console.error('Error updating vehicle:', err)
-      throw err
+
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao atualizar veículo'
+      return false
     } finally {
       loading.value = false
     }
   }
 
-  const deleteVehicle = async (id: string) => {
+  const deleteVehicle = async (vehicleId: string) => {
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) return false
+
     loading.value = true
     error.value = null
-    
-    try {
-      const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
 
-      const vehicleRef = doc(db, 'vehicles', id)
-      await deleteDoc(vehicleRef)
-      
-      vehicles.value = vehicles.value.filter(v => v.id !== id)
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao deletar veículo')
-      console.error('Error deleting vehicle:', err)
-      throw err
+    try {
+      await deleteDoc(doc(db, 'vehicles', vehicleId))
+
+      // Remover o veículo da lista local
+      vehicles.value = vehicles.value.filter(v => v.id !== vehicleId)
+
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao excluir veículo'
+      return false
     } finally {
       loading.value = false
     }
   }
 
+  const getVehicleById = (vehicleId: string) => {
+    return vehicles.value.find(v => v.id === vehicleId)
+  }
+
+  // Maintenance Actions
   const fetchMaintenanceRecords = async () => {
     loading.value = true
     error.value = null
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
+      if (!authStore.isAuthenticated) return
 
       // Se não há veículos, não há manutenções para buscar
       if (vehicles.value.length === 0) {
@@ -380,12 +381,28 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             type: data.type,
             description: data.description,
             cost: data.cost,
+            partsCost: data.partsCost,
+            laborCost: data.laborCost,
+            warrantyParts: data.warrantyParts ? {
+              months: data.warrantyParts.months,
+              expiryDate: data.warrantyParts.expiryDate?.toDate()
+            } : undefined,
+            warrantyLabor: data.warrantyLabor ? {
+              months: data.warrantyLabor.months,
+              expiryDate: data.warrantyLabor.expiryDate?.toDate()
+            } : undefined,
             mileage: data.mileage,
             date: data.date?.toDate() || new Date(),
             nextDueDate: data.nextDueDate?.toDate(),
             nextDueMileage: data.nextDueMileage,
             serviceProvider: data.serviceProvider,
             notes: data.notes,
+            attachments: data.attachments?.map((att: any) => ({
+              ...att,
+              uploadedAt: att.uploadedAt?.toDate() || new Date()
+            })),
+            beforePhoto: data.beforePhoto,
+            afterPhoto: data.afterPhoto,
             createdAt: data.createdAt?.toDate() || new Date()
           })
         })
@@ -395,8 +412,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       fetchedRecords.sort((a, b) => b.date.getTime() - a.date.getTime())
       
       maintenanceRecords.value = fetchedRecords
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao buscar manutenções')
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao buscar manutenções'
       console.error('Error fetching maintenance records:', err)
     } finally {
       loading.value = false
@@ -409,9 +426,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
+      if (!authStore.isAuthenticated) return false
 
       const maintenanceRef = collection(db, 'maintenance')
       const now = Timestamp.now()
@@ -427,32 +442,42 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         createdAt: now
       }
       
-      // Persist attachments if present, mapping uploadedAt to Timestamp
+      // Adicionar campos opcionais
+      if (recordData.partsCost !== undefined) newRecordData.partsCost = recordData.partsCost
+      if (recordData.laborCost !== undefined) newRecordData.laborCost = recordData.laborCost
+      if (recordData.warrantyParts) {
+        newRecordData.warrantyParts = {
+          months: recordData.warrantyParts.months,
+          expiryDate: Timestamp.fromDate(recordData.warrantyParts.expiryDate)
+        }
+      }
+      if (recordData.warrantyLabor) {
+        newRecordData.warrantyLabor = {
+          months: recordData.warrantyLabor.months,
+          expiryDate: Timestamp.fromDate(recordData.warrantyLabor.expiryDate)
+        }
+      }
+      
+      // Persist attachments if present
       if (recordData.attachments && Array.isArray(recordData.attachments)) {
         newRecordData.attachments = recordData.attachments.map(att => ({
           ...att,
-          uploadedAt: att.uploadedAt instanceof Date
-            ? Timestamp.fromDate(att.uploadedAt)
-            : att.uploadedAt
+          uploadedAt: att.uploadedAt instanceof Date ? Timestamp.fromDate(att.uploadedAt) : att.uploadedAt
         }))
       }
       
-      // Adicionar campos opcionais apenas se tiverem valor
       if (recordData.nextDueDate) {
         newRecordData.nextDueDate = Timestamp.fromDate(recordData.nextDueDate)
       }
       
-      if (recordData.nextDueMileage !== undefined && recordData.nextDueMileage !== null && recordData.nextDueMileage !== 0) {
+      if (recordData.nextDueMileage) {
         newRecordData.nextDueMileage = recordData.nextDueMileage
       }
       
-      if (recordData.serviceProvider) {
-        newRecordData.serviceProvider = recordData.serviceProvider
-      }
-      
-      if (recordData.notes) {
-        newRecordData.notes = recordData.notes
-      }
+      if (recordData.serviceProvider) newRecordData.serviceProvider = recordData.serviceProvider
+      if (recordData.notes) newRecordData.notes = recordData.notes
+      if (recordData.beforePhoto) newRecordData.beforePhoto = recordData.beforePhoto
+      if (recordData.afterPhoto) newRecordData.afterPhoto = recordData.afterPhoto
       
       const docRef = await addDoc(maintenanceRef, newRecordData)
       
@@ -463,11 +488,11 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       }
       
       maintenanceRecords.value.unshift(newRecord)
-      return newRecord
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao adicionar manutenção')
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao adicionar manutenção'
       console.error('Error adding maintenance record:', err)
-      throw err
+      return false
     } finally {
       loading.value = false
     }
@@ -479,18 +504,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.user?.id) {
-        throw new Error('Usuário não autenticado')
-      }
+      if (!authStore.isAuthenticated) return false
 
       const recordRef = doc(db, 'maintenance', id)
       await deleteDoc(recordRef)
       
       maintenanceRecords.value = maintenanceRecords.value.filter(r => r.id !== id)
-    } catch (err) {
-      error.value = translateFirebaseError(err, 'Falha ao deletar manutenção')
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao deletar manutenção'
       console.error('Error deleting maintenance record:', err)
-      throw err
+      return false
     } finally {
       loading.value = false
     }
@@ -509,21 +533,28 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     // Getters
     vehicleCount,
     totalMaintenanceRecords,
-    getVehicleById,
+    vehiclesByType,
     getMaintenanceByVehicle,
     upcomingMaintenance,
     overdueMaintenance,
     recentMaintenance,
     totalMaintenanceCost,
     maintenanceStats,
-    // Actions
+    // Vehicle Actions
     fetchVehicles,
     addVehicle,
     updateVehicle,
     deleteVehicle,
+    getVehicleById,
+    // Maintenance Actions
     fetchMaintenanceRecords,
     addMaintenanceRecord,
     deleteMaintenanceRecord,
+    // Common
     clearError
   }
 })
+
+
+
+

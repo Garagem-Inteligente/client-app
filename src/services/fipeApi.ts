@@ -12,7 +12,7 @@
 const FIPE_API_BASE_URL = 'https://fipe.parallelum.com.br/api/v2'
 
 // Tipos de veículos suportados
-export type VehicleType = 'cars' | 'motorcycles' | 'trucks'
+export type FipeVehicleType = 'cars' | 'motorcycles' | 'trucks'
 
 // Interfaces da API
 export interface FipeBrand {
@@ -94,7 +94,7 @@ class FipeApiService {
    * @param reference - Código de referência do mês (opcional)
    */
   async getBrandsByType(
-    vehicleType: VehicleType = 'cars',
+    vehicleType: FipeVehicleType = 'cars',
     reference?: number
   ): Promise<FipeBrand[]> {
     const queryParam = reference ? `?reference=${reference}` : ''
@@ -108,7 +108,7 @@ class FipeApiService {
    * @param reference - Código de referência do mês (opcional)
    */
   async getModelsByBrand(
-    vehicleType: VehicleType,
+    vehicleType: FipeVehicleType,
     brandId: string,
     reference?: number
   ): Promise<FipeModel[]> {
@@ -126,7 +126,7 @@ class FipeApiService {
    * @param reference - Código de referência do mês (opcional)
    */
   async getYearsByModel(
-    vehicleType: VehicleType,
+    vehicleType: FipeVehicleType,
     brandId: string,
     modelId: string,
     reference?: number
@@ -146,7 +146,7 @@ class FipeApiService {
    * @param reference - Código de referência do mês (opcional)
    */
   async getVehicleInfo(
-    vehicleType: VehicleType,
+    vehicleType: FipeVehicleType,
     brandId: string,
     modelId: string,
     yearId: string,
@@ -163,7 +163,7 @@ class FipeApiService {
    * Útil para implementar busca/autocompletar
    */
   async searchBrands(
-    vehicleType: VehicleType,
+    vehicleType: FipeVehicleType,
     searchTerm: string
   ): Promise<FipeBrand[]> {
     const brands = await this.getBrandsByType(vehicleType)
@@ -180,7 +180,7 @@ class FipeApiService {
    * Busca modelos com filtro de texto
    */
   async searchModels(
-    vehicleType: VehicleType,
+    vehicleType: FipeVehicleType,
     brandId: string,
     searchTerm: string
   ): Promise<FipeModel[]> {
@@ -200,3 +200,4 @@ export const fipeApi = new FipeApiService()
 
 // Exporta também a classe para testes/mocks
 export default FipeApiService
+

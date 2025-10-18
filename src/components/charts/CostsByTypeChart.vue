@@ -14,13 +14,9 @@ import {
   Legend
 } from 'chart.js'
 import { MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
+import type { MaintenanceRecord } from '@/stores/vehicles'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
-
-interface MaintenanceRecord {
-  type: string
-  cost: number
-}
 
 interface Props {
   maintenanceHistory: MaintenanceRecord[]
@@ -110,5 +106,7 @@ const chartOptions = computed(() => ({
 <style scoped>
 .chart-container {
   height: 300px;
+  width: 100%;
 }
 </style>
+

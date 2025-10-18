@@ -1,4 +1,4 @@
-import type { VehicleType, FuelType } from '@/stores/vehicles'
+import type { VehicleType, FuelType, MaintenanceType } from '@/stores/vehicles'
 
 // Labels em português para tipos de veículos
 export const VEHICLE_TYPE_LABELS: Record<VehicleType, string> = {
@@ -44,44 +44,6 @@ export const FUEL_TYPE_OPTIONS = [
   { value: 'gnv' as FuelType, label: 'GNV (Gás Natural)' }
 ]
 
-// Ícones do Lucide para cada tipo de veículo
-export const VEHICLE_TYPE_ICONS: Record<VehicleType, string> = {
-  car: 'Car',
-  motorcycle: 'Bike',
-  van: 'TruckIcon',
-  truck: 'TruckIcon',
-  bus: 'Bus',
-  pickup: 'TruckIcon'
-}
-
-// Tipos de manutenção expandidos
-export type MaintenanceType =
-  | 'oil_change'
-  | 'oil_filter'
-  | 'air_filter'
-  | 'fuel_filter'
-  | 'cabin_filter'
-  | 'tire_rotation'
-  | 'tire_replacement'
-  | 'wheel_alignment'
-  | 'wheel_balancing'
-  | 'brake_pads'
-  | 'brake_discs'
-  | 'brake_fluid'
-  | 'battery'
-  | 'spark_plugs'
-  | 'timing_belt'
-  | 'serpentine_belt'
-  | 'coolant'
-  | 'transmission_fluid'
-  | 'power_steering_fluid'
-  | 'windshield_wipers'
-  | 'air_conditioning'
-  | 'suspension'
-  | 'exhaust_system'
-  | 'general_inspection'
-  | 'other'
-
 // Labels em português para tipos de manutenção
 export const MAINTENANCE_TYPE_LABELS: Record<MaintenanceType, string> = {
   oil_change: 'Troca de Óleo do Motor',
@@ -109,6 +71,35 @@ export const MAINTENANCE_TYPE_LABELS: Record<MaintenanceType, string> = {
   exhaust_system: 'Manutenção do Escapamento',
   general_inspection: 'Revisão Geral',
   other: 'Outro'
+}
+
+// Ícones (emojis) para tipos de manutenção
+export const MAINTENANCE_TYPE_ICONS: Record<MaintenanceType, string> = {
+  oil_change: '🛢️',
+  oil_filter: '🔧',
+  air_filter: '💨',
+  fuel_filter: '⛽',
+  cabin_filter: '❄️',
+  tire_rotation: '🔄',
+  tire_replacement: '⚫',
+  wheel_alignment: '📏',
+  wheel_balancing: '⚖️',
+  brake_pads: '🛑',
+  brake_discs: '💿',
+  brake_fluid: '🧪',
+  battery: '🔋',
+  spark_plugs: '⚡',
+  timing_belt: '⛓️',
+  serpentine_belt: '🔗',
+  coolant: '🌡️',
+  transmission_fluid: '⚙️',
+  power_steering_fluid: '🎯',
+  windshield_wipers: '🌧️',
+  air_conditioning: '❄️',
+  suspension: '🔩',
+  exhaust_system: '💨',
+  general_inspection: '🔍',
+  other: '📝'
 }
 
 // Opções para select de tipos de manutenção (agrupadas por categoria)
@@ -170,31 +161,3 @@ export const MAINTENANCE_TYPE_OPTIONS = [
   }
 ]
 
-// Ícones do Lucide para cada tipo de manutenção
-export const MAINTENANCE_TYPE_ICONS: Record<MaintenanceType, string> = {
-  oil_change: 'Droplet',
-  oil_filter: 'Filter',
-  air_filter: 'Wind',
-  fuel_filter: 'Fuel',
-  cabin_filter: 'Snowflake',
-  tire_rotation: 'RefreshCw',
-  tire_replacement: 'Circle',
-  wheel_alignment: 'Ruler',
-  wheel_balancing: 'Scale',
-  brake_pads: 'OctagonX',
-  brake_discs: 'Disc',
-  brake_fluid: 'TestTube',
-  battery: 'Battery',
-  spark_plugs: 'Zap',
-  timing_belt: 'Link',
-  serpentine_belt: 'Link2',
-  coolant: 'Thermometer',
-  transmission_fluid: 'Settings',
-  power_steering_fluid: 'Navigation',
-  windshield_wipers: 'CloudRain',
-  air_conditioning: 'Snowflake',
-  suspension: 'Wrench',
-  exhaust_system: 'Wind',
-  general_inspection: 'Search',
-  other: 'FileText'
-}

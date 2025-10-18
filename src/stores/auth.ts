@@ -9,26 +9,21 @@ import {
   sendPasswordResetEmail,
   type User as FirebaseUser
 } from 'firebase/auth'
-import { httpsCallable } from 'firebase/functions'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
-import { functions, db } from '@/firebase/config'
-import { auth } from '@/firebase/config'
-import { translateFirebaseError } from '@/utils/errorMessages'
-
-export type UserType = 'user' | 'workshop'
+import { auth, db } from '@/firebase/config'
 
 export interface User {
   id: string
   email: string
   name: string
   avatar?: string
-  userType: UserType
+  userType: 'user' | 'workshop'
 }
 
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<User | null>(null)
-  const loading = ref(true) // Start as true to wait for Firebase
+  const loading = ref(true)
   const error = ref<string | null>(null)
   const initialized = ref(false)
 
@@ -37,14 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
   const userName = computed(() => user.value?.name || '')
   const userEmail = computed(() => user.value?.email || '')
   const userType = computed(() => user.value?.userType || 'user')
-  const isWorkshop = computed(() => user.value?.userType === 'workshop')
 
   // Initialize auth state listener
   const initializeAuth = () => {
     onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         // Buscar userType do Firestore (com fallback para 'user')
-        let userType: UserType = 'user'
+        let userType: 'user' | 'workshop' = 'user'
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
           if (userDoc.exists()) {
@@ -79,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
       const firebaseUser = userCredential.user
       
       // Buscar userType do Firestore (com fallback para 'user')
-      let userType: UserType = 'user'
+      let userType: 'user' | 'workshop' = 'user'
       try {
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
         if (userDoc.exists()) {
@@ -99,14 +93,14 @@ export const useAuthStore = defineStore('auth', () => {
       
       return true
     } catch (err: any) {
-      error.value = translateFirebaseError(err, 'Erro ao fazer login')
+      error.value = err.message || 'Erro ao fazer login'
       return false
     } finally {
       loading.value = false
     }
   }
 
-  const register = async (email: string, password: string, name: string, userType: UserType = 'user') => {
+  const register = async (email: string, password: string, name: string) => {
     loading.value = true
     error.value = null
     
@@ -123,7 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
       await setDoc(doc(db, 'users', firebaseUser.uid), {
         email: firebaseUser.email,
         name: name,
-        userType: userType,
+        userType: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       })
@@ -133,21 +127,12 @@ export const useAuthStore = defineStore('auth', () => {
         email: firebaseUser.email || '',
         name: name,
         avatar: firebaseUser.photoURL || undefined,
-        userType: userType
+        userType: 'user'
       }
       
-      // Enviar email de boas-vindas (não bloqueante)
-      try {
-        const sendWelcomeEmail = httpsCallable<{ to: string; userName: string }, { success: boolean }>(functions, 'sendWelcomeEmail')
-        await sendWelcomeEmail({ to: email, userName: name })
-      } catch (welcomeErr) {
-        // Não falhar o registro se o email não for enviado
-        console.warn('Falha ao enviar email de boas-vindas:', welcomeErr)
-      }
-
       return true
     } catch (err: any) {
-      error.value = translateFirebaseError(err, 'Erro ao criar conta')
+      error.value = err.message || 'Erro ao criar conta'
       return false
     } finally {
       loading.value = false
@@ -176,20 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
       await sendPasswordResetEmail(auth, email)
       return true
     } catch (err: any) {
-      let errorMessage = 'Erro ao enviar email de recuperação'
-      
-      switch (err.code) {
-        case 'auth/user-not-found':
-          errorMessage = 'Usuário não encontrado'
-          break
-        case 'auth/invalid-email':
-          errorMessage = 'Email inválido'
-          break
-        default:
-          errorMessage = err.message || 'Erro ao enviar email de recuperação'
-      }
-      
-      error.value = errorMessage
+      error.value = err.message || 'Erro ao enviar email de recuperação'
       return false
     } finally {
       loading.value = false
@@ -214,7 +186,6 @@ export const useAuthStore = defineStore('auth', () => {
     userName,
     userEmail,
     userType,
-    isWorkshop,
     // Actions
     login,
     register,
@@ -224,3 +195,7 @@ export const useAuthStore = defineStore('auth', () => {
     initializeAuth
   }
 })
+
+
+
+

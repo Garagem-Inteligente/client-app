@@ -16,13 +16,9 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import type { MaintenanceRecord } from '@/stores/vehicles'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
-
-interface MaintenanceRecord {
-  type: string
-  cost: number
-}
 
 interface Props {
   maintenanceHistory: MaintenanceRecord[]
@@ -33,11 +29,15 @@ const props = defineProps<Props>()
 const chartData = computed(() => {
   // Tipos preventivos
   const preventiveTypes = [
-    'Troca de Óleo',
-    'Revisão Periódica',
-    'Alinhamento e Balanceamento',
-    'Troca de Filtros',
-    'Inspeção Veicular'
+    'oil_change',
+    'oil_filter',
+    'air_filter',
+    'fuel_filter',
+    'cabin_filter',
+    'tire_rotation',
+    'general_inspection',
+    'wheel_alignment',
+    'wheel_balancing'
   ]
   
   let preventiveCost = 0
@@ -145,5 +145,7 @@ const chartOptions = computed(() => ({
 <style scoped>
 .chart-container {
   height: 300px;
+  width: 100%;
 }
 </style>
+
