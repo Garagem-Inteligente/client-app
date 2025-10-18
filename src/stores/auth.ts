@@ -195,7 +195,11 @@ export const useAuthStore = defineStore('auth', () => {
           isPluginAvailable: Capacitor.isPluginAvailable('FirebaseAuthentication')
         })
         
-        const result = await FirebaseAuthentication.signInWithGoogle()
+        // CRÍTICO: passar o serverClientId (Web Client ID) para Android
+        const result = await FirebaseAuthentication.signInWithGoogle({
+          mode: 'redirect',
+          scopes: ['profile', 'email']
+        } as any)
         console.log('📱 Resultado do FirebaseAuthentication:', result)
         
         if (!result.user) {
