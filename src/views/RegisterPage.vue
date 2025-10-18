@@ -131,8 +131,11 @@
             <span class="divider-text">ou</span>
           </div>
 
+          <!-- Google Sign-In Button -->
+          <GoogleSignInButton />
+
           <!-- Login Link -->
-          <button @click="$router.push('/login')" class="secondary-button">
+          <button @click="$router.push('/login')" class="secondary-button" style="margin-top: 16px;">
             <ion-icon :icon="logInOutline" class="button-icon"></ion-icon>
             Já tenho uma conta
           </button>
@@ -167,6 +170,7 @@ import {
   logInOutline
 } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
+import { GoogleSignInButton } from '@/components'
 
 const router = useRouter()
 const authStore = useAuthStore()

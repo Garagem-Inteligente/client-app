@@ -5,12 +5,14 @@ export { default as ABadge } from './atoms/ABadge.vue'
 export { default as ACard } from './atoms/ACard.vue'
 export { default as AAlert } from './atoms/AAlert.vue'
 export { default as ASpinner } from './atoms/ASpinner.vue'
+export { default as GoogleSignInButton } from './atoms/GoogleSignInButton.vue'
 
 // Molecules
 export { default as MFileUpload } from './molecules/MFileUpload.vue'
 export { default as MSearchableSelect } from './molecules/MSearchableSelect.vue'
 export { default as MConfirmModal } from './molecules/MConfirmModal.vue'
 export { default as MStatCard } from './molecules/MStatCard.vue'
+export { default as AccountLinkingModal } from './molecules/AccountLinkingModal.vue'
 
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue'
