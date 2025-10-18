@@ -14,6 +14,8 @@ import {
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/firebase/config'
+import { Capacitor } from '@capacitor/core'
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 
 export interface User {
   id: string
@@ -173,13 +175,39 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     
     try {
-      const provider = new GoogleAuthProvider()
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      })
+      const isNative = Capacitor.isNativePlatform()
+      let firebaseUser: FirebaseUser
       
-      const result = await signInWithPopup(auth, provider)
-      const firebaseUser = result.user
+      if (isNative) {
+        // Fluxo nativo para Android/iOS usando Capacitor Firebase Authentication
+        console.log('🔐 Login Google via Capacitor (Nativo)')
+        
+        const result = await FirebaseAuthentication.signInWithGoogle()
+        
+        if (!result.user) {
+          throw new Error('Usuário não encontrado na resposta do Google')
+        }
+        
+        // O plugin já faz o signIn automaticamente no Firebase Auth
+        // Aguardar o onAuthStateChanged atualizar o usuário
+        const currentUser = auth.currentUser
+        if (!currentUser) {
+          throw new Error('Erro ao sincronizar com Firebase Auth')
+        }
+        
+        firebaseUser = currentUser
+      } else {
+        // Fluxo web usando popup
+        console.log('🔐 Login Google via Popup (Web)')
+        
+        const provider = new GoogleAuthProvider()
+        provider.setCustomParameters({
+          prompt: 'select_account'
+        })
+        
+        const result = await signInWithPopup(auth, provider)
+        firebaseUser = result.user
+      }
       
       if (!firebaseUser.email) {
         throw new Error('Email não encontrado na conta Google')
@@ -231,6 +259,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       return true
     } catch (err: unknown) {
+      console.error('❌ Erro no login Google:', err)
       // Se já setamos um erro específico, não sobrescrever
       if (!error.value) {
         const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login com Google'
