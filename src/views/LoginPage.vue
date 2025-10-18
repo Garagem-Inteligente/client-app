@@ -26,12 +26,13 @@
           <form @submit.prevent="handleLogin" class="auth-form">
             <!-- Email Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="login-email" class="form-label">
                 <ion-icon :icon="mailOutline" class="label-icon"></ion-icon>
                 Email
               </label>
               <div class="input-wrapper">
                 <input
+                  id="login-email"
                   v-model="form.email"
                   type="email"
                   class="form-input"
@@ -44,12 +45,13 @@
 
             <!-- Password Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="login-password" class="form-label">
                 <ion-icon :icon="lockClosedOutline" class="label-icon"></ion-icon>
                 Senha
               </label>
               <div class="input-wrapper">
                 <input
+                  id="login-password"
                   v-model="form.password"
                   type="password"
                   class="form-input"
@@ -148,7 +150,9 @@ const handleLogin = async () => {
       error.value = authStore.error || 'Erro ao fazer login'
     }
   } catch (err) {
-    error.value = 'Erro inesperado ao fazer login'
+    console.error('Login error:', err)
+    const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao fazer login'
+    error.value = errorMessage
   } finally {
     loading.value = false
   }
@@ -170,7 +174,9 @@ const handleForgotPassword = async () => {
       error.value = authStore.error || 'Erro ao enviar email de recuperação'
     }
   } catch (err) {
-    error.value = 'Erro inesperado'
+    console.error('Password reset error:', err)
+    const errorMessage = err instanceof Error ? err.message : 'Erro inesperado'
+    error.value = errorMessage
   }
 }
 </script>

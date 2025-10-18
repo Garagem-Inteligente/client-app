@@ -82,8 +82,8 @@ export const useAuthStore = defineStore('auth', () => {
         if (userDoc.exists()) {
           userType = userDoc.data()?.userType || 'user'
         }
-      } catch (firestoreErr) {
-        console.warn('Erro ao buscar userType do Firestore, usando padrão "user":', firestoreErr)
+      } catch (error_) {
+        console.warn('Erro ao buscar userType do Firestore, usando padrão "user":', error_)
       }
       
       user.value = {
@@ -95,8 +95,9 @@ export const useAuthStore = defineStore('auth', () => {
       }
       
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao fazer login'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login'
+      error.value = errorMessage
       return false
     } finally {
       loading.value = false
@@ -134,8 +135,9 @@ export const useAuthStore = defineStore('auth', () => {
       }
       
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao criar conta'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta'
+      error.value = errorMessage
       return false
     } finally {
       loading.value = false
@@ -223,8 +225,9 @@ export const useAuthStore = defineStore('auth', () => {
       await signOut(auth)
       user.value = null
       error.value = null
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao fazer logout'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer logout'
+      error.value = errorMessage
     } finally {
       loading.value = false
     }
@@ -237,8 +240,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await sendPasswordResetEmail(auth, email)
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao enviar email de recuperação'
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao enviar email de recuperação'
+      error.value = errorMessage
       return false
     } finally {
       loading.value = false

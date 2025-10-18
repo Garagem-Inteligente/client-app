@@ -3,11 +3,11 @@
     <ion-tabs>
       <ion-router-outlet />
       
-      <!-- Note: slot="bottom" is Ionic-specific, Vue warning can be ignored -->
-      <ion-tab-bar slot="bottom" class="premium-tab-bar">
-        <!-- Animated Background Gradient -->
-        <div class="tab-bar-gradient"></div>
-        <div class="tab-bar-glow"></div>
+      <template v-slot:bottom>
+        <ion-tab-bar class="premium-tab-bar">
+          <!-- Animated Background Gradient -->
+          <div class="tab-bar-gradient"></div>
+          <div class="tab-bar-glow"></div>
         
         <!-- Tab Buttons with Micro-interactions -->
         <ion-tab-button 
@@ -35,7 +35,8 @@
             </ion-label>
           </div>
         </ion-tab-button>
-      </ion-tab-bar>
+        </ion-tab-bar>
+      </template>
     </ion-tabs>
   </ion-page>
 </template>

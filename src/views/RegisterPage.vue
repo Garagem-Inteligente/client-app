@@ -31,12 +31,13 @@
           <form @submit.prevent="handleRegister" class="auth-form">
             <!-- Name Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="register-name" class="form-label">
                 <ion-icon :icon="personOutline" class="label-icon"></ion-icon>
                 Nome Completo
               </label>
               <div class="input-wrapper">
                 <input
+                  id="register-name"
                   v-model="form.name"
                   type="text"
                   class="form-input"
@@ -49,12 +50,13 @@
 
             <!-- Email Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="register-email" class="form-label">
                 <ion-icon :icon="mailOutline" class="label-icon"></ion-icon>
                 Email
               </label>
               <div class="input-wrapper">
                 <input
+                  id="register-email"
                   v-model="form.email"
                   type="email"
                   class="form-input"
@@ -67,12 +69,13 @@
 
             <!-- Password Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="register-password" class="form-label">
                 <ion-icon :icon="lockClosedOutline" class="label-icon"></ion-icon>
                 Senha
               </label>
               <div class="input-wrapper">
                 <input
+                  id="register-password"
                   v-model="form.password"
                   type="password"
                   class="form-input"
@@ -91,12 +94,13 @@
 
             <!-- Confirm Password Input -->
             <div class="form-group">
-              <label class="form-label">
+              <label for="register-confirm-password" class="form-label">
                 <ion-icon :icon="checkmarkCircleOutline" class="label-icon"></ion-icon>
                 Confirmar Senha
               </label>
               <div class="input-wrapper">
                 <input
+                  id="register-confirm-password"
                   v-model="form.confirmPassword"
                   type="password"
                   class="form-input"
@@ -241,7 +245,9 @@ const handleRegister = async () => {
       error.value = authStore.error || 'Erro ao criar conta'
     }
   } catch (err) {
-    error.value = 'Erro inesperado ao criar conta'
+    console.error('Registration error:', err)
+    const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao criar conta'
+    error.value = errorMessage
   } finally {
     loading.value = false
   }

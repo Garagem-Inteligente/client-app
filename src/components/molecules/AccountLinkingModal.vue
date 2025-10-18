@@ -7,11 +7,13 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Vincular Conta Google</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="handleCancel" :disabled="loading">
-            <ion-icon :icon="closeOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
+        <template v-slot:end>
+          <ion-buttons>
+            <ion-button @click="handleCancel" :disabled="loading">
+              <ion-icon :icon="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </template>
       </ion-toolbar>
     </ion-header>
 
@@ -35,12 +37,13 @@
 
         <!-- Password Input -->
         <div class="form-group">
-          <label class="form-label">
+          <label for="account-link-password" class="form-label">
             <ion-icon :icon="lockClosedOutline" class="label-icon"></ion-icon>
             Senha da sua conta
           </label>
           <div class="input-wrapper">
             <input
+              id="account-link-password"
               v-model="password"
               type="password"
               class="form-input"
@@ -132,7 +135,7 @@ interface Emits {
   (e: 'forgotPassword'): void
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const password = ref('')
