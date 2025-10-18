@@ -2,8 +2,6 @@
   <ion-page>
     <ModernHeader 
       title="Manutenções"
-      :show-back-button="true"
-      back-path="/tabs/home"
     />
 
     <ion-content :fullscreen="true" class="app-content">

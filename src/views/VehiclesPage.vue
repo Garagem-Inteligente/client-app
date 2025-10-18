@@ -1,10 +1,6 @@
 <template>
   <ion-page>
-    <ModernHeader 
-      title="Meus Veículos"
-      :show-back-button="true"
-      back-path="/tabs/home"
-    />
+    <ModernHeader title="Meus Veículos" />
 
     <ion-content :fullscreen="true" class="app-content">
       <!-- Background layers -->
