@@ -1,8 +1,10 @@
 <template>
   <ion-card :class="cardClass">
-    <ion-card-header v-if="$slots.header || title || subtitle">
+    <ion-card-header v-if="$slots.header || $slots.title || title || subtitle">
       <slot name="header">
-        <ion-card-title v-if="title">{{ title }}</ion-card-title>
+        <ion-card-title v-if="$slots.title || title">
+          <slot name="title">{{ title }}</slot>
+        </ion-card-title>
         <ion-card-subtitle v-if="subtitle">{{ subtitle }}</ion-card-subtitle>
       </slot>
     </ion-card-header>

@@ -2,20 +2,23 @@
   <ion-header :translucent="true" class="modern-app-header ion-no-border">
     <ion-toolbar class="modern-toolbar">
       <!-- Back Button -->
-      <template v-slot:start>
-<ion-buttons v-if="showBackButton">
-        <ion-button class="back-button-modern" @click="handleBack">
+      <ion-buttons slot="start">
+        <ion-button 
+          v-if="computedShowBackButton"
+          class="back-button-modern" 
+          @click="handleBack"
+        >
           <ion-icon :icon="arrowBack" class="back-icon"></ion-icon>
         </ion-button>
       </ion-buttons>
-</template>
 
       <!-- Centered Title -->
-      <ion-title class="modern-title-centered">{{ title }}</ion-title>
+      <ion-title class="modern-title-centered">
+        {{ title }}
+      </ion-title>
 
       <!-- Action Buttons -->
-      <template v-slot:end>
-<ion-buttons >
+      <ion-buttons slot="end">
         <!-- Primary Action Button (e.g., Add, Save) -->
         <ion-button
           v-if="primaryAction"
@@ -34,7 +37,7 @@
 
         <!-- Secondary Actions -->
         <ion-button
-          v-for="(action, index) in secondaryActions"
+          v-for="(action, index) in actions"
           :key="index"
           class="secondary-action-button"
           @click="action.handler"
@@ -43,15 +46,16 @@
           <ion-icon :icon="action.icon"></ion-icon>
         </ion-button>
       </ion-buttons>
-</template>
     </ion-toolbar>
   </ion-header>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon } from '@ionic/vue'
 import { arrowBack } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
+import { useNavigation } from '@/composables/useNavigation'
 
 export interface ActionButton {
   icon?: string
@@ -69,17 +73,50 @@ interface Props {
   secondaryActions?: ActionButton[]
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  showBackButton: false,
-  backPath: '',
-  secondaryActions: () => []
-})
+const props = defineProps<Props>()
 
 const router = useRouter()
+const navigation = useNavigation()
+
+// Detecta se estamos usando navegação manual apenas quando backPath está presente
+// (showBackButton sozinho pode ser false por padrão do Vue, então não é confiável)
+const isManualNavigation = computed(() => {
+  return props.backPath !== undefined && props.backPath !== ''
+})
+
+// Usa navegação automática por padrão, a menos que backPath seja explicitamente definido
+const computedShowBackButton = computed(() => {
+  // Se backPath está definido, está usando navegação manual
+  if (isManualNavigation.value) {
+    return props.showBackButton === true
+  }
+  
+  // Caso contrário, usa navegação automática (padrão)
+  return navigation.shouldShowBackButton.value
+})
+
+const computedBackPath = computed(() => {
+  // Se está usando navegação manual e backPath foi definido, usa o valor da prop
+  if (isManualNavigation.value && props.backPath) {
+    return props.backPath
+  }
+  
+  // Se está usando navegação manual mas não tem backPath, retorna vazio
+  if (isManualNavigation.value) {
+    return ''
+  }
+  
+  // Caso contrário, usa navegação automática (padrão)
+  return navigation.backPath.value
+})
+
+// Default para secondaryActions se não definido
+const actions = computed(() => props.secondaryActions || [])
 
 const handleBack = () => {
-  if (props.backPath) {
-    router.push(props.backPath)
+  const targetPath = computedBackPath.value
+  if (targetPath) {
+    router.push(targetPath)
   } else {
     router.back()
   }
@@ -116,25 +153,30 @@ const handleBack = () => {
    ==================================== */
 
 .back-button-modern {
-  --background: rgba(102, 126, 234, 0.15);
-  --background-activated: rgba(102, 126, 234, 0.25);
-  --background-hover: rgba(102, 126, 234, 0.2);
-  --color: #667eea;
-  --border-radius: 10px;
-  --padding-start: 10px;
-  --padding-end: 10px;
+  --background: transparent;
+  --background-activated: transparent;
+  --background-hover: transparent;
+  --color: white;
+  --border-radius: 0;
+  --padding-start: 0;
+  --padding-end: 8px;
   height: 40px;
   margin: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .back-button-modern:hover {
+  --color: rgba(129, 140, 248, 0.9);
   transform: translateX(-2px);
 }
 
 .back-icon {
-  font-size: 1.375rem;
-  transition: transform 0.3s ease;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.back-button-modern:hover .back-icon {
+  transform: translateX(-2px);
 }
 
 .back-button-modern:active .back-icon {

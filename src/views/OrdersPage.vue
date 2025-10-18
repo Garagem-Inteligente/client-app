@@ -1,19 +1,10 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Serviços</ion-title>
-        <template v-slot:end>
-<ion-buttons >
-          <ion-button @click="showNewOrderModal = true">
-            <ion-icon :icon="add"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-</template>
-      </ion-toolbar>
-    </ion-header>
+    <ModernHeader 
+      title="Serviços"
+    />
 
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="true" class="app-content ion-padding">
       <!-- Empty State -->
       <ion-card>
         <ion-card-content class="empty-state">
@@ -101,9 +92,6 @@
 import { ref } from 'vue'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonCard,
   IonCardHeader,
@@ -114,16 +102,15 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonButtons,
   IonModal
 } from '@ionic/vue'
 import {
-  add,
   documentText,
   checkmark,
   close,
   construct
 } from 'ionicons/icons'
+import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const showNewOrderModal = ref(false)
 </script>
