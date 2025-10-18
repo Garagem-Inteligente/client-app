@@ -5,6 +5,18 @@ import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { getFunctions } from 'firebase/functions'
 
+// Debug: Log environment variables (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔍 Firebase Environment Variables Debug:')
+  console.log('VITE_FIREBASE_API_KEY:', import.meta.env.VITE_FIREBASE_API_KEY ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_AUTH_DOMAIN:', import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_PROJECT_ID:', import.meta.env.VITE_FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_STORAGE_BUCKET:', import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_MESSAGING_SENDER_ID:', import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_APP_ID:', import.meta.env.VITE_FIREBASE_APP_ID ? '✅ Set' : '❌ Missing')
+  console.log('VITE_FIREBASE_MEASUREMENT_ID:', import.meta.env.VITE_FIREBASE_MEASUREMENT_ID ? '✅ Set' : '❌ Missing')
+}
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -17,11 +29,21 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-// Validate configuration
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  throw new Error(
-    'Firebase configuration is missing. Please check your .env file and ensure all required environment variables are set.'
-  )
+// Enhanced validation with detailed error messages
+const missingVars: string[] = []
+if (!firebaseConfig.apiKey) missingVars.push('VITE_FIREBASE_API_KEY')
+if (!firebaseConfig.authDomain) missingVars.push('VITE_FIREBASE_AUTH_DOMAIN')
+if (!firebaseConfig.projectId) missingVars.push('VITE_FIREBASE_PROJECT_ID')
+if (!firebaseConfig.storageBucket) missingVars.push('VITE_FIREBASE_STORAGE_BUCKET')
+if (!firebaseConfig.messagingSenderId) missingVars.push('VITE_FIREBASE_MESSAGING_SENDER_ID')
+if (!firebaseConfig.appId) missingVars.push('VITE_FIREBASE_APP_ID')
+
+if (missingVars.length > 0) {
+  const errorMessage = `Firebase configuration is missing. Missing variables: ${missingVars.join(', ')}. Please check your environment variables and ensure all required Firebase configuration is set.`
+  console.error('❌ Firebase Configuration Error:', errorMessage)
+  console.error('🔍 Current environment:', import.meta.env.MODE)
+  console.error('🔍 Available env vars:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')))
+  throw new Error(errorMessage)
 }
 
 // Initialize Firebase
