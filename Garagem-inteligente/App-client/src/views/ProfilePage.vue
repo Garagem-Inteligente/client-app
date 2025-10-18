@@ -15,9 +15,15 @@
           <ion-card class="user-info-card">
             <ion-card-content class="user-info">
               <div class="avatar-section">
-                <ion-avatar>
-                  <ion-icon :icon="person" size="large"></ion-icon>
-                </ion-avatar>
+                <div class="avatar-container" @click="showPhotoOptions">
+                  <ion-avatar class="profile-avatar">
+                    <img v-if="profilePhoto" :src="profilePhoto" alt="Foto do perfil" />
+                    <ion-icon v-else :icon="person" size="large"></ion-icon>
+                  </ion-avatar>
+                  <div class="avatar-overlay">
+                    <ion-icon :icon="camera" class="camera-icon"></ion-icon>
+                  </div>
+                </div>
                 <h2>{{ authStore.userName }}</h2>
                 <p>{{ authStore.userEmail }}</p>
               </div>
@@ -229,6 +235,55 @@
         </ion-card>
       </ion-content>
     </ion-modal>
+
+    <!-- Photo Options Modal -->
+    <ion-modal :is-open="showPhotoModal" @did-dismiss="showPhotoModal = false">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Foto do Perfil</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="showPhotoModal = false">
+              <ion-icon :icon="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="photo-options">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            @click="takePhoto('camera')"
+            class="photo-option-button"
+          >
+            <ion-icon :icon="camera" slot="start"></ion-icon>
+            Tirar Foto
+          </ion-button>
+          
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            @click="takePhoto('gallery')"
+            class="photo-option-button"
+          >
+            <ion-icon :icon="images" slot="start"></ion-icon>
+            Escolher da Galeria
+          </ion-button>
+          
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            @click="removePhoto"
+            class="photo-option-button"
+            color="danger"
+            v-if="profilePhoto"
+          >
+            <ion-icon :icon="trash" slot="start"></ion-icon>
+            Remover Foto
+          </ion-button>
+        </div>
+      </ion-content>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -266,8 +321,12 @@ import {
   informationCircle,
   logOut,
   close,
-  construct
+  construct,
+  camera,
+  images,
+  trash
 } from 'ionicons/icons'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useVersion } from '@/composables/useVersion'
@@ -283,6 +342,8 @@ const showNotificationsModal = ref(false)
 const showPrivacyModal = ref(false)
 const showHelpModal = ref(false)
 const showAboutModal = ref(false)
+const showPhotoModal = ref(false)
+const profilePhoto = ref<string>('')
 
 const handleLogout = async () => {
   await authStore.logout()
@@ -307,6 +368,38 @@ const showHelp = () => {
 
 const showAbout = () => {
   showAboutModal.value = true
+}
+
+const showPhotoOptions = () => {
+  showPhotoModal.value = true
+}
+
+const takePhoto = async (source: 'camera' | 'gallery') => {
+  try {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: true,
+      resultType: CameraResultType.DataUrl,
+      source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos
+    })
+
+    if (image.dataUrl) {
+      profilePhoto.value = image.dataUrl
+      // Aqui você pode salvar a foto no store ou fazer upload para o servidor
+      // await authStore.updateProfilePhoto(image.dataUrl)
+    }
+    
+    showPhotoModal.value = false
+  } catch (error) {
+    console.error('Erro ao capturar foto:', error)
+  }
+}
+
+const removePhoto = () => {
+  profilePhoto.value = ''
+  showPhotoModal.value = false
+  // Aqui você pode remover a foto do store ou servidor
+  // await authStore.removeProfilePhoto()
 }
 </script>
 
@@ -342,7 +435,17 @@ const showAbout = () => {
   gap: 12px;
 }
 
-.avatar-section ion-avatar {
+.avatar-container {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+}
+
+.profile-avatar {
   width: 100px;
   height: 100px;
   border: 4px solid rgba(102, 126, 234, 0.3);
@@ -351,20 +454,45 @@ const showAbout = () => {
     inset 0 2px 8px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow: hidden;
 }
 
-.avatar-section ion-avatar:hover {
-  transform: scale(1.05);
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 
-    0 12px 32px rgba(102, 126, 234, 0.4),
-    inset 0 2px 8px rgba(255, 255, 255, 0.2);
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.avatar-section ion-avatar ion-icon {
+.profile-avatar ion-icon {
   font-size: 3.5rem;
   color: white;
   opacity: 0.9;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(31, 41, 55, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatar-container:hover .avatar-overlay {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.camera-icon {
+  font-size: 1rem;
+  color: white;
 }
 
 .avatar-section h2 {
@@ -751,6 +879,55 @@ ion-button[color="danger"]:hover {
   .menu-item {
     --min-height: 80px;
     margin-bottom: 16px;
+  }
+}
+
+/* ====================================
+   PHOTO OPTIONS MODAL
+   ==================================== */
+
+.photo-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.photo-option-button {
+  --border-radius: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.photo-option-button:hover {
+  transform: translateY(-2px);
+  --box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.photo-option-button ion-icon {
+  font-size: 1.5rem;
+  margin-inline-end: 12px;
+}
+
+/* Desktop Photo Options */
+@media (min-width: 768px) {
+  .photo-options {
+    padding: 32px 0;
+    gap: 20px;
+  }
+
+  .photo-option-button {
+    --padding-top: 20px;
+    --padding-bottom: 20px;
+    --padding-start: 32px;
+    --padding-end: 32px;
+    font-size: 1.1rem;
   }
 }
 
