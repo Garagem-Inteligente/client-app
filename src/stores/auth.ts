@@ -194,12 +194,10 @@ export const useAuthStore = defineStore('auth', () => {
         })
         console.log('✅ Plugin @capgo inicializado com Web Client ID')
         
-        // Fazer login
+        // Fazer login (sem scopes - o plugin usa profile e email por padrão)
         const result = await SocialLogin.login({
           provider: 'google',
-          options: {
-            scopes: ['profile', 'email']
-          }
+          options: {}
         })
         console.log('📱 Resultado do login:', result)
         
