@@ -53,10 +53,30 @@
           </div>
         </div>
 
-        <!-- Tabs -->
-        <MTabs :tabs="tabs" :default-tab="activeTab" @change="handleTabChange">
+        <!-- Modern Filter Pills Tabs -->
+        <div class="tabs-container">
+          <div class="filter-pills-wrapper">
+            <div class="filter-pills">
+              <button 
+                v-for="tab in tabs" 
+                :key="tab.id"
+                class="filter-pill"
+                :class="{ active: activeTab === tab.id, disabled: tab.disabled }"
+                @click="!tab.disabled && handleTabChange(tab.id)"
+                :disabled="tab.disabled"
+              >
+                <span class="pill-icon">{{ tab.icon }}</span>
+                <span class="pill-label">{{ tab.label }}</span>
+                <span v-if="tab.badge" class="pill-count">{{ tab.badge }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
           <!-- TAB: Informações -->
-          <MTabPanel tab-id="info">
+          <div v-if="activeTab === 'info'" class="tab-panel">
             <!-- Stats Cards -->
             <div class="stats-grid">
               <!-- Quilometragem -->
@@ -104,146 +124,273 @@
               </div>
             </div>
 
-            <div class="info-grid">
-              <!-- Informações do Veículo -->
-              <ACard title="Informações do Veículo">
-                <div class="info-list">
-                  <div class="info-item">
-                    <span class="info-label">Marca</span>
-                    <span class="info-value">{{ vehicle.make }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Modelo</span>
-                    <span class="info-value">{{ vehicle.model }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Ano</span>
-                    <span class="info-value">{{ vehicle.year }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Placa</span>
-                    <span class="info-value">{{ vehicle.plate }}</span>
-                  </div>
-                  <div class="info-item" v-if="vehicle.color">
-                    <span class="info-label">Cor</span>
-                    <span class="info-value">{{ vehicle.color }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Quilometragem</span>
-                    <span class="info-value">{{ vehicle.mileage.toLocaleString('pt-BR') }} km</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Combustível</span>
-                    <span class="info-value">{{ getFuelTypeLabel(vehicle.fuelType) }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Última Manutenção</span>
-                    <span class="info-value">
-                      {{ lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma' }}
-                    </span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Custo Médio/Manutenção</span>
-                    <span class="info-value">
-                      {{ formatCurrency(averageMaintenanceCost) }}
-                    </span>
-                  </div>
-                </div>
-              </ACard>
+            <!-- Main Info Grid: Informações à esquerda, Seguro e Próximas Manutenções à direita -->
+            <div class="main-info-grid">
+              <!-- Left Column: Informações do Veículo -->
+              <div class="vehicle-info-column">
+                <ACard class="vehicle-info-card">
+                  <template v-slot:title>
+                    <div class="card-title-with-icon">
+                      <ion-icon :icon="carSportOutline"></ion-icon>
+                      <span>Informações do Veículo</span>
+                    </div>
+                  </template>
+                  
+                  <div class="vehicle-info-content">
+                    <!-- Seção Principal: Identificação -->
+                    <div class="info-section">
+                      <div class="section-header">
+                        <ion-icon :icon="informationCircleOutline" class="section-icon"></ion-icon>
+                        <h3 class="section-title">Identificação</h3>
+                      </div>
+                      <div class="info-grid">
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="businessOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Marca</span>
+                            <span class="info-value">{{ vehicle.make }}</span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="carOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Modelo</span>
+                            <span class="info-value">{{ vehicle.model }}</span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="calendarOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Ano</span>
+                            <span class="info-value">{{ vehicle.year }}</span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="documentTextOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Placa</span>
+                            <span class="info-value">{{ vehicle.plate }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-              <!-- Seguro -->
-              <ACard 
-                title="Seguro" 
-                class="insurance-card"
-                @click="activeTab = 'insurance'"
-              >
-                <div v-if="vehicle.insuranceCompany" class="insurance-content">
-                  <div class="insurance-company">
-                    {{ vehicle.insuranceCompany }}
-                  </div>
-                  <p class="insurance-expiry">
-                    Vence em {{ vehicle.insuranceExpiryDate ? formatDate(vehicle.insuranceExpiryDate) : 'N/A' }}
-                  </p>
-                  <ABadge 
-                    v-if="isInsuranceExpired" 
-                    variant="error"
-                  >
-                    ⚠️ Vencido
-                  </ABadge>
-                  <ABadge 
-                    v-else-if="isInsuranceExpiringSoon" 
-                    variant="warning"
-                  >
-                    📅 Renovar em breve
-                  </ABadge>
-                  <ABadge v-else variant="success">
-                    ✓ Em dia
-                  </ABadge>
-                </div>
-                <div v-else class="insurance-empty">
-                  <p class="insurance-empty-text">Sem dados de seguro</p>
-                  <ABadge variant="warning">Adicionar Dados</ABadge>
-                </div>
-                <AButton 
-                  variant="outline" 
-                  size="small" 
-                  class="insurance-button"
-                  @click.stop="activeTab = 'insurance'"
-                >
-                  Ver Detalhes do Seguro
-                </AButton>
-              </ACard>
-            </div>
+                    <!-- Seção: Características -->
+                    <div class="info-section">
+                      <div class="section-header">
+                        <ion-icon :icon="settingsOutline" class="section-icon"></ion-icon>
+                        <h3 class="section-title">Características</h3>
+                      </div>
+                      <div class="info-grid">
+                        <div class="info-item-modern" v-if="vehicle.color">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="colorPaletteOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Cor</span>
+                            <span class="info-value">{{ vehicle.color }}</span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="speedometerOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Quilometragem</span>
+                            <span class="info-value">{{ vehicle.mileage.toLocaleString('pt-BR') }} km</span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern">
+                          <div class="info-icon-wrapper">
+                            <ion-icon :icon="waterOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Combustível</span>
+                            <span class="info-value">{{ getFuelTypeLabel(vehicle.fuelType) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-            <!-- Próximas Manutenções -->
-            <ACard title="Próximas Manutenções" class="upcoming-card">
-              <div v-if="upcomingMaintenance.length === 0" class="empty-maintenance">
-                <ion-icon :icon="checkmarkCircleOutline" class="empty-icon"></ion-icon>
-                <p class="empty-text">Nenhuma manutenção agendada</p>
-                <AButton size="small" @click="router.push('/tabs/maintenance')">
-                  Agendar manutenção
-                </AButton>
+                    <!-- Seção: Manutenção -->
+                    <div class="info-section">
+                      <div class="section-header">
+                        <ion-icon :icon="constructOutline" class="section-icon"></ion-icon>
+                        <h3 class="section-title">Histórico</h3>
+                      </div>
+                      <div class="info-grid">
+                        <div class="info-item-modern highlight">
+                          <div class="info-icon-wrapper highlight">
+                            <ion-icon :icon="timeOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Última Manutenção</span>
+                            <span class="info-value">
+                              {{ lastMaintenanceDate ? formatDate(lastMaintenanceDate) : 'Nenhuma' }}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="info-item-modern highlight">
+                          <div class="info-icon-wrapper highlight">
+                            <ion-icon :icon="cashOutline"></ion-icon>
+                          </div>
+                          <div class="info-content">
+                            <span class="info-label">Custo Médio</span>
+                            <span class="info-value">
+                              {{ formatCurrency(averageMaintenanceCost) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ACard>
               </div>
 
-              <div v-else class="maintenance-list">
-                <div
-                  v-for="maintenance in upcomingMaintenance.slice(0, 5)"
-                  :key="maintenance.id"
-                  class="maintenance-item"
-                >
-                  <div class="maintenance-header">
-                    <h4 class="maintenance-title">
-                      {{ getMaintenanceTypeLabel(maintenance.type) }}
-                    </h4>
-                    <ABadge 
-                      :variant="daysUntilNext(maintenance.nextDueDate!) <= 7 ? 'error' : 'warning'" 
-                      size="small"
+              <!-- Right Column: Seguro e Próximas Manutenções -->
+              <div class="quick-access-column">
+                <!-- Seguro Card Redesenhado -->
+                <ACard class="insurance-modern-card">
+                  <template v-slot:title>
+                    <div class="card-title-with-icon">
+                      <ion-icon :icon="shieldCheckmarkOutline" class="title-icon"></ion-icon>
+                      <span>Seguro</span>
+                    </div>
+                  </template>
+
+                  <div v-if="vehicle.insuranceCompany" class="insurance-modern-content">
+                    <!-- Status Badge -->
+                    <div class="insurance-status-badge" :class="{
+                      'status-active': !isInsuranceExpired && !isInsuranceExpiringSoon,
+                      'status-expiring': isInsuranceExpiringSoon,
+                      'status-expired': isInsuranceExpired
+                    }">
+                      <ion-icon 
+                        :icon="isInsuranceExpired ? closeCircleOutline : (isInsuranceExpiringSoon ? warningOutline : shieldCheckmarkOutline)"
+                        class="status-icon"
+                      ></ion-icon>
+                      <span class="status-text">
+                        {{ isInsuranceExpired ? 'Vencido' : (isInsuranceExpiringSoon ? 'Vence em breve' : 'Ativo') }}
+                      </span>
+                    </div>
+
+                    <!-- Company Name -->
+                    <div class="insurance-company-name">
+                      {{ vehicle.insuranceCompany }}
+                    </div>
+
+                    <!-- Expiry Info -->
+                    <div class="insurance-expiry-info">
+                      <div class="expiry-label">
+                        <ion-icon :icon="calendarOutline"></ion-icon>
+                        <span>{{ isInsuranceExpired ? 'Venceu em' : 'Vence em' }}</span>
+                      </div>
+                      <div class="expiry-date">
+                        {{ vehicle.insuranceExpiryDate ? formatDate(vehicle.insuranceExpiryDate) : 'N/A' }}
+                      </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <AButton 
+                      variant="outline" 
+                      size="small" 
+                      class="insurance-action-button"
+                      @click="activeTab = 'insurance'"
                     >
-                      {{ daysUntilNext(maintenance.nextDueDate!) }} dias
-                    </ABadge>
+                      Ver Detalhes
+                    </AButton>
                   </div>
-                  <p class="maintenance-date">
-                    {{ formatDate(maintenance.nextDueDate!) }}
-                  </p>
-                  <p class="maintenance-mileage" v-if="maintenance.nextDueMileage">
-                    {{ maintenance.nextDueMileage.toLocaleString('pt-BR') }} km
-                  </p>
-                </div>
 
-                <AButton 
-                  variant="outline" 
-                  size="small" 
-                  class="view-all-button"
-                  @click="activeTab = 'maintenance'"
-                >
-                  Ver todas
-                </AButton>
+                  <div v-else class="insurance-empty-state">
+                    <ion-icon :icon="shieldCheckmarkOutline" class="empty-icon"></ion-icon>
+                    <p class="empty-title">Sem dados de seguro</p>
+                    <p class="empty-subtitle">Adicione as informações do seu seguro para acompanhar a validade</p>
+                    <AButton 
+                      size="small"
+                      @click="activeTab = 'insurance'"
+                    >
+                      Adicionar Seguro
+                    </AButton>
+                  </div>
+                </ACard>
+
+                <!-- Próximas Manutenções Card -->
+                <ACard class="upcoming-maintenance-card">
+                  <template v-slot:title>
+                    <div class="card-title-with-icon">
+                      <ion-icon :icon="timeOutline" class="title-icon"></ion-icon>
+                      <span>Próximas Manutenções</span>
+                    </div>
+                  </template>
+
+                  <div v-if="upcomingMaintenance.length === 0" class="upcoming-empty-state">
+                    <ion-icon :icon="checkmarkCircleOutline" class="empty-icon"></ion-icon>
+                    <p class="empty-title">Tudo em dia!</p>
+                    <p class="empty-subtitle">Nenhuma manutenção agendada no momento</p>
+                    <AButton 
+                      size="small"
+                      @click="router.push(`/tabs/maintenance/new?vehicleId=${vehicleId}`)"
+                    >
+                      Agendar Manutenção
+                    </AButton>
+                  </div>
+
+                  <div v-else class="upcoming-maintenance-list">
+                    <div
+                      v-for="maintenance in upcomingMaintenance.slice(0, 3)"
+                      :key="maintenance.id"
+                      class="upcoming-maintenance-item"
+                      @click="router.push(`/tabs/maintenance/${maintenance.id}`)"
+                    >
+                      <div class="maintenance-type">
+                        <ion-icon :icon="construct" class="type-icon"></ion-icon>
+                        <span class="type-label">{{ getMaintenanceTypeLabel(maintenance.type) }}</span>
+                      </div>
+                      
+                      <div class="maintenance-due-info">
+                        <div class="due-date">
+                          <ion-icon :icon="calendarOutline"></ion-icon>
+                          <span>{{ formatDate(maintenance.nextDueDate!) }}</span>
+                        </div>
+                        <ABadge 
+                          :variant="daysUntilNext(maintenance.nextDueDate!) <= 7 ? 'error' : 'warning'" 
+                          size="small"
+                        >
+                          {{ daysUntilNext(maintenance.nextDueDate!) }} dias
+                        </ABadge>
+                      </div>
+
+                      <div v-if="maintenance.nextDueMileage" class="maintenance-mileage-info">
+                        <ion-icon :icon="speedometerOutline"></ion-icon>
+                        <span>{{ maintenance.nextDueMileage.toLocaleString('pt-BR') }} km</span>
+                      </div>
+                    </div>
+
+                    <AButton 
+                      v-if="upcomingMaintenance.length > 3"
+                      variant="outline" 
+                      size="small" 
+                      class="view-all-button"
+                      @click="activeTab = 'maintenance'"
+                    >
+                      Ver todas ({{ upcomingMaintenance.length }})
+                    </AButton>
+                  </div>
+                </ACard>
               </div>
-            </ACard>
-          </MTabPanel>
+            </div>
+          </div>
 
           <!-- TAB: Manutenções -->
-          <MTabPanel tab-id="maintenance">
+          <div v-if="activeTab === 'maintenance'" class="tab-panel">
             <div class="tab-header">
               <AButton 
                 @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)"
@@ -268,7 +415,8 @@
                 <div
                   v-for="maintenance in completedMaintenance"
                   :key="maintenance.id"
-                  class="maintenance-history-item"
+                  class="maintenance-history-item clickable"
+                  @click="router.push(`/tabs/maintenance/${maintenance.id}`)"
                 >
                   <div class="maintenance-content">
                     <div class="maintenance-type-header">
@@ -320,10 +468,10 @@
                 </div>
               </div>
             </ACard>
-          </MTabPanel>
+          </div>
 
           <!-- TAB: Estatísticas -->
-          <MTabPanel tab-id="stats">
+          <div v-if="activeTab === 'stats'" class="tab-panel">
             <ACard title="Custos Mensais" class="chart-card">
               <MonthlyCostsChart :maintenance-history="maintenanceHistory" />
             </ACard>
@@ -361,10 +509,10 @@
                 </div>
               </div>
             </ACard>
-          </MTabPanel>
+          </div>
 
           <!-- TAB: Documentos -->
-          <MTabPanel tab-id="documents">
+          <div v-if="activeTab === 'documents'" class="tab-panel">
             <ACard title="CRLV (Documento do Veículo)">
               <div v-if="!vehicle.documentCRLV" class="document-empty">
                 <p class="document-empty-text">Nenhum documento cadastrado</p>
@@ -460,10 +608,10 @@
                 </div>
               </div>
             </ACard>
-          </MTabPanel>
+          </div>
 
           <!-- TAB: Seguro -->
-          <MTabPanel tab-id="insurance">
+          <div v-if="activeTab === 'insurance'" class="tab-panel">
             <ACard title="Informações do Seguro">
               <div v-if="!vehicle.insuranceCompany" class="insurance-empty-state">
                 <ion-icon :icon="shieldCheckmarkOutline" class="empty-icon"></ion-icon>
@@ -535,8 +683,8 @@
                 </AButton>
               </div>
             </ACard>
-          </MTabPanel>
-        </MTabs>
+          </div>
+        </div>
       </div>
       </div>
     </ion-content>
@@ -568,7 +716,16 @@ import {
   eyeOutline,
   shieldCheckmarkOutline,
   closeCircleOutline,
-  warningOutline
+  warningOutline,
+  construct,
+  carSportOutline,
+  informationCircleOutline,
+  businessOutline,
+  carOutline,
+  settingsOutline,
+  colorPaletteOutline,
+  waterOutline,
+  constructOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
@@ -577,8 +734,6 @@ import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import AButton from '@/components/atoms/AButton.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
-import MTabs from '@/components/molecules/MTabs.vue'
-import MTabPanel from '@/components/molecules/MTabPanel.vue'
 import MonthlyCostsChart from '@/components/charts/MonthlyCostsChart.vue'
 import CostsByTypeChart from '@/components/charts/CostsByTypeChart.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
@@ -656,7 +811,7 @@ const tabs = computed(() => [
     id: 'insurance', 
     label: 'Seguro', 
     icon: '🛡️',
-    badge: isInsuranceExpired.value ? 1 : (isInsuranceExpiringSoon.value ? 1 : undefined)
+    badge: isInsuranceExpired.value || isInsuranceExpiringSoon.value ? 1 : undefined
   }
 ])
 
@@ -763,7 +918,7 @@ const uploadDocument = async (docType: 'crlv' | 'insurance') => {
     })
 
     if (image.dataUrl) {
-      const updateData: any = {}
+      const updateData: Record<string, string> = {}
       if (docType === 'crlv') {
         updateData.documentCRLV = image.dataUrl
       } else {
@@ -808,7 +963,7 @@ const deleteDocument = async (docType: 'crlv' | 'insurance') => {
         text: 'Excluir',
         role: 'destructive',
         handler: async () => {
-          const updateData: any = {}
+          const updateData: Record<string, null> = {}
           if (docType === 'crlv') {
             updateData.documentCRLV = null
           } else {
@@ -993,51 +1148,471 @@ onMounted(async () => {
   color: #9ca3af;
 }
 
-/* Info Grid */
+/* ====================================
+   MAIN INFO GRID - NEW LAYOUT
+   ==================================== */
+
+.main-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .main-info-grid {
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.vehicle-info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-access-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ====================================
+   VEHICLE INFO CARD - MODERNIZADO
+   ==================================== */
+
+.vehicle-info-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border: 2px solid rgba(129, 140, 248, 0.2);
+  transition: all 0.3s ease;
+}
+
+.vehicle-info-card:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+}
+
+.vehicle-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0.5rem 0;
+}
+
+/* Seções de informação */
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(129, 140, 248, 0.2);
+  margin-bottom: 0.5rem;
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  color: rgba(129, 140, 248, 0.8);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* Grid de informações */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   .info-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Info List */
-.info-list {
+/* Item moderno de informação */
+.info-item-modern {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.info-item-modern:hover {
+  background: rgba(31, 41, 55, 0.7);
+  border-color: rgba(129, 140, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+.info-item-modern.highlight {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.info-item-modern.highlight:hover {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(102, 126, 234, 0.08) 100%);
+  border-color: rgba(129, 140, 248, 0.5);
+}
+
+.info-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  border-radius: 10px;
+  background: rgba(129, 140, 248, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  transition: all 0.3s ease;
+}
+
+.info-icon-wrapper ion-icon {
+  font-size: 1.25rem;
+  color: rgba(129, 140, 248, 0.9);
+}
+
+.info-item-modern:hover .info-icon-wrapper {
+  background: rgba(129, 140, 248, 0.25);
+  border-color: rgba(129, 140, 248, 0.5);
+  transform: scale(1.1);
+}
+
+.info-icon-wrapper.highlight {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.3) 0%, rgba(102, 126, 234, 0.2) 100%);
+  border-color: rgba(129, 140, 248, 0.5);
+}
+
+.info-icon-wrapper.highlight ion-icon {
+  color: rgba(147, 197, 253, 1);
+}
+
+.info-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #374151;
-}
-
-.info-item:last-child {
-  border-bottom: none;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(156, 163, 175, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  word-break: break-word;
+}
+
+.card-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+}
+
+.card-title-with-icon .title-icon {
+  font-size: 1.5rem;
+  color: rgba(129, 140, 248, 0.8);
+}
+
+/* ====================================
+   MODERN INSURANCE CARD
+   ==================================== */
+
+.insurance-modern-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border: 2px solid rgba(129, 140, 248, 0.2);
+  transition: all 0.3s ease;
+}
+
+.insurance-modern-card:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.insurance-modern-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 12px;
+}
+
+.insurance-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 2px solid;
+  transition: all 0.3s ease;
+}
+
+.insurance-status-badge.status-active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.insurance-status-badge.status-expiring {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.insurance-status-badge.status-expired {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border-color: rgba(239, 68, 68, 0.4);
+  animation: pulse-error 2s ease-in-out infinite;
+}
+
+@keyframes pulse-error {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
+  }
+}
+
+.insurance-status-badge .status-icon {
+  font-size: 2rem;
+}
+
+.status-active .status-icon {
+  color: #4ade80;
+}
+
+.status-expiring .status-icon {
+  color: #fb923c;
+}
+
+.status-expired .status-icon {
+  color: #f87171;
+}
+
+.insurance-status-badge .status-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.insurance-company-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  padding: 0.5rem 0;
+}
+
+.insurance-expiry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.insurance-expiry-info .expiry-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #9ca3af;
   font-size: 0.875rem;
 }
 
-.info-value {
-  font-weight: 500;
-  color: white;
-  text-align: right;
+.insurance-expiry-info .expiry-label ion-icon {
+  font-size: 1rem;
 }
 
-/* Insurance Card */
+.insurance-expiry-info .expiry-date {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin-left: 1.5rem;
+}
+
+.insurance-action-button {
+  margin-top: 0.5rem;
+}
+
+.insurance-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  gap: 1rem;
+}
+
+.insurance-empty-state .empty-icon {
+  font-size: 4rem;
+  color: rgba(129, 140, 248, 0.4);
+}
+
+.insurance-empty-state .empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.insurance-empty-state .empty-subtitle {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  max-width: 300px;
+}
+
+/* ====================================
+   UPCOMING MAINTENANCE CARD
+   ==================================== */
+
+.upcoming-maintenance-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border: 2px solid rgba(129, 140, 248, 0.2);
+  transition: all 0.3s ease;
+}
+
+.upcoming-maintenance-card:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.upcoming-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  gap: 1rem;
+}
+
+.upcoming-empty-state .empty-icon {
+  font-size: 4rem;
+  color: rgba(34, 197, 94, 0.6);
+}
+
+.upcoming-empty-state .empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.upcoming-empty-state .empty-subtitle {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  max-width: 300px;
+}
+
+.upcoming-maintenance-list {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.upcoming-maintenance-item {
+  padding: 1rem;
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.upcoming-maintenance-item:hover {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(129, 140, 248, 0.4);
+  transform: translateX(4px);
+}
+
+.maintenance-type {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.maintenance-type .type-icon {
+  font-size: 1.25rem;
+  color: rgba(129, 140, 248, 0.8);
+}
+
+.maintenance-type .type-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.maintenance-due-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.maintenance-due-info .due-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.maintenance-due-info .due-date ion-icon {
+  font-size: 1rem;
+}
+
+.maintenance-mileage-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.maintenance-mileage-info ion-icon {
+  font-size: 1rem;
+  color: rgba(129, 140, 248, 0.6);
+}
+
+.view-all-button {
+  margin-top: 0.5rem;
+}
+
+/* Insurance Card (Legacy - ainda usado em outras tabs) */
 .insurance-card {
   border-color: rgba(59, 130, 246, 0.3) !important;
   background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02)) !important;
@@ -1143,10 +1718,6 @@ onMounted(async () => {
   font-size: 0.75rem;
   color: #6b7280;
   margin-top: 0.25rem;
-}
-
-.view-all-button {
-  margin-top: 0.75rem;
 }
 
 /* Tab Header */
@@ -1361,11 +1932,6 @@ onMounted(async () => {
 }
 
 /* Insurance Details */
-.insurance-empty-state {
-  text-align: center;
-  padding: 2rem 0;
-}
-
 .insurance-details {
   display: flex;
   flex-direction: column;
@@ -1449,5 +2015,163 @@ onMounted(async () => {
 
 .edit-insurance-button {
   margin-top: 1rem;
+}
+
+/* ====================================
+   MODERN FILTER PILLS TABS
+   ==================================== */
+
+.tabs-container {
+  margin: 0 0 2rem 0;
+  padding-top: 16px; /* Espaço extra para acomodar o movimento e blur */
+}
+
+.filter-pills-wrapper {
+  overflow-x: auto;
+  overflow-y: visible; /* Permite que o blur/shadow seja visível */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding-bottom: 8px; /* Espaço para a sombra na parte inferior */
+}
+
+.filter-pills-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.filter-pills {
+  display: flex;
+  gap: 12px;
+  padding: 8px 4px 16px 4px; /* Padding superior e inferior aumentados */
+  min-width: min-content;
+}
+
+.filter-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-pill:hover:not(.disabled) {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(129, 140, 248, 0.4);
+  transform: translateY(-2px);
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+}
+
+.filter-pill.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pill-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.pill-label {
+  font-size: 0.938rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.3px;
+}
+
+.pill-count {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.813rem;
+  font-weight: 800;
+  color: white;
+}
+
+.filter-pill.active .pill-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-panel {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====================================
+   CLICKABLE ITEMS
+   ==================================== */
+
+.clickable {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.clickable::after {
+  content: '→';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: rgba(129, 140, 248, 0.6);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.clickable:hover {
+  background: rgba(31, 41, 55, 0.8) !important;
+  border-color: rgba(129, 140, 248, 0.4) !important;
+  transform: translateX(4px);
+}
+
+.clickable:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(4px);
+}
+
+.clickable:active {
+  transform: scale(0.98) translateX(4px);
 }
 </style>

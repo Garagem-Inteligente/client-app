@@ -2,3 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ====================================
+   GLOBAL SMOOTH SCROLL
+   ==================================== */
+* {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+html, body {
+  scroll-behavior: smooth;
+}
+
+ion-content {
+  --offset-bottom: auto !important;
+  --overflow: hidden;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+
+ion-content::part(scroll) {
+  scroll-behavior: smooth;
+}
+
