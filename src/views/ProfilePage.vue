@@ -562,7 +562,12 @@ import {
 } from 'ionicons/icons'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { ref as storageRef, uploadString, getDownloadURL, deleteObject } from 'firebase/storage'
-import { updateProfile } from 'firebase/auth'
+import { 
+  updateProfile, 
+  EmailAuthProvider, 
+  reauthenticateWithCredential, 
+  updatePassword 
+} from 'firebase/auth'
 import { doc, updateDoc } from 'firebase/firestore'
 import { auth, storage, db } from '@/firebase/config'
 import { useAuthStore } from '@/stores/auth'
@@ -984,9 +989,6 @@ const handlePasswordChange = async () => {
   passwordError.value = ''
 
   try {
-    // Importar métodos do Firebase Auth
-    const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
-    
     if (!auth.currentUser || !authStore.userEmail) {
       throw new Error('Usuário não autenticado')
     }
