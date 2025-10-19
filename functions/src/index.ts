@@ -11,26 +11,45 @@ if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
 }
 
+// Types
+interface PasswordResetEmailData {
+  email: string;
+}
+
+interface PasswordChangeConfirmationData {
+  email: string;
+  userName?: string;
+}
+
+interface FunctionResponse {
+  success: boolean;
+  message: string;
+}
+
 /**
  * Send password reset email with SendGrid
  */
-export const sendPasswordResetEmail = functions.https.onCall(async (data, context) => {
-  // Verify authentication
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Usuário não autenticado"
-    );
-  }
+export const sendPasswordResetEmail = functions.https.onCall(
+  async (
+    data: PasswordResetEmailData,
+    context: functions.https.CallableContext
+  ): Promise<FunctionResponse> => {
+    // Verify authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "Usuário não autenticado"
+      );
+    }
 
-  const { email } = data;
+    const { email } = data;
 
-  if (!email) {
-    throw new functions.https.HttpsError(
-      "invalid-argument",
-      "Email é obrigatório"
-    );
-  }
+    if (!email) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Email é obrigatório"
+      );
+    }
 
   try {
     // Generate password reset link
@@ -65,16 +84,20 @@ export const sendPasswordResetEmail = functions.https.onCall(async (data, contex
 /**
  * Send password change confirmation email
  */
-export const sendPasswordChangeConfirmation = functions.https.onCall(async (data, context) => {
-  // Verify authentication
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Usuário não autenticado"
-    );
-  }
+export const sendPasswordChangeConfirmation = functions.https.onCall(
+  async (
+    data: PasswordChangeConfirmationData,
+    context: functions.https.CallableContext
+  ): Promise<FunctionResponse> => {
+    // Verify authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "Usuário não autenticado"
+      );
+    }
 
-  const { email, userName } = data;
+    const { email, userName } = data;
 
   if (!email) {
     throw new functions.https.HttpsError(
@@ -289,8 +312,11 @@ function getPasswordResetEmailTemplate(resetLink: string): string {
 function getPasswordChangeConfirmationTemplate(userName: string): string {
   const timestamp = new Date().toLocaleString("pt-BR", {
     timeZone: "America/Sao_Paulo",
-    dateStyle: "full",
-    timeStyle: "short",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   return `

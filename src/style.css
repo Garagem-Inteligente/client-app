@@ -17,13 +17,6 @@
 /* ====================================
    GLOBAL SMOOTH SCROLL
    ==================================== */
-html, body {
-
-ion-content {
-  --background: #111827 !important;
-  background: #111827 !important;
-}
-}
 
 ion-content {
   --offset-bottom: auto !important;
