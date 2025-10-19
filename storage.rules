@@ -1,0 +1,59 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check file ownership
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Helper function to validate image files
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Helper function to validate file size (max 10MB)
+    function isValidSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+    
+    // Vehicle images: vehicles/{userId}/{vehicleId}/image_{timestamp}.jpg
+    match /vehicles/{userId}/{vehicleId}/{imageFile} {
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow write: if isAuthenticated() && 
+                     isOwner(userId) && 
+                     isImage() && 
+                     isValidSize();
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Maintenance photos: maintenance/{userId}/{maintenanceId}/before_{timestamp}.jpg or after_{timestamp}.jpg
+    match /maintenance/{userId}/{maintenanceId}/{photoFile} {
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow write: if isAuthenticated() && 
+                     isOwner(userId) && 
+                     isImage() && 
+                     isValidSize();
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Maintenance attachments: maintenance/{userId}/{maintenanceId}/attachments/{fileName}
+    match /maintenance/{userId}/{maintenanceId}/attachments/{attachmentFile} {
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow write: if isAuthenticated() && 
+                     isOwner(userId) && 
+                     isValidSize();
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
