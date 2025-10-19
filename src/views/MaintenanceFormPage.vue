@@ -368,13 +368,14 @@
                     <span class="text-sm font-medium text-blue-300">📎 Anexos (Opcional)</span>
                   </div>
                   <p class="text-xs text-gray-400 mb-3">
-                    Anexe notas fiscais, comprovantes ou outros documentos relacionados à manutenção.
-                    Você pode adicionar até 5 arquivos (imagens ou PDFs de até 5MB cada).
+                    📎 Anexe notas fiscais, comprovantes ou outros documentos relacionados à manutenção.
+                    Você pode adicionar até 5 arquivos (imagens ou PDFs de até 10MB cada).
+                    <span class="block mt-1 text-yellow-400">💡 Dica: PDFs grandes? Use um compressor online antes de anexar.</span>
                   </p>
                   <MFileUpload
                     ref="fileUploadRef"
                     :max-files="5"
-                    :max-size="5"
+                    :max-size="10"
                     accept="image/*,application/pdf"
                     @files-selected="handleFilesSelected"
                     @files-changed="handleFilesChanged"

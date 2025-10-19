@@ -153,14 +153,22 @@ const triggerFileInput = () => {
 }
 
 const validateFile = (file: File): string | null => {
-  // Check file size
-  if (file.size > props.maxSize * 1024 * 1024) {
-    return `Arquivo muito grande (máx ${props.maxSize}MB)`
-  }
-
   // Check max files
   if (files.value.length >= props.maxFiles) {
     return `Máximo de ${props.maxFiles} arquivo(s)`
+  }
+
+  // Check file size
+  const fileSizeMB = file.size / (1024 * 1024)
+  const maxSizeMB = props.maxSize
+  
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    return `Arquivo muito grande: ${fileSizeMB.toFixed(1)}MB (máx ${maxSizeMB}MB)`
+  }
+
+  // Warn for large files (between 5-10MB)
+  if (fileSizeMB > 5 && fileSizeMB <= maxSizeMB) {
+    console.warn(`⚠️ Arquivo grande detectado: ${file.name} (${fileSizeMB.toFixed(1)}MB)`)
   }
 
   return null
@@ -227,6 +235,16 @@ const processFiles = async (filesList: File[]) => {
   const totalFiles = files.value.length + filesList.length
   if (totalFiles > props.maxFiles) {
     uploadError.value = `⚠️ Você selecionou ${filesList.length} arquivo(s), mas só é possível adicionar mais ${props.maxFiles - files.value.length}. Remova arquivos existentes ou selecione menos arquivos.`
+  }
+
+  // Check for oversized files before processing
+  const oversizedFiles = filesList.filter(f => f.size > props.maxSize * 1024 * 1024)
+  if (oversizedFiles.length > 0) {
+    const fileDetails = oversizedFiles.map(f => 
+      `• ${f.name}: ${(f.size / (1024 * 1024)).toFixed(1)}MB`
+    ).join('\n')
+    
+    uploadError.value = `❌ Arquivo(s) muito grande(s) (máx ${props.maxSize}MB):\n${fileDetails}\n\n💡 Dica: Comprima o PDF antes de anexar ou use uma resolução menor para imagens.`
   }
 
   for (const file of filesList) {

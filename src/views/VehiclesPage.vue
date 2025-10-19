@@ -545,7 +545,7 @@ ion-card.error-state-card {
 
 .empty-state ion-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 14px rgba(102, 126, 234, 0.5);
 }
 
 /* Vehicles Container */
@@ -608,8 +608,8 @@ ion-card.error-state-card {
   border-color: rgba(129, 140, 248, 0.6);
   color: white;
   box-shadow: 
-    0 8px 24px rgba(102, 126, 234, 0.5),
-    0 0 32px rgba(102, 126, 234, 0.3),
+    0 4px 12px rgba(102, 126, 234, 0.5),
+    0 0 16px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-4px);
 }
@@ -757,7 +757,7 @@ ion-card.error-state-card {
 
 .empty-category-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 14px rgba(102, 126, 234, 0.5);
 }
 
 .empty-category-button ion-icon {

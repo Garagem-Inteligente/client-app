@@ -108,8 +108,7 @@ const handleTabChange = (tabId: string) => {
 .filter-pill.-active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-color: rgba(129, 140, 248, 0.6);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
 
 /* Variant: -disabled */
