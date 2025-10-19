@@ -1,431 +1,516 @@
 <template>
   <ion-page>
-    <ModernHeader 
-      title="Perfil"
-    />
+    <ModernHeader title="Meu Perfil" />
 
-    <ion-content :fullscreen="true" class="app-content ion-padding">
+    <ion-content :fullscreen="true" class="custom-content">
       <!-- Background layers -->
       <div class="background-gradient"></div>
       <div class="background-pattern"></div>
       
-      <!-- Desktop Layout Container -->
-      <div class="page-content-wrapper profile-container">
-        <!-- Left Column - User Info & Stats -->
-        <div class="profile-left">
-          <!-- User Info Card -->
-          <ion-card class="user-info-card">
-            <ion-card-content class="user-info">
-              <div class="avatar-section">
-                <div class="avatar-container" @click="showPhotoOptions">
-                  <ion-avatar class="profile-avatar">
-                    <img v-if="profilePhoto" :src="profilePhoto" alt="Foto do perfil" />
-                    <ion-icon v-else :icon="person" size="large"></ion-icon>
-                  </ion-avatar>
-                  <div class="avatar-overlay">
-                    <ion-icon :icon="camera" class="camera-icon"></ion-icon>
+      <div class="container">
+        <!-- Profile Header Card -->
+        <div class="profile-header-card">
+          <div class="profile-header-content">
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+              <div class="avatar-wrapper" @click="showPhotoOptions">
+                <div class="avatar-container">
+                  <img 
+                    v-if="currentPhotoUrl" 
+                    :src="currentPhotoUrl" 
+                    alt="Foto do perfil"
+                    class="avatar-image"
+                  />
+                  <div v-else class="avatar-placeholder">
+                    <ion-icon :icon="personOutline" class="placeholder-icon"></ion-icon>
                   </div>
                 </div>
-                <h2>{{ authStore.userName }}</h2>
-                <p>{{ authStore.userEmail }}</p>
+                <div class="avatar-overlay">
+                  <ion-icon :icon="cameraOutline" class="camera-icon"></ion-icon>
+                  <span class="overlay-text">Alterar foto</span>
+                </div>
               </div>
-            </ion-card-content>
-          </ion-card>
+              
+              <!-- User Info -->
+              <div class="user-info-section">
+                <h1 class="user-name">{{ authStore.userName }}</h1>
+                <p class="user-email">{{ authStore.userEmail }}</p>
+                <div class="user-badges">
+                  <div class="badge badge-primary">
+                    <ion-icon :icon="shieldCheckmarkOutline"></ion-icon>
+                    <span>Conta Verificada</span>
+                  </div>
+                  <div v-if="hasGoogleProvider" class="badge badge-success">
+                    <ion-icon :icon="logoGoogle"></ion-icon>
+                    <span>Google vinculado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <!-- Account Stats -->
-          <ion-grid class="stats-grid">
-            <ion-row>
-              <ion-col size="6" size-md="12">
-                <ion-card class="stat-card-wrapper">
-                  <ion-card-content class="stat-card">
-                    <ion-icon :icon="car" color="primary" size="large"></ion-icon>
-                    <h3>{{ vehiclesStore.vehicleCount }}</h3>
-                    <p>Veículos</p>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="6" size-md="12">
-                <ion-card class="stat-card-wrapper">
-                  <ion-card-content class="stat-card">
-                    <ion-icon :icon="documentText" color="success" size="large"></ion-icon>
-                    <h3>0</h3>
-                    <p>Serviços</p>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+              <div class="stat-item">
+                <div class="stat-icon stat-primary">
+                  <ion-icon :icon="carOutline"></ion-icon>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-value">{{ vehiclesStore.vehicleCount }}</span>
+                  <span class="stat-label">Veículos</span>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-icon stat-success">
+                  <ion-icon :icon="constructOutline"></ion-icon>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-value">{{ totalMaintenanceCount }}</span>
+                  <span class="stat-label">Manutenções</span>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-icon stat-warning">
+                  <ion-icon :icon="timeOutline"></ion-icon>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-value">{{ upcomingMaintenanceCount }}</span>
+                  <span class="stat-label">Próximas</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Right Column - Menu & Actions -->
-        <div class="profile-right">
-          <!-- Menu Options -->
-          <ion-list class="menu-list">
-            <ion-item button @click="editProfile" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="personCircle"  color="primary"></ion-icon>
-</template>
-              <ion-label>Editar Perfil</ion-label>
-            </ion-item>
+        <!-- Account Settings -->
+        <div class="settings-section">
+          <h2 class="section-title">Configurações da Conta</h2>
+          
+          <div class="settings-card">
+            <button class="setting-item" @click="editProfile">
+              <div class="setting-icon-wrapper icon-primary">
+                <ion-icon :icon="personCircleOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Editar Perfil</span>
+                <span class="setting-description">Alterar nome e informações pessoais</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
 
-            <ion-item button @click="showNotificationsSettings" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="notifications"  color="warning"></ion-icon>
-</template>
-              <ion-label>Notificações</ion-label>
-            </ion-item>
+            <button class="setting-item" @click="showAccountConnections">
+              <div class="setting-icon-wrapper icon-tertiary">
+                <ion-icon :icon="linkOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Conexões de Conta</span>
+                <span class="setting-description">Gerenciar métodos de login</span>
+              </div>
+              <div class="setting-end">
+                <span v-if="connectedProviders.length > 1" class="connection-badge">
+                  {{ connectedProviders.length }} conectados
+                </span>
+                <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+              </div>
+            </button>
 
-            <ion-item button @click="showPrivacySettings" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="shield"  color="success"></ion-icon>
-</template>
-              <ion-label>Privacidade</ion-label>
-            </ion-item>
-
-            <ion-item button @click="showHelp" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="helpCircle"  color="medium"></ion-icon>
-</template>
-              <ion-label>Ajuda</ion-label>
-            </ion-item>
-
-            <ion-item button @click="showAccountConnections" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="link"  color="tertiary"></ion-icon>
-</template>
-              <ion-label>Conexões de Conta</ion-label>
-              <template v-slot:end>
-<ion-badge v-if="connectedProviders.length > 1" color="success">{{ connectedProviders.length }}</ion-badge>
-</template>
-            </ion-item>
-
-            <ion-item button @click="showAbout" class="menu-item">
-              <template v-slot:start>
-<ion-icon :icon="informationCircle"  color="medium"></ion-icon>
-</template>
-              <ion-label>Sobre</ion-label>
-            </ion-item>
-          </ion-list>
-
-          <!-- Logout Button -->
-          <ion-button
-            expand="block"
-            color="danger"
-            fill="outline"
-            @click="handleLogout"
-            class="logout-button"
-          >
-            <template v-slot:start>
-<ion-icon :icon="logOut" ></ion-icon>
-</template>
-            Sair da Conta
-          </ion-button>
-
-          <!-- Version Info -->
-          <div class="version-info">
-            <p class="version-text">
-              {{ fullVersionString }}
-            </p>
-            <p class="build-info" v-if="isProduction">
-              {{ formattedBuildDate }} • {{ shortSha }}
-            </p>
-            <p class="build-info" v-else>
-              Ambiente de Desenvolvimento
-            </p>
+            <button class="setting-item" @click="changePassword">
+              <div class="setting-icon-wrapper icon-warning">
+                <ion-icon :icon="keyOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Alterar Senha</span>
+                <span class="setting-description">Atualizar senha de acesso</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
           </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="settings-section">
+          <h2 class="section-title">Preferências</h2>
+          
+          <div class="settings-card">
+            <button class="setting-item" @click="showNotificationsSettings">
+              <div class="setting-icon-wrapper icon-success">
+                <ion-icon :icon="notificationsOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Notificações</span>
+                <span class="setting-description">Gerenciar alertas e lembretes</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+
+            <button class="setting-item" @click="showPrivacySettings">
+              <div class="setting-icon-wrapper icon-medium">
+                <ion-icon :icon="shieldOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Privacidade</span>
+                <span class="setting-description">Controle de dados e privacidade</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="settings-section">
+          <h2 class="section-title">Suporte</h2>
+          
+          <div class="settings-card">
+            <button class="setting-item" @click="showHelp">
+              <div class="setting-icon-wrapper icon-info">
+                <ion-icon :icon="helpCircleOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Ajuda</span>
+                <span class="setting-description">Central de ajuda e FAQ</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+
+            <button class="setting-item" @click="showAbout">
+              <div class="setting-icon-wrapper icon-medium">
+                <ion-icon :icon="informationCircleOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Sobre</span>
+                <span class="setting-description">Versão e informações do app</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Logout Button -->
+        <button class="logout-button" @click="handleLogout">
+          <ion-icon :icon="logOutOutline"></ion-icon>
+          <span>Sair da Conta</span>
+        </button>
+
+        <!-- Version Info -->
+        <div class="version-info">
+          <p class="version-text">{{ fullVersionString }}</p>
+          <p class="build-info" v-if="isProduction">
+            {{ formattedBuildDate }} • {{ shortSha }}
+          </p>
+          <p class="build-info" v-else>
+            Ambiente de Desenvolvimento
+          </p>
         </div>
       </div>
     </ion-content>
 
+    <!-- Photo Options Action Sheet -->
+    <ion-action-sheet
+      :is-open="showPhotoSheet"
+      header="Foto do Perfil"
+      :buttons="photoActionButtons"
+      @didDismiss="showPhotoSheet = false"
+    >
+    </ion-action-sheet>
+
     <!-- Edit Profile Modal -->
-    <ion-modal :is-open="showEditModal" @did-dismiss="showEditModal = false">
+    <ion-modal :is-open="showEditModal" @didDismiss="closeEditModal">
       <ion-header>
         <ion-toolbar>
           <ion-title>Editar Perfil</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showEditModal = false">
-              <ion-icon :icon="close"></ion-icon>
+          <ion-buttons slot="end">
+            <ion-button @click="closeEditModal">
+              <ion-icon :icon="closeOutline"></ion-icon>
             </ion-button>
           </ion-buttons>
-</template>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding">
-        <div class="coming-soon-modal">
-          <ion-icon :icon="construct" size="large" color="warning"></ion-icon>
-          <h2>Em Desenvolvimento</h2>
-          <p>Esta funcionalidade estará disponível em breve.</p>
-          <ion-button @click="showEditModal = false">
-            Entendi
-          </ion-button>
-        </div>
-      </ion-content>
-    </ion-modal>
+      <ion-content class="modal-content">
+        <div class="edit-form">
+          <div class="form-group">
+            <label for="editName">Nome completo</label>
+            <input
+              id="editName"
+              v-model="editForm.name"
+              type="text"
+              placeholder="Seu nome"
+              class="form-input"
+            />
+          </div>
 
-    <!-- Notifications Settings Modal -->
-    <ion-modal :is-open="showNotificationsModal" @did-dismiss="showNotificationsModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Notificações</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showNotificationsModal = false">
-              <ion-icon :icon="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-</template>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="coming-soon-modal">
-          <ion-icon :icon="construct" size="large" color="warning"></ion-icon>
-          <h2>Em Desenvolvimento</h2>
-          <p>Esta funcionalidade estará disponível em breve.</p>
-          <ion-button @click="showNotificationsModal = false">
-            Entendi
-          </ion-button>
-        </div>
-      </ion-content>
-    </ion-modal>
+          <div class="form-group">
+            <label for="editEmail">Email</label>
+            <input
+              id="editEmail"
+              v-model="editForm.email"
+              type="email"
+              placeholder="seu@email.com"
+              class="form-input"
+              disabled
+            />
+            <p class="form-helper">O email não pode ser alterado</p>
+          </div>
 
-    <!-- Privacy Settings Modal -->
-    <ion-modal :is-open="showPrivacyModal" @did-dismiss="showPrivacyModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Privacidade</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showPrivacyModal = false">
-              <ion-icon :icon="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-</template>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="coming-soon-modal">
-          <ion-icon :icon="construct" size="large" color="warning"></ion-icon>
-          <h2>Em Desenvolvimento</h2>
-          <p>Esta funcionalidade estará disponível em breve.</p>
-          <ion-button @click="showPrivacyModal = false">
-            Entendi
-          </ion-button>
-        </div>
-      </ion-content>
-    </ion-modal>
-
-    <!-- Help Modal -->
-    <ion-modal :is-open="showHelpModal" @did-dismiss="showHelpModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Ajuda</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showHelpModal = false">
-              <ion-icon :icon="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-</template>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="coming-soon-modal">
-          <ion-icon :icon="construct" size="large" color="warning"></ion-icon>
-          <h2>Em Desenvolvimento</h2>
-          <p>Esta funcionalidade estará disponível em breve.</p>
-          <ion-button @click="showHelpModal = false">
-            Entendi
-          </ion-button>
-        </div>
-      </ion-content>
-    </ion-modal>
-
-    <!-- About Modal -->
-    <ion-modal :is-open="showAboutModal" @did-dismiss="showAboutModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Sobre</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showAboutModal = false">
-              <ion-icon :icon="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-</template>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <ion-card>
-          <ion-card-content>
-            <div class="about-content">
-              <ion-icon :icon="car" size="large" color="primary"></ion-icon>
-              <h2>Garagem Inteligente</h2>
-              <p>Versão 1.0.0</p>
-              <p>Gerencie seus veículos de forma inteligente e eficiente.</p>
-              <p>Desenvolvido com ❤️ para facilitar sua vida.</p>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-content>
-    </ion-modal>
-
-    <!-- Photo Options Modal -->
-    <ion-modal :is-open="showPhotoModal" @did-dismiss="showPhotoModal = false">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Foto do Perfil</ion-title>
-          <template v-slot:end>
-<ion-buttons >
-            <ion-button @click="showPhotoModal = false">
-              <ion-icon :icon="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-</template>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="photo-options">
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            @click="takePhoto('camera')"
-            class="photo-option-button"
-          >
-            <template v-slot:start>
-<ion-icon :icon="camera" ></ion-icon>
-</template>
-            Tirar Foto
-          </ion-button>
-          
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            @click="takePhoto('gallery')"
-            class="photo-option-button"
-          >
-            <template v-slot:start>
-<ion-icon :icon="images" ></ion-icon>
-</template>
-            Escolher da Galeria
-          </ion-button>
-          
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            @click="removePhoto"
-            class="photo-option-button"
-            color="danger"
-            v-if="profilePhoto"
-          >
-            <template v-slot:start>
-<ion-icon :icon="trash" ></ion-icon>
-</template>
-            Remover Foto
-          </ion-button>
+          <div class="form-actions">
+            <button class="btn-secondary" @click="closeEditModal">
+              Cancelar
+            </button>
+            <button 
+              class="btn-primary" 
+              @click="saveProfile"
+              :disabled="savingProfile"
+            >
+              <ion-spinner v-if="savingProfile" name="crescent"></ion-spinner>
+              <span v-else>Salvar alterações</span>
+            </button>
+          </div>
         </div>
       </ion-content>
     </ion-modal>
 
     <!-- Account Connections Modal -->
-    <ion-modal :is-open="showConnectionsModal" @did-dismiss="showConnectionsModal = false">
+    <ion-modal :is-open="showConnectionsModal" @didDismiss="showConnectionsModal = false">
       <ion-header>
         <ion-toolbar>
           <ion-title>Conexões de Conta</ion-title>
-          <template v-slot:end>
-<ion-buttons >
+          <ion-buttons slot="end">
             <ion-button @click="showConnectionsModal = false">
-              <ion-icon :icon="close"></ion-icon>
+              <ion-icon :icon="closeOutline"></ion-icon>
             </ion-button>
           </ion-buttons>
-</template>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding">
+      <ion-content class="modal-content">
         <div class="connections-content">
           <p class="connections-description">
-            Gerencie os métodos de login conectados à sua conta. Você pode vincular ou desvincular provedores de autenticação.
+            Gerencie os métodos de login conectados à sua conta.
           </p>
 
           <!-- Providers List -->
-          <ion-list class="providers-list">
+          <div class="providers-list">
             <!-- Email/Password -->
-            <ion-item class="provider-item">
-              <template v-slot:start>
-<div class="provider-icon email-provider">
-                  <ion-icon :icon="mail"></ion-icon>
+            <div class="provider-card">
+              <div class="provider-header">
+                <div class="provider-icon icon-primary">
+                  <ion-icon :icon="mailOutline"></ion-icon>
                 </div>
-</template>
-              <ion-label>
-                <h3>Email e Senha</h3>
-                <p>{{ authStore.userEmail }}</p>
-              </ion-label>
-              <template v-slot:end>
-<ion-badge v-if="hasPasswordProvider" color="success">Conectado</ion-badge>
-                <ion-badge v-else color="medium">Não configurado</ion-badge>
-</template>
-            </ion-item>
+                <div class="provider-info">
+                  <h3>Email e Senha</h3>
+                  <p>{{ authStore.userEmail }}</p>
+                </div>
+                <span v-if="hasPasswordProvider" class="provider-status status-connected">
+                  Conectado
+                </span>
+                <span v-else class="provider-status status-inactive">
+                  Não configurado
+                </span>
+              </div>
+            </div>
 
             <!-- Google -->
-            <ion-item class="provider-item">
-              <template v-slot:start>
-<div class="provider-icon google-provider">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="google-icon-small">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
+            <div class="provider-card">
+              <div class="provider-header">
+                <div class="provider-icon icon-google">
+                  <ion-icon :icon="logoGoogle"></ion-icon>
                 </div>
-</template>
-              <ion-label>
-                <h3>Google</h3>
-                <p v-if="hasGoogleProvider">Conectado via Google</p>
-                <p v-else>Não conectado</p>
-              </ion-label>
-              <template v-slot:end>
-<div class="provider-actions">
-                  <ion-badge v-if="hasGoogleProvider" color="success">Conectado</ion-badge>
-                  <ion-button 
-                    v-if="hasGoogleProvider && hasPasswordProvider"
-                    @click="handleUnlinkGoogle"
-                    size="small"
-                    fill="outline"
-                    color="danger"
-                    :disabled="unlinkingGoogle"
-                  >
-                    <ion-spinner v-if="unlinkingGoogle" name="crescent" style="width: 16px; height: 16px;"></ion-spinner>
-                    <span v-else>Desvincular</span>
-                  </ion-button>
+                <div class="provider-info">
+                  <h3>Google</h3>
+                  <p v-if="hasGoogleProvider">Conectado via Google</p>
+                  <p v-else>Não conectado</p>
                 </div>
-</template>
-            </ion-item>
-          </ion-list>
+                <span v-if="hasGoogleProvider" class="provider-status status-connected">
+                  Conectado
+                </span>
+              </div>
+              
+              <button
+                v-if="hasGoogleProvider && hasPasswordProvider"
+                @click="handleUnlinkGoogle"
+                class="provider-action-btn btn-danger"
+                :disabled="unlinkingGoogle"
+              >
+                <ion-spinner v-if="unlinkingGoogle" name="crescent"></ion-spinner>
+                <span v-else>Desvincular</span>
+              </button>
+            </div>
+          </div>
 
           <!-- Warning -->
-          <ion-card class="warning-card" v-if="connectedProviders.length === 1">
-            <ion-card-content>
-              <div class="warning-content">
-                <ion-icon :icon="warningOutline" color="warning"></ion-icon>
-                <p>
-                  Você precisa ter pelo menos um método de login ativo. 
-                  {{ !hasPasswordProvider ? 'Configure uma senha antes de desvincular o Google.' : '' }}
-                </p>
-              </div>
-            </ion-card-content>
-          </ion-card>
+          <div v-if="connectedProviders.length === 1" class="alert alert-warning">
+            <ion-icon :icon="warningOutline"></ion-icon>
+            <p>
+              Você precisa ter pelo menos um método de login ativo.
+              {{ !hasPasswordProvider ? 'Configure uma senha antes de desvincular o Google.' : '' }}
+            </p>
+          </div>
 
           <!-- Info -->
-          <ion-card class="info-card">
-            <ion-card-content>
-              <div class="info-content">
-                <ion-icon :icon="informationCircleOutline" color="primary"></ion-icon>
-                <p>
-                  Vincular múltiplos métodos de login permite que você acesse sua conta de diferentes formas, aumentando a segurança e conveniência.
-                </p>
+          <div class="alert alert-info">
+            <ion-icon :icon="informationCircleOutline"></ion-icon>
+            <p>
+              Vincular múltiplos métodos de login aumenta a segurança e conveniência da sua conta.
+            </p>
+          </div>
+        </div>
+      </ion-content>
+    </ion-modal>
+
+    <!-- About Modal -->
+    <ion-modal :is-open="showAboutModal" @didDismiss="showAboutModal = false">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Sobre</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="showAboutModal = false">
+              <ion-icon :icon="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="modal-content">
+        <div class="about-content">
+          <div class="about-logo">
+            <ion-icon :icon="carSportOutline"></ion-icon>
+          </div>
+          <h2>Garagem Inteligente</h2>
+          <p class="about-version">{{ fullVersionString }}</p>
+          <p class="about-description">
+            Gerencie seus veículos de forma inteligente e eficiente. 
+            Acompanhe manutenções, custos e mantenha tudo organizado em um só lugar.
+          </p>
+          <div class="about-features">
+            <div class="feature-item">
+              <ion-icon :icon="checkmarkCircleOutline" color="success"></ion-icon>
+              <span>Controle completo de veículos</span>
+            </div>
+            <div class="feature-item">
+              <ion-icon :icon="checkmarkCircleOutline" color="success"></ion-icon>
+              <span>Histórico de manutenções</span>
+            </div>
+            <div class="feature-item">
+              <ion-icon :icon="checkmarkCircleOutline" color="success"></ion-icon>
+              <span>Lembretes automáticos</span>
+            </div>
+            <div class="feature-item">
+              <ion-icon :icon="checkmarkCircleOutline" color="success"></ion-icon>
+              <span>Análise de custos</span>
+            </div>
+          </div>
+          <p class="about-footer">
+            Desenvolvido com ❤️ para facilitar sua vida
+          </p>
+        </div>
+      </ion-content>
+    </ion-modal>
+
+    <!-- Change Password Modal -->
+    <ion-modal :is-open="showPasswordModal" @didDismiss="closePasswordModal">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Alterar Senha</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="closePasswordModal">
+              <ion-icon :icon="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="modal-content">
+        <div class="password-change-content">
+          <!-- Info Alert -->
+          <div class="alert alert-info">
+            <ion-icon :icon="informationCircleOutline"></ion-icon>
+            <p>
+              Por segurança, você precisará reautenticar antes de alterar sua senha.
+            </p>
+          </div>
+
+          <form @submit.prevent="handlePasswordChange" class="edit-form">
+            <div class="form-group">
+              <label for="currentPassword">Senha Atual *</label>
+              <input
+                id="currentPassword"
+                v-model="passwordForm.currentPassword"
+                type="password"
+                placeholder="Digite sua senha atual"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">Nova Senha *</label>
+              <input
+                id="newPassword"
+                v-model="passwordForm.newPassword"
+                type="password"
+                placeholder="Mínimo 6 caracteres"
+                class="form-input"
+                minlength="6"
+                required
+              />
+              <p class="form-helper">A senha deve ter no mínimo 6 caracteres</p>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar Nova Senha *</label>
+              <input
+                id="confirmPassword"
+                v-model="passwordForm.confirmPassword"
+                type="password"
+                placeholder="Digite a senha novamente"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div v-if="passwordForm.newPassword" class="password-strength">
+              <div class="strength-bar">
+                <div 
+                  class="strength-fill" 
+                  :class="passwordStrengthClass"
+                  :style="{ width: passwordStrength + '%' }"
+                ></div>
               </div>
-            </ion-card-content>
-          </ion-card>
+              <p class="strength-label" :class="passwordStrengthClass">
+                {{ passwordStrengthLabel }}
+              </p>
+            </div>
+
+            <!-- Error Message -->
+            <div v-if="passwordError" class="alert alert-warning">
+              <ion-icon :icon="warningOutline"></ion-icon>
+              <p>{{ passwordError }}</p>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" @click="closePasswordModal">
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn-primary" 
+                :disabled="changingPassword || !isPasswordFormValid"
+              >
+                <ion-spinner v-if="changingPassword" name="crescent"></ion-spinner>
+                <span v-else>Alterar Senha</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Security Tips -->
+          <div class="security-tips-box">
+            <h3>🛡️ Dicas para uma senha segura:</h3>
+            <ul>
+              <li>Use pelo menos 8 caracteres</li>
+              <li>Combine letras maiúsculas e minúsculas</li>
+              <li>Inclua números e símbolos</li>
+              <li>Evite informações pessoais óbvias</li>
+              <li>Não reutilize senhas de outros serviços</li>
+            </ul>
+          </div>
         </div>
       </ion-content>
     </ion-modal>
@@ -433,53 +518,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   IonPage,
+  IonContent,
+  IonIcon,
+  IonModal,
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonContent,
-  IonCard,
-  IonCardContent,
-  IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonAvatar,
-  IonModal,
   IonButtons,
-  IonBadge,
+  IonButton,
   IonSpinner,
+  IonActionSheet,
   alertController,
   toastController
 } from '@ionic/vue'
 import {
-  person,
-  car,
-  documentText,
-  personCircle,
-  notifications,
-  shield,
-  helpCircle,
-  informationCircle,
-  logOut,
-  close,
-  construct,
-  camera,
-  images,
-  trash,
-  link,
-  mail,
+  personOutline,
+  personCircleOutline,
+  cameraOutline,
+  carOutline,
+  constructOutline,
+  timeOutline,
+  notificationsOutline,
+  shieldOutline,
+  shieldCheckmarkOutline,
+  helpCircleOutline,
+  informationCircleOutline,
+  logOutOutline,
+  linkOutline,
+  keyOutline,
+  chevronForwardOutline,
+  closeOutline,
+  mailOutline,
+  logoGoogle,
   warningOutline,
-  informationCircleOutline
+  carSportOutline,
+  checkmarkCircleOutline,
+  trashOutline,
+  imagesOutline
 } from 'ionicons/icons'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
+import { ref as storageRef, uploadString, getDownloadURL, deleteObject } from 'firebase/storage'
+import { updateProfile } from 'firebase/auth'
+import { doc, updateDoc } from 'firebase/firestore'
+import { auth, storage, db } from '@/firebase/config'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useVersion } from '@/composables/useVersion'
@@ -490,24 +575,324 @@ const authStore = useAuthStore()
 const vehiclesStore = useVehiclesStore()
 const { fullVersionString, formattedBuildDate, shortSha, isProduction } = useVersion()
 
+// State
+const showPhotoSheet = ref(false)
 const showEditModal = ref(false)
-const showNotificationsModal = ref(false)
-const showPrivacyModal = ref(false)
-const showHelpModal = ref(false)
-const showAboutModal = ref(false)
-const showPhotoModal = ref(false)
 const showConnectionsModal = ref(false)
-const profilePhoto = ref<string>('')
+const showAboutModal = ref(false)
+const showPasswordModal = ref(false)
+const currentPhotoUrl = ref<string>('')
+const savingProfile = ref(false)
 const unlinkingGoogle = ref(false)
+const changingPassword = ref(false)
+const passwordError = ref('')
 
-// Computed properties for providers
+// Edit form
+const editForm = ref({
+  name: '',
+  email: ''
+})
+
+// Password form
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+// Computed
 const connectedProviders = computed(() => authStore.getUserProviders())
 const hasPasswordProvider = computed(() => connectedProviders.value.includes('password'))
 const hasGoogleProvider = computed(() => connectedProviders.value.includes('google.com'))
 
-const handleLogout = async () => {
-  await authStore.logout()
-  router.push('/login')
+const upcomingMaintenanceCount = computed(() => {
+  return vehiclesStore.maintenanceRecords.filter(record => {
+    if (!record.nextDueDate) return false
+    const nextDate = new Date(record.nextDueDate)
+    const now = new Date()
+    return nextDate > now
+  }).length
+})
+
+const totalMaintenanceCount = computed(() => {
+  return vehiclesStore.maintenanceRecords.length
+})
+
+// Password strength calculator
+const passwordStrength = computed(() => {
+  const password = passwordForm.value.newPassword
+  if (!password) return 0
+  
+  let strength = 0
+  if (password.length >= 6) strength += 20
+  if (password.length >= 8) strength += 20
+  if (password.length >= 12) strength += 10
+  if (/[a-z]/.test(password)) strength += 10
+  if (/[A-Z]/.test(password)) strength += 15
+  if (/\d/.test(password)) strength += 15
+  if (/[^a-zA-Z\d]/.test(password)) strength += 10
+  
+  return Math.min(strength, 100)
+})
+
+const passwordStrengthLabel = computed(() => {
+  const strength = passwordStrength.value
+  if (strength < 40) return 'Fraca'
+  if (strength < 70) return 'Média'
+  if (strength < 90) return 'Forte'
+  return 'Muito Forte'
+})
+
+const passwordStrengthClass = computed(() => {
+  const strength = passwordStrength.value
+  if (strength < 40) return 'strength-weak'
+  if (strength < 70) return 'strength-medium'
+  if (strength < 90) return 'strength-strong'
+  return 'strength-very-strong'
+})
+
+const isPasswordFormValid = computed(() => {
+  return (
+    passwordForm.value.currentPassword.length >= 6 &&
+    passwordForm.value.newPassword.length >= 6 &&
+    passwordForm.value.confirmPassword === passwordForm.value.newPassword
+  )
+})
+
+// Photo action buttons
+const photoActionButtons = computed(() => {
+  const buttons: Array<{
+    text: string
+    icon?: string
+    role?: string
+    handler?: () => void
+  }> = [
+    {
+      text: 'Tirar Foto',
+      icon: cameraOutline,
+      handler: () => takePhoto('camera')
+    },
+    {
+      text: 'Escolher da Galeria',
+      icon: imagesOutline,
+      handler: () => takePhoto('gallery')
+    }
+  ]
+
+  if (currentPhotoUrl.value && !currentPhotoUrl.value.includes('googleusercontent.com')) {
+    buttons.push({
+      text: 'Remover Foto',
+      icon: trashOutline,
+      role: 'destructive',
+      handler: () => removePhoto()
+    })
+  }
+
+  buttons.push({
+    text: 'Cancelar',
+    role: 'cancel'
+  })
+
+  return buttons
+})
+
+// Methods
+const showPhotoOptions = () => {
+  showPhotoSheet.value = true
+}
+
+const takePhoto = async (source: 'camera' | 'gallery') => {
+  try {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: true,
+      resultType: CameraResultType.DataUrl,
+      source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos,
+      webUseInput: true,
+      promptLabelHeader: source === 'camera' ? 'Tirar Foto' : 'Escolher da Galeria',
+      promptLabelCancel: 'Cancelar',
+      promptLabelPhoto: 'Galeria',
+      promptLabelPicture: 'Câmera'
+    })
+
+    if (image.dataUrl && auth.currentUser) {
+      const loadingToast = await toastController.create({
+        message: 'Enviando foto...',
+        duration: 0
+      })
+      await loadingToast.present()
+
+      try {
+        // Upload to Firebase Storage
+        const photoRef = storageRef(storage, `profilePhotos/${auth.currentUser.uid}`)
+        await uploadString(photoRef, image.dataUrl, 'data_url')
+        
+        // Get download URL
+        const photoURL = await getDownloadURL(photoRef)
+        
+        // Update Firebase Auth profile
+        await updateProfile(auth.currentUser, { photoURL })
+        
+        // Update Firestore
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+          avatar: photoURL
+        })
+        
+        // Update local state
+        currentPhotoUrl.value = photoURL
+        if (authStore.user) {
+          authStore.user.avatar = photoURL
+        }
+
+        await loadingToast.dismiss()
+        
+        const successToast = await toastController.create({
+          message: '✅ Foto atualizada com sucesso!',
+          duration: 2000,
+          color: 'success',
+          position: 'bottom'
+        })
+        await successToast.present()
+      } catch (error) {
+        await loadingToast.dismiss()
+        console.error('Error uploading photo:', error)
+        
+        const errorToast = await toastController.create({
+          message: '❌ Erro ao atualizar foto',
+          duration: 2000,
+          color: 'danger',
+          position: 'bottom'
+        })
+        await errorToast.present()
+      }
+    }
+  } catch (error) {
+    console.error('Error taking photo:', error)
+  }
+}
+
+const removePhoto = async () => {
+  if (!auth.currentUser) return
+
+  const alert = await alertController.create({
+    header: 'Remover Foto',
+    message: 'Tem certeza que deseja remover sua foto de perfil?',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel'
+      },
+      {
+        text: 'Remover',
+        role: 'destructive',
+        handler: async () => {
+          const loadingToast = await toastController.create({
+            message: 'Removendo foto...',
+            duration: 0
+          })
+          await loadingToast.present()
+
+          try {
+            // Delete from Storage
+            const photoRef = storageRef(storage, `profilePhotos/${auth.currentUser!.uid}`)
+            await deleteObject(photoRef)
+            
+            // Update Firebase Auth profile
+            await updateProfile(auth.currentUser!, { photoURL: null })
+            
+            // Update Firestore
+            await updateDoc(doc(db, 'users', auth.currentUser!.uid), {
+              avatar: null
+            })
+            
+            // Update local state
+            currentPhotoUrl.value = ''
+            if (authStore.user) {
+              authStore.user.avatar = undefined
+            }
+
+            await loadingToast.dismiss()
+            
+            const successToast = await toastController.create({
+              message: '✅ Foto removida com sucesso!',
+              duration: 2000,
+              color: 'success',
+              position: 'bottom'
+            })
+            await successToast.present()
+          } catch (error) {
+            await loadingToast.dismiss()
+            console.error('Error removing photo:', error)
+            
+            const errorToast = await toastController.create({
+              message: '❌ Erro ao remover foto',
+              duration: 2000,
+              color: 'danger',
+              position: 'bottom'
+            })
+            await errorToast.present()
+          }
+        }
+      }
+    ]
+  })
+
+  await alert.present()
+}
+
+const editProfile = () => {
+  editForm.value.name = authStore.userName
+  editForm.value.email = authStore.userEmail
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+}
+
+const saveProfile = async () => {
+  if (!auth.currentUser) return
+  
+  savingProfile.value = true
+
+  try {
+    // Update Firebase Auth profile
+    await updateProfile(auth.currentUser, {
+      displayName: editForm.value.name
+    })
+    
+    // Update Firestore
+    await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+      name: editForm.value.name
+    })
+    
+    // Update local state
+    if (authStore.user) {
+      authStore.user.name = editForm.value.name
+    }
+
+    const toast = await toastController.create({
+      message: '✅ Perfil atualizado com sucesso!',
+      duration: 2000,
+      color: 'success',
+      position: 'bottom'
+    })
+    await toast.present()
+    
+    showEditModal.value = false
+  } catch (error) {
+    console.error('Error updating profile:', error)
+    
+    const toast = await toastController.create({
+      message: '❌ Erro ao atualizar perfil',
+      duration: 2000,
+      color: 'danger',
+      position: 'bottom'
+    })
+    await toast.present()
+  } finally {
+    savingProfile.value = false
+  }
 }
 
 const showAccountConnections = () => {
@@ -533,7 +918,7 @@ const handleUnlinkGoogle = async () => {
           
           if (success) {
             const toast = await toastController.create({
-              message: 'Conta Google desvinculada com sucesso',
+              message: '✅ Conta Google desvinculada com sucesso',
               duration: 3000,
               color: 'success',
               position: 'bottom'
@@ -541,7 +926,7 @@ const handleUnlinkGoogle = async () => {
             await toast.present()
           } else {
             const toast = await toastController.create({
-              message: authStore.error || 'Erro ao desvincular conta Google',
+              message: authStore.error || '❌ Erro ao desvincular conta Google',
               duration: 3000,
               color: 'danger',
               position: 'bottom'
@@ -558,617 +943,370 @@ const handleUnlinkGoogle = async () => {
   await alert.present()
 }
 
-const editProfile = () => {
-  showEditModal.value = true
+const changePassword = () => {
+  showPasswordModal.value = true
+  passwordError.value = ''
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
 }
 
-const showNotificationsSettings = () => {
-  showNotificationsModal.value = true
+const closePasswordModal = () => {
+  showPasswordModal.value = false
+  passwordError.value = ''
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
 }
 
-const showPrivacySettings = () => {
-  showPrivacyModal.value = true
+const handlePasswordChange = async () => {
+  // Validar formulário
+  if (!isPasswordFormValid.value) {
+    passwordError.value = 'Por favor, preencha todos os campos corretamente'
+    return
+  }
+
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = 'As senhas não coincidem'
+    return
+  }
+
+  if (passwordForm.value.newPassword.length < 6) {
+    passwordError.value = 'A nova senha deve ter no mínimo 6 caracteres'
+    return
+  }
+
+  changingPassword.value = true
+  passwordError.value = ''
+
+  try {
+    // Importar métodos do Firebase Auth
+    const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
+    
+    if (!auth.currentUser || !authStore.userEmail) {
+      throw new Error('Usuário não autenticado')
+    }
+
+    // Reautenticar usuário
+    const credential = EmailAuthProvider.credential(
+      authStore.userEmail,
+      passwordForm.value.currentPassword
+    )
+    
+    await reauthenticateWithCredential(auth.currentUser, credential)
+    
+    // Atualizar senha
+    await updatePassword(auth.currentUser, passwordForm.value.newPassword)
+    
+    // Enviar email de confirmação (opcional - via function)
+    try {
+      const { getFunctions, httpsCallable } = await import('firebase/functions')
+      const functions = getFunctions()
+      const sendConfirmation = httpsCallable(functions, 'sendPasswordChangeConfirmation')
+      
+      await sendConfirmation({
+        email: authStore.userEmail,
+        userName: authStore.userName
+      })
+    } catch (emailError) {
+      console.warn('Não foi possível enviar email de confirmação:', emailError)
+      // Não falhar a operação se o email não for enviado
+    }
+    
+    const toast = await toastController.create({
+      message: '✅ Senha alterada com sucesso!',
+      duration: 3000,
+      color: 'success',
+      position: 'bottom'
+    })
+    await toast.present()
+    
+    closePasswordModal()
+  } catch (error: unknown) {
+    console.error('Error changing password:', error)
+    
+    let errorMessage = 'Erro ao alterar senha'
+    if (error instanceof Error) {
+      if (error.message.includes('wrong-password') || error.message.includes('invalid-credential')) {
+        errorMessage = 'Senha atual incorreta'
+      } else if (error.message.includes('weak-password')) {
+        errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres'
+      } else if (error.message.includes('requires-recent-login')) {
+        errorMessage = 'Por segurança, faça login novamente antes de alterar a senha'
+      }
+    }
+    
+    passwordError.value = errorMessage
+  } finally {
+    changingPassword.value = false
+  }
 }
 
-const showHelp = () => {
-  showHelpModal.value = true
+const showNotificationsSettings = async () => {
+  const toast = await toastController.create({
+    message: 'Em breve: Configurações de notificações',
+    duration: 2000,
+    color: 'medium',
+    position: 'bottom'
+  })
+  await toast.present()
+}
+
+const showPrivacySettings = async () => {
+  const toast = await toastController.create({
+    message: 'Em breve: Configurações de privacidade',
+    duration: 2000,
+    color: 'medium',
+    position: 'bottom'
+  })
+  await toast.present()
+}
+
+const showHelp = async () => {
+  const toast = await toastController.create({
+    message: 'Em breve: Central de ajuda',
+    duration: 2000,
+    color: 'medium',
+    position: 'bottom'
+  })
+  await toast.present()
 }
 
 const showAbout = () => {
   showAboutModal.value = true
 }
 
-const showPhotoOptions = () => {
-  showPhotoModal.value = true
+const handleLogout = async () => {
+  const alert = await alertController.create({
+    header: 'Sair da Conta',
+    message: 'Tem certeza que deseja sair?',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel'
+      },
+      {
+        text: 'Sair',
+        role: 'destructive',
+        handler: async () => {
+          await authStore.logout()
+          router.push('/login')
+        }
+      }
+    ]
+  })
+  
+  await alert.present()
 }
 
-const takePhoto = async (source: 'camera' | 'gallery') => {
-  try {
-    const image = await Camera.getPhoto({
-      quality: 90,
-      allowEditing: true,
-      resultType: CameraResultType.DataUrl,
-      source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos
-    })
-
-    if (image.dataUrl) {
-      profilePhoto.value = image.dataUrl
-      // Aqui você pode salvar a foto no store ou fazer upload para o servidor
-      // await authStore.updateProfilePhoto(image.dataUrl)
-    }
-    
-    showPhotoModal.value = false
-  } catch (error) {
-    console.error('Erro ao capturar foto:', error)
+// Initialize
+onMounted(() => {
+  // Load current photo from auth or Google
+  if (authStore.user?.avatar) {
+    currentPhotoUrl.value = authStore.user.avatar
   }
-}
-
-const removePhoto = () => {
-  profilePhoto.value = ''
-  showPhotoModal.value = false
-  // Aqui você pode remover a foto do store ou servidor
-  // await authStore.removeProfilePhoto()
-}
+  
+  // Fetch vehicles data
+  vehiclesStore.fetchVehicles()
+})
 </script>
 
 <style scoped>
-/* ====================================
-   MODERN PROFILE PAGE - 2025 DESIGN
-   ==================================== */
-
-/* User Info Card - Premium */
-.user-info {
-  text-align: center;
-  padding: 2.5rem 1.5rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-}
-
-.user-info::before {
-  content: '';
+/* Background layers - sem interferir na interação */
+.background-gradient,
+.background-pattern {
+  pointer-events: none;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  bottom: 0;
+  z-index: 0;
 }
 
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Profile Header Card */
+.profile-header-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.profile-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Avatar Section */
 .avatar-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  cursor: pointer;
 }
 
 .avatar-container {
-  position: relative;
-  cursor: pointer;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
 }
 
-.avatar-container:hover {
+.avatar-wrapper:hover .avatar-container {
+  border-color: rgba(59, 130, 246, 0.6);
   transform: scale(1.05);
 }
 
-.profile-avatar {
-  width: 100px;
-  height: 100px;
-  border: 4px solid rgba(102, 126, 234, 0.3);
-  box-shadow: 
-    0 8px 24px rgba(102, 126, 234, 0.3),
-    inset 0 2px 8px rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  overflow: hidden;
-}
-
-.profile-avatar img {
+.avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.profile-avatar ion-icon {
-  font-size: 3.5rem;
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-icon {
+  font-size: 48px;
   color: white;
-  opacity: 0.9;
 }
 
 .avatar-overlay {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid rgba(31, 41, 55, 0.8);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-.avatar-container:hover .avatar-overlay {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-}
-
-.camera-icon {
-  font-size: 1rem;
-  color: white;
-}
-
-.avatar-section h2 {
-  margin: 0.5rem 0 0.25rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.avatar-section p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.938rem;
-  font-weight: 500;
-}
-
-/* Stats Cards - Modern Grid */
-ion-grid {
-  padding: 16px 0;
-}
-
-ion-col ion-card {
-  margin: 0;
-  background: rgba(31, 41, 55, 0.8);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  position: relative;
-}
-
-ion-col ion-card::before {
-  content: '';
-  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
+  gap: 4px;
 }
 
-ion-col ion-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(102, 126, 234, 0.3);
-  box-shadow: 
-    0 12px 24px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-ion-col ion-card:hover::before {
+.avatar-wrapper:hover .avatar-overlay {
   opacity: 1;
 }
 
-.stat-card {
-  text-align: center;
-  padding: 1.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+.camera-icon {
+  font-size: 32px;
+  color: white;
 }
 
-.stat-card ion-icon {
-  font-size: 2.5rem;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
-}
-
-ion-col ion-card:hover .stat-card ion-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-.stat-card h3 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-}
-
-.stat-card p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.875rem;
+.overlay-text {
+  font-size: 12px;
+  color: white;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* Menu List - Modern Items */
-ion-list {
-  background: transparent;
-  padding: 8px 0;
-}
-
-ion-item {
-  --background: rgba(31, 41, 55, 0.6);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --inner-padding-end: 8px;
-  --min-height: 64px;
-  margin-bottom: 8px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-ion-item:hover {
-  --background: rgba(31, 41, 55, 0.9);
-  transform: translateX(4px);
-  border-color: rgba(102, 126, 234, 0.3);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    -4px 0 0 rgba(102, 126, 234, 0.5);
-}
-
-ion-item ion-icon {
-  font-size: 1.5rem;
-  margin-inline-end: 16px;
-  transition: transform 0.3s ease;
-}
-
-ion-item:hover ion-icon {
-  transform: scale(1.1);
-}
-
-ion-item ion-label {
-  font-weight: 600;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Logout Button - Premium Danger */
-ion-button[color="danger"] {
-  --background: rgba(239, 68, 68, 0.15);
-  --background-hover: rgba(239, 68, 68, 0.25);
-  --background-activated: rgba(239, 68, 68, 0.3);
-  --border-width: 2px;
-  --border-style: solid;
-  --border-color: rgba(239, 68, 68, 0.4);
-  --border-radius: 16px;
-  --box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 24px 16px 16px 16px;
-}
-
-ion-button[color="danger"]:hover {
-  transform: translateY(-2px);
-  --box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
-}
-
-/* Modals - Modern */
-.coming-soon-modal,
-.about-content {
+.user-info-section {
   text-align: center;
-  padding: 3rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
 }
 
-.coming-soon-modal ion-icon,
-.about-content ion-icon {
-  font-size: 4rem;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.coming-soon-modal h2,
-.about-content h2 {
-  margin: 0;
-  font-size: 1.75rem;
+.user-name {
+  font-size: 28px;
   font-weight: 700;
   color: white;
-  letter-spacing: -0.5px;
+  margin: 0 0 8px 0;
 }
 
-.coming-soon-modal p,
-.about-content p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.6;
-  font-size: 1rem;
-  max-width: 400px;
-}
-
-.coming-soon-modal ion-button,
-.about-content ion-button {
-  margin-top: 1rem;
-  --border-radius: 12px;
-  --padding-start: 32px;
-  --padding-end: 32px;
-}
-
-/* Version Info - Elegant Footer */
-.version-info {
-  margin: 2rem 0 1.5rem 0;
-  padding: 1.5rem 1rem;
-  text-align: center;
-  background: rgba(31, 41, 55, 0.4);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-}
-
-.version-text {
-  font-size: 0.813rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: color 0.3s ease;
-}
-
-.version-info:hover .version-text {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.build-info {
-  font-size: 0.688rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin: 0.5rem 0 0 0;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
-  letter-spacing: 0.3px;
-  transition: color 0.3s ease;
-}
-
-.version-info:hover .build-info {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* ====================================
-   DESKTOP LAYOUT - RESPONSIVE DESIGN
-   ==================================== */
-
-/* Profile Container - Desktop Layout */
-.profile-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.profile-left,
-.profile-right {
-  width: 100%;
-}
-
-/* Desktop Enhancements */
-@media (min-width: 768px) {
-  ion-content {
-    --padding-start: 24px;
-    --padding-end: 24px;
-  }
-
-  /* Desktop Layout - Two Columns */
-  .profile-container {
-    flex-direction: row;
-    gap: 32px;
-    align-items: flex-start;
-  }
-
-  .profile-left {
-    flex: 0 0 400px;
-    max-width: 400px;
-  }
-
-  .profile-right {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* User Info Card - Desktop */
-  .user-info-card {
-    margin-bottom: 24px;
-  }
-
-  .user-info {
-    padding: 3rem 2rem;
-  }
-
-  .avatar-section ion-avatar {
-    width: 120px;
-    height: 120px;
-  }
-
-  .avatar-section h2 {
-    font-size: 2rem;
-  }
-
-  /* Stats Grid - Desktop */
-  .stats-grid {
-    padding: 0;
-  }
-
-  .stat-card-wrapper {
-    margin-bottom: 16px;
-  }
-
-  .stat-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .stat-card h3 {
-    font-size: 2.5rem;
-  }
-
-  /* Menu List - Desktop */
-  .menu-list {
-    padding: 0;
-  }
-
-  .menu-item {
-    --min-height: 72px;
-    margin-bottom: 12px;
-  }
-
-  /* Logout Button - Desktop */
-  .logout-button {
-    margin: 24px 0;
-  }
-
-  /* Version Info - Desktop */
-  .version-info {
-    margin: 2rem 0 1.5rem 0;
-  }
-}
-
-/* Large Desktop */
-@media (min-width: 1024px) {
-  .profile-container {
-    gap: 48px;
-  }
-
-  .profile-left {
-    flex: 0 0 450px;
-    max-width: 450px;
-  }
-
-  .user-info {
-    padding: 3.5rem 2.5rem;
-  }
-
-  .avatar-section ion-avatar {
-    width: 140px;
-    height: 140px;
-  }
-
-  .avatar-section h2 {
-    font-size: 2.25rem;
-  }
-
-  .stat-card {
-    padding: 2.5rem 2rem;
-  }
-
-  .stat-card h3 {
-    font-size: 3rem;
-  }
-
-  .menu-item {
-    --min-height: 80px;
-    margin-bottom: 16px;
-  }
-}
-
-/* ====================================
-   PHOTO OPTIONS MODAL
-   ==================================== */
-
-.photo-options {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px 0;
-}
-
-.photo-option-button {
-  --border-radius: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --padding-start: 24px;
-  --padding-end: 24px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid rgba(102, 126, 234, 0.3);
-}
-
-.photo-option-button:hover {
-  transform: translateY(-2px);
-  --box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-}
-
-.photo-option-button ion-icon {
-  font-size: 1.5rem;
-  margin-inline-end: 12px;
-}
-
-/* Desktop Photo Options */
-@media (min-width: 768px) {
-  .photo-options {
-    padding: 32px 0;
-    gap: 20px;
-  }
-
-  .photo-option-button {
-    --padding-top: 20px;
-    --padding-bottom: 20px;
-    --padding-start: 32px;
-    --padding-end: 32px;
-    font-size: 1.1rem;
-  }
-}
-
-/* Account Connections Modal */
-.connections-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.connections-description {
+.user-email {
   font-size: 16px;
-  line-height: 1.6;
-  color: #64748b;
-  margin-bottom: 24px;
+  color: #9ca3af;
+  margin: 0 0 16px 0;
 }
 
-.providers-list {
-  background: transparent;
-  margin-bottom: 16px;
+.user-badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.provider-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --border-radius: 12px;
-  --background: rgba(255, 255, 255, 0.05);
-  margin-bottom: 12px;
-  border: 1px solid rgba(99, 102, 241, 0.1);
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.provider-icon {
+.badge-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge ion-icon {
+  font-size: 16px;
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.stat-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -1178,80 +1316,617 @@ ion-button[color="danger"]:hover {
   font-size: 24px;
 }
 
-.provider-icon.email-provider {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+.stat-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.stat-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.stat-warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* Settings Section */
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin: 0 0 12px 8px;
+}
+
+.settings-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.setting-item:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.setting-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.icon-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.icon-tertiary {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.icon-warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.icon-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.icon-medium {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.icon-info {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+}
+
+.icon-google {
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.provider-icon.google-provider {
-  background: white;
-  padding: 8px;
+.setting-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.google-icon-small {
-  width: 100%;
-  height: 100%;
+.setting-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
 }
 
-.provider-actions {
+.setting-description {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.setting-end {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.warning-card,
-.info-card {
-  margin-top: 16px;
-  --background: transparent;
+.connection-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 4px 8px;
+  border-radius: 8px;
 }
 
-.warning-card ion-card-content,
-.info-card ion-card-content {
+.setting-arrow {
+  font-size: 20px;
+  color: #6b7280;
+}
+
+/* Logout Button */
+.logout-button {
+  width: 100%;
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 16px;
+  color: #ef4444;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.logout-button ion-icon {
+  font-size: 20px;
+}
+
+/* Version Info */
+.version-info {
+  text-align: center;
   padding: 16px;
 }
 
-.warning-content,
-.info-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+.version-text {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0 0 4px 0;
 }
 
-.warning-content ion-icon,
-.info-content ion-icon {
+.build-info {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Modal Content */
+.modal-content {
+  --background: #111827;
+}
+
+.edit-form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-helper {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Connections Content */
+.connections-content {
+  padding: 24px;
+}
+
+.connections-description {
+  color: #d1d5db;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.provider-card {
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.provider-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.provider-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
   flex-shrink: 0;
-  font-size: 24px;
+}
+
+.provider-info {
+  flex: 1;
+}
+
+.provider-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 4px 0;
+}
+
+.provider-info p {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.provider-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.status-connected {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.status-inactive {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.provider-action-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Alerts */
+.alert {
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.alert ion-icon {
+  font-size: 20px;
+  flex-shrink: 0;
   margin-top: 2px;
 }
 
-.warning-content p,
-.info-content p {
+.alert p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  color: #64748b;
 }
 
-.warning-card {
-  border: 1px solid rgba(245, 158, 11, 0.2);
-  background: rgba(245, 158, 11, 0.05);
+.alert-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
 }
 
-.info-card {
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  background: rgba(59, 130, 246, 0.05);
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
 }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+/* About Content */
+.about-content {
+  padding: 24px;
+  text-align: center;
+}
+
+.about-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-logo ion-icon {
+  font-size: 40px;
+  color: white;
+}
+
+.about-content h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px 0;
+}
+
+.about-version {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0 0 24px 0;
+}
+
+.about-description {
+  font-size: 16px;
+  color: #d1d5db;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+.about-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.feature-item ion-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.feature-item span {
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.about-footer {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Password Change Modal */
+.password-change-content {
+  padding: 24px;
+}
+
+.password-strength {
+  margin: 16px 0 24px;
+}
+
+.strength-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.strength-weak {
+  background: #ef4444;
+  color: #ef4444;
+}
+
+.strength-medium {
+  background: #f59e0b;
+  color: #f59e0b;
+}
+
+.strength-strong {
+  background: #3b82f6;
+  color: #3b82f6;
+}
+
+.strength-very-strong {
+  background: #10b981;
+  color: #10b981;
+}
+
+.strength-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.security-tips-box {
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.security-tips-box h3 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.security-tips-box ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.security-tips-box li {
+  margin-bottom: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .quick-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item {
+    justify-content: flex-start;
+  }
+
+  .profile-header-card {
+    padding: 24px 16px;
   }
 }
 </style>
-
-
-
-
