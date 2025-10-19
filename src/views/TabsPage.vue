@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-tabs>
-      <ion-router-outlet :animated="true" />
+      <ion-router-outlet :animated="false" />
       
       <ion-tab-bar slot="bottom" class="premium-tab-bar">
         <!-- Animated Background Gradient -->

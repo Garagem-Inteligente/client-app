@@ -44,12 +44,26 @@ textarea:focus {
 }
 
 /* ====================================
-   GLOBAL: TRANSIÇÃO DE PÁGINA (SLIDE HORIZONTAL)
+   GLOBAL: SEM TRANSIÇÕES DE PÁGINA
    ==================================== */
 
-/* Transição suave apenas na tela toda */
+/* Remove transições de página completamente */
 ion-page {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: none !important;
+}
+
+/* Força remoção de páginas antigas da DOM para evitar sobreposição */
+ion-router-outlet {
+  contain: layout style size;
+}
+
+ion-router-outlet > .ion-page-hidden {
+  display: none !important;
+}
+
+ion-router-outlet > .ion-page-invisible {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* ====================================

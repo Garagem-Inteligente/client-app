@@ -3,6 +3,80 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { logger } from './logger'
 
 /**
+ * Compress and remove EXIF metadata from image
+ * @param dataURL - Base64 data URL
+ * @param maxWidth - Maximum width (default: 1920)
+ * @param maxHeight - Maximum height (default: 1920)
+ * @param quality - JPEG quality 0-1 (default: 0.8)
+ * @returns Compressed data URL without EXIF
+ */
+export async function compressImage(
+  dataURL: string,
+  maxWidth = 1920,
+  maxHeight = 1920,
+  quality = 0.8
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    
+    img.onload = () => {
+      // Calculate new dimensions maintaining aspect ratio
+      let width = img.width
+      let height = img.height
+      
+      if (width > maxWidth || height > maxHeight) {
+        const aspectRatio = width / height
+        
+        if (width > height) {
+          width = maxWidth
+          height = width / aspectRatio
+        } else {
+          height = maxHeight
+          width = height * aspectRatio
+        }
+      }
+      
+      // Create canvas and draw image (this removes EXIF data)
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        reject(new Error('Failed to get canvas context'))
+        return
+      }
+      
+      // Fill with white background (for transparent PNGs)
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, width, height)
+      
+      // Draw image (this strips EXIF metadata automatically)
+      ctx.drawImage(img, 0, 0, width, height)
+      
+      // Convert to JPEG with compression
+      const compressedDataURL = canvas.toDataURL('image/jpeg', quality)
+      
+      logger.info('🗜️ Image compressed:', {
+        original: `${img.width}x${img.height}`,
+        compressed: `${width}x${height}`,
+        originalSize: `${Math.round(dataURL.length / 1024)}KB`,
+        compressedSize: `${Math.round(compressedDataURL.length / 1024)}KB`,
+        reduction: `${Math.round((1 - compressedDataURL.length / dataURL.length) * 100)}%`
+      })
+      
+      resolve(compressedDataURL)
+    }
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image'))
+    }
+    
+    img.src = dataURL
+  })
+}
+
+/**
  * Convert base64 data URL to Blob
  */
 export function dataURLtoBlob(dataURL: string): Blob {
@@ -21,18 +95,51 @@ export function dataURLtoBlob(dataURL: string): Blob {
 }
 
 /**
- * Upload image to Firebase Storage
+ * Upload image to Firebase Storage with smart compression
  * @param dataURL - Base64 data URL
  * @param path - Storage path (e.g., 'vehicles/userId/vehicleId/image.jpg')
+ * @param compress - Whether to compress (default: true)
  * @returns Download URL
  */
-export async function uploadImage(dataURL: string, path: string): Promise<string> {
+export async function uploadImage(
+  dataURL: string, 
+  path: string,
+  compress = true
+): Promise<string> {
   try {
     logger.info('📤 Uploading image to Storage:', path)
     
+    let finalDataURL = dataURL
+    
+    // Smart compression: only compress if it's worth it
+    if (compress && dataURL.startsWith('data:image/')) {
+      const originalSizeKB = Math.round(dataURL.length / 1024)
+      
+      // Skip compression for small files (< 200KB)
+      if (originalSizeKB < 200) {
+        logger.info(`⏭️ Skipping compression (file already small: ${originalSizeKB}KB)`)
+      } else {
+        try {
+          logger.info('🗜️ Compressing image...')
+          const compressedDataURL = await compressImage(dataURL)
+          const compressedSizeKB = Math.round(compressedDataURL.length / 1024)
+          
+          // Only use compressed version if it's actually smaller
+          if (compressedSizeKB < originalSizeKB) {
+            finalDataURL = compressedDataURL
+            logger.info(`✅ Compression successful: ${originalSizeKB}KB → ${compressedSizeKB}KB`)
+          } else {
+            logger.info(`⚠️ Compressed file is larger (${compressedSizeKB}KB vs ${originalSizeKB}KB), using original`)
+          }
+        } catch (compressError) {
+          logger.warn('⚠️ Compression failed, using original:', compressError)
+        }
+      }
+    }
+    
     // Convert data URL to Blob
-    const blob = dataURLtoBlob(dataURL)
-    logger.debug('📦 Blob size:', blob.size, 'bytes')
+    const blob = dataURLtoBlob(finalDataURL)
+    logger.debug('📦 Final blob size:', blob.size, 'bytes', `(${Math.round(blob.size / 1024)}KB)`)
     
     // Upload to Firebase Storage
     const storageRef = ref(storage, path)
