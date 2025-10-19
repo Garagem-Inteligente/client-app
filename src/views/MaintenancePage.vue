@@ -1339,9 +1339,12 @@ onMounted(async () => {
   }
 }
 
-/* Floating Action Button */
+/* Floating Action Button - Always visible above tab bar */
 ion-fab {
-  margin: 0 16px 80px 16px;
+  position: fixed;
+  bottom: 80px; /* Above tab bar */
+  right: 16px;
+  z-index: 999;
 }
 
 ion-fab-button {
@@ -1360,6 +1363,18 @@ ion-fab-button:hover {
   --box-shadow: 0 12px 32px -4px rgba(59, 130, 246, 0.6);
   transform: translateY(-2px);
   transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  ion-fab {
+    bottom: 24px;
+    right: 24px;
+  }
+  
+  ion-fab-button {
+    width: 64px;
+    height: 64px;
+  }
 }
 </style>
 

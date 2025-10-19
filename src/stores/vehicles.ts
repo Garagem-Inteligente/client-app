@@ -429,8 +429,13 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.isAuthenticated) return false
+      if (!authStore.isAuthenticated) {
+        error.value = 'Usuário não autenticado'
+        console.error('❌ User not authenticated')
+        return false
+      }
 
+      console.log('📝 Adding maintenance record to Firestore...')
       const maintenanceRef = collection(db, 'maintenance')
       const now = Timestamp.now()
       
@@ -463,6 +468,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       // Persist attachments if present
       if (recordData.attachments && Array.isArray(recordData.attachments)) {
+        console.log(`📎 Including ${recordData.attachments.length} attachments`)
         newRecordData.attachments = recordData.attachments.map(att => ({
           ...att,
           uploadedAt: att.uploadedAt instanceof Date ? Timestamp.fromDate(att.uploadedAt) : att.uploadedAt
@@ -479,10 +485,23 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       if (recordData.serviceProvider) newRecordData.serviceProvider = recordData.serviceProvider
       if (recordData.notes) newRecordData.notes = recordData.notes
-      if (recordData.beforePhoto) newRecordData.beforePhoto = recordData.beforePhoto
-      if (recordData.afterPhoto) newRecordData.afterPhoto = recordData.afterPhoto
+      if (recordData.beforePhoto) {
+        console.log('📸 Including before photo')
+        newRecordData.beforePhoto = recordData.beforePhoto
+      }
+      if (recordData.afterPhoto) {
+        console.log('📸 Including after photo')
+        newRecordData.afterPhoto = recordData.afterPhoto
+      }
+      
+      console.log('🔥 Firestore addDoc starting...', {
+        collection: 'maintenance',
+        vehicleId: newRecordData.vehicleId,
+        type: newRecordData.type
+      })
       
       const docRef = await addDoc(maintenanceRef, newRecordData)
+      console.log('✅ Firestore document created with ID:', docRef.id)
       
       const newRecord: MaintenanceRecord = {
         id: docRef.id,
@@ -491,10 +510,14 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       }
       
       maintenanceRecords.value.unshift(newRecord)
+      console.log('✅ Maintenance record added to local state')
       return true
     } catch (err: any) {
-      error.value = err.message || 'Erro ao adicionar manutenção'
-      console.error('Error adding maintenance record:', err)
+      const errorMsg = err.message || 'Erro ao adicionar manutenção'
+      error.value = errorMsg
+      console.error('❌ Error adding maintenance record:', err)
+      console.error('Error code:', err.code)
+      console.error('Error details:', err)
       return false
     } finally {
       loading.value = false

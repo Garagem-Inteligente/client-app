@@ -874,7 +874,7 @@ const daysUntilNext = (date: Date) => {
 }
 
 const handleEdit = () => {
-  router.push(`/tabs/vehicle/${vehicleId}`)
+  router.push(`/tabs/vehicle/${vehicleId}/edit`)
 }
 
 const handleDelete = async () => {

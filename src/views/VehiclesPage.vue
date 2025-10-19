@@ -1204,14 +1204,18 @@ ion-fab-button ion-icon {
   color: white;
 }
 
-/* FAB positioning */
+/* FAB positioning - Always visible above tab bar */
 ion-fab {
-  margin: 0 16px 80px 16px; /* 80px from bottom to avoid tab bar */
+  position: fixed;
+  bottom: 80px; /* Above tab bar (60px) + margin */
+  right: 16px;
+  z-index: 999;
 }
 
 @media (min-width: 768px) {
   ion-fab {
-    margin: 0 24px 24px 24px;
+    bottom: 24px;
+    right: 24px;
   }
   
   ion-fab-button {

@@ -618,13 +618,18 @@ const handleFilesChanged = (files: FileUploadItem[]) => {
 }
 
 const handleSubmit = async () => {
-  if (!isFormValid.value || loading.value) return
+  if (!isFormValid.value || loading.value) {
+    console.warn('⚠️ Form validation failed or already loading')
+    return
+  }
 
+  console.log('🚀 Starting maintenance submission...')
   loading.value = true
   vehiclesStore.clearError()
 
   try {
     // Process attachments
+    console.log('📎 Processing attachments...', uploadedFiles.value.length)
     const attachments: MaintenanceAttachment[] = []
     if (uploadedFiles.value.length > 0) {
       for (const item of uploadedFiles.value) {
@@ -638,6 +643,7 @@ const handleSubmit = async () => {
           })
         }
       }
+      console.log('✅ Attachments processed:', attachments.length)
     }
 
     const recordData = {
@@ -658,9 +664,20 @@ const handleSubmit = async () => {
       attachments: attachments.length > 0 ? attachments : undefined
     }
 
+    console.log('📝 Maintenance data prepared:', {
+      vehicleId: recordData.vehicleId,
+      type: recordData.type,
+      cost: recordData.cost,
+      mileage: recordData.mileage,
+      hasAttachments: !!recordData.attachments,
+      hasBeforePhoto: !!recordData.beforePhoto,
+      hasAfterPhoto: !!recordData.afterPhoto
+    })
+
     const success = await vehiclesStore.addMaintenanceRecord(recordData)
 
     if (success) {
+      console.log('✅ Maintenance registered successfully!')
       successMessage.value = 'Manutenção registrada com sucesso!'
       
       // Show toast
@@ -676,19 +693,37 @@ const handleSubmit = async () => {
       setTimeout(() => {
         router.push('/tabs/maintenance')
       }, 1500)
+    } else {
+      // Failed but no exception - check store error
+      console.error('❌ Failed to register maintenance (success=false)')
+      const errorMsg = vehiclesStore.error || 'Erro desconhecido ao registrar manutenção'
+      
+      const toast = await toastController.create({
+        message: `❌ ${errorMsg}`,
+        duration: 4000,
+        position: 'top',
+        color: 'danger'
+      })
+      await toast.present()
     }
   } catch (error) {
-    console.error('Error submitting maintenance:', error)
+    console.error('❌ Exception during maintenance submission:', error)
+    
+    let errorMessage = 'Erro ao registrar manutenção'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    }
     
     const toast = await toastController.create({
-      message: '❌ Erro ao registrar manutenção',
-      duration: 3000,
+      message: `❌ ${errorMessage}`,
+      duration: 4000,
       position: 'top',
       color: 'danger'
     })
     await toast.present()
   } finally {
     loading.value = false
+    console.log('🏁 Maintenance submission finished, loading=false')
   }
 }
 
