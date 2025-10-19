@@ -220,7 +220,7 @@ npx cap run android
 
 Ou usando o script:
 ```bash
-./build-android.sh
+./scripts/build-android.sh
 ```
 
 #### 2. Instalar no Dispositivo
@@ -230,7 +230,7 @@ adb install android/app/build/outputs/apk/debug/app-debug.apk
 
 Ou:
 ```bash
-./install-apk.sh
+./scripts/install-apk.sh
 ```
 
 #### 3. Testar Login
@@ -291,13 +291,13 @@ rm -rf android/app/build
 # Rebuild completo
 pnpm build
 npx cap sync android
-./build-android.sh
+./scripts/build-android.sh
 
 # Desinstalar app antigo do dispositivo
 adb uninstall com.garageminteligente.app
 
 # Reinstalar
-./install-apk.sh
+./scripts/install-apk.sh
 ```
 
 ### Plugin não encontrado
@@ -359,8 +359,8 @@ keytool -list -v -keystore path/to/release.keystore -alias release
 
 1. **Rebuild e Teste no Android**
    ```bash
-   ./build-android.sh
-   ./install-apk.sh
+  ./scripts/build-android.sh
+  ./scripts/install-apk.sh
    ```
 
 2. **Verificar SHA Fingerprints**

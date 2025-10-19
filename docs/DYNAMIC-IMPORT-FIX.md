@@ -22,7 +22,7 @@ O Vue Router está tentando fazer **lazy loading** do componente `VehicleDetailP
 ### **Opção 1: Script Automático (Recomendado)**
 ```bash
 cd Garagem-inteligente/App-client/app-client
-./start-fresh.sh
+./scripts/start-fresh.sh
 ```
 
 Este script:

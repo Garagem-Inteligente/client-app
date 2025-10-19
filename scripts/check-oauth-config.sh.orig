@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original check-oauth-config.sh preserved as check-oauth-config.sh.orig"

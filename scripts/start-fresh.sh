@@ -2,7 +2,7 @@
 
 # Script para iniciar o servidor de desenvolvimento com cache limpo
 
-echo "🧹 Limpando cache e processos..."
+echo "\ud83e\uddf9 Limpando cache e processos..."
 
 # Matar processos do Vite
 pkill -f "vite" 2>/dev/null || true
@@ -10,11 +10,10 @@ pkill -f "vite" 2>/dev/null || true
 # Limpar cache do Vite
 rm -rf node_modules/.vite
 
-echo "✅ Cache limpo!"
+echo "\u2705 Cache limpo!"
 echo ""
-echo "🚀 Iniciando servidor de desenvolvimento..."
+echo "\ud83d\ude80 Iniciando servidor de desenvolvimento..."
 echo ""
 
 # Iniciar servidor
 pnpm run dev
-

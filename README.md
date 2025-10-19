@@ -97,7 +97,22 @@ O aplicativo estará disponível em `http://localhost:8100` 🎉
 
 ---
 
-## 📜 Scripts Disponíveis
+## � Documentação
+
+Os guias detalhados e operacionais foram consolidados em `docs/`. Links úteis:
+
+- `docs/setup.md` — passos de setup (env, pnpm, functions)
+- `docs/android-build.md` — gerar e instalar APK Android (usa `./scripts/build-android.sh`)
+- `docs/ci-cd.md` — CI/CD e configuração de secrets
+- `docs/auth-google.md` — Google Sign-In e troubleshooting
+- `docs/password-change.md` — fluxo de troca de senha e SendGrid
+- `docs/developer-notes.md` — notas de desenvolvimento e melhorias visuais
+
+Arquivos históricos foram movidos para `docs/archive/` para referência.
+
+---
+
+## �📜 Scripts Disponíveis
 
 | Script | Descrição |
 |--------|-----------|

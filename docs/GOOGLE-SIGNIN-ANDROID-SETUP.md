@@ -80,7 +80,7 @@ npx cap sync android
 cd android && ./gradlew clean && cd ..
 
 # 3. Rebuild completo
-./build-android.sh
+./scripts/build-android.sh
 
 # Ou build manual:
 cd android
@@ -91,7 +91,7 @@ cd ..
 adb install android/app/build/outputs/apk/debug/app-debug.apk
 
 # Ou usar o script:
-./install-apk.sh
+./scripts/install-apk.sh
 ```
 
 ---

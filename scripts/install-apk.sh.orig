@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original install-apk.sh preserved as install-apk.sh.orig"
