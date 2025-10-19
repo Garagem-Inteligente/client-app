@@ -17,22 +17,17 @@
 /* ====================================
    GLOBAL SMOOTH SCROLL
    ==================================== */
-html, body {
-
-ion-content {
-  --background: #111827 !important;
-  background: #111827 !important;
-}
-}
 
 ion-content {
   --offset-bottom: auto !important;
   --overflow: hidden;
   overflow: auto;
   scroll-behavior: smooth;
+  --padding-bottom: 80px; /* Espaço para navbar fixa */
 }
 
 ion-content::part(scroll) {
   scroll-behavior: smooth;
+  padding-bottom: 80px; /* Espaço para navbar fixa */
 }
 

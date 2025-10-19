@@ -132,41 +132,66 @@
             Informações Detalhadas
           </h3>
 
-          <div class="details-grid">
-            <!-- Data -->
-            <div class="detail-item">
-              <span class="detail-label">📅 Data da Manutenção</span>
-              <span class="detail-value">{{ formatDate(maintenanceRecord.date) }}</span>
-            </div>
+          <!-- Main Info Section -->
+          <div class="info-section">
+            <h4 class="info-section-title">Execução do Serviço</h4>
+            <div class="info-grid">
+              <div class="info-box">
+                <div class="info-box-header">
+                  <ion-icon :icon="calendarOutline" class="info-icon blue"></ion-icon>
+                  <span class="info-label">Data da Manutenção</span>
+                </div>
+                <p class="info-value">{{ formatFullDate(maintenanceRecord.date) }}</p>
+              </div>
 
-            <!-- Quilometragem -->
-            <div class="detail-item">
-              <span class="detail-label">🛣️ Quilometragem</span>
-              <span class="detail-value">{{ maintenanceRecord.mileage.toLocaleString('pt-BR') }} km</span>
-            </div>
+              <div class="info-box">
+                <div class="info-box-header">
+                  <ion-icon :icon="speedometerOutline" class="info-icon purple"></ion-icon>
+                  <span class="info-label">Quilometragem</span>
+                </div>
+                <p class="info-value">{{ maintenanceRecord.mileage.toLocaleString('pt-BR') }} km</p>
+              </div>
 
-            <!-- Próxima Data -->
-            <div v-if="maintenanceRecord.nextDueDate" class="detail-item">
-              <span class="detail-label">📆 Próxima Data Prevista</span>
-              <span class="detail-value">{{ formatDate(maintenanceRecord.nextDueDate) }}</span>
+              <div v-if="maintenanceRecord.serviceProvider" class="info-box full-width">
+                <div class="info-box-header">
+                  <ion-icon :icon="businessOutline" class="info-icon green"></ion-icon>
+                  <span class="info-label">Prestador de Serviço</span>
+                </div>
+                <p class="info-value">{{ maintenanceRecord.serviceProvider }}</p>
+              </div>
             </div>
+          </div>
 
-            <!-- Próxima Quilometragem -->
-            <div v-if="maintenanceRecord.nextDueMileage" class="detail-item">
-              <span class="detail-label">🏁 Próxima Quilometragem</span>
-              <span class="detail-value">{{ maintenanceRecord.nextDueMileage.toLocaleString('pt-BR') }} km</span>
+          <!-- Next Maintenance Section -->
+          <div v-if="maintenanceRecord.nextDueDate || maintenanceRecord.nextDueMileage" class="info-section">
+            <h4 class="info-section-title">Próxima Manutenção</h4>
+            <div class="info-grid">
+              <div v-if="maintenanceRecord.nextDueDate" class="info-box">
+                <div class="info-box-header">
+                  <ion-icon :icon="calendarOutline" class="info-icon yellow"></ion-icon>
+                  <span class="info-label">Data Prevista</span>
+                </div>
+                <p class="info-value">{{ formatFullDate(maintenanceRecord.nextDueDate) }}</p>
+                <p class="info-helper">{{ getTimeUntil(maintenanceRecord.nextDueDate) }}</p>
+              </div>
+
+              <div v-if="maintenanceRecord.nextDueMileage" class="info-box">
+                <div class="info-box-header">
+                  <ion-icon :icon="flagOutline" class="info-icon yellow"></ion-icon>
+                  <span class="info-label">Quilometragem Prevista</span>
+                </div>
+                <p class="info-value">{{ maintenanceRecord.nextDueMileage.toLocaleString('pt-BR') }} km</p>
+                <p v-if="vehicle" class="info-helper">{{ getKmUntil(maintenanceRecord.nextDueMileage, vehicle.mileage) }}</p>
+              </div>
             </div>
+          </div>
 
-            <!-- Prestador de Serviço -->
-            <div v-if="maintenanceRecord.serviceProvider" class="detail-item full-width">
-              <span class="detail-label">🏢 Prestador de Serviço</span>
-              <span class="detail-value">{{ maintenanceRecord.serviceProvider }}</span>
-            </div>
-
-            <!-- Observações -->
-            <div v-if="maintenanceRecord.notes" class="detail-item full-width">
-              <span class="detail-label">📝 Observações</span>
-              <p class="detail-notes">{{ maintenanceRecord.notes }}</p>
+          <!-- Notes Section -->
+          <div v-if="maintenanceRecord.notes" class="info-section">
+            <h4 class="info-section-title">Observações</h4>
+            <div class="notes-box">
+              <ion-icon :icon="documentTextOutline" class="notes-icon"></ion-icon>
+              <p class="notes-content">{{ maintenanceRecord.notes }}</p>
             </div>
           </div>
         </ACard>
@@ -407,7 +432,10 @@ import {
   imageOutline,
   downloadOutline,
   shareOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  speedometerOutline,
+  businessOutline,
+  flagOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import type { MaintenanceType } from '@/stores/vehicles'
@@ -444,6 +472,50 @@ const formatDate = (date: Date) => {
     month: '2-digit',
     year: 'numeric'
   }).format(date)
+}
+
+const formatFullDate = (date: Date | string) => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  }).format(dateObj)
+}
+
+const getTimeUntil = (futureDate: Date | string) => {
+  const future = typeof futureDate === 'string' ? new Date(futureDate) : futureDate
+  const now = new Date()
+  const diffTime = future.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 0) {
+    return `Atrasada há ${Math.abs(diffDays)} dias`
+  }
+  if (diffDays === 0) {
+    return 'Vence hoje'
+  }
+  if (diffDays === 1) {
+    return 'Vence amanhã'
+  }
+  if (diffDays <= 7) {
+    return `Vence em ${diffDays} dias`
+  }
+  if (diffDays <= 30) {
+    const weeks = Math.floor(diffDays / 7)
+    return `Vence em ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`
+  }
+  const months = Math.floor(diffDays / 30)
+  return `Vence em ${months} ${months === 1 ? 'mês' : 'meses'}`
+}
+
+const getKmUntil = (targetKm: number, currentKm: number) => {
+  const diff = targetKm - currentKm
+  if (diff < 0) {
+    return `${Math.abs(diff).toLocaleString('pt-BR')} km acima`
+  }
+  return `Faltam ${diff.toLocaleString('pt-BR')} km`
 }
 
 const formatDateTime = (date: Date) => {
@@ -976,38 +1048,130 @@ onMounted(async () => {
   font-size: 1.25rem;
 }
 
-/* Details Grid */
-.details-grid {
+/* Details Card - New Modern Layout */
+.info-section {
+  margin-bottom: 28px;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+.info-section-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3b82f6;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.info-box {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
 }
 
-.detail-item.full-width {
+.info-box:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.info-box.full-width {
   grid-column: 1 / -1;
 }
 
-.detail-label {
-  color: #9ca3af;
-  font-size: 0.875rem;
+.info-box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.detail-value {
-  color: white;
+.info-icon {
+  font-size: 1.5rem;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.info-icon.blue {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.info-icon.purple {
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.info-icon.green {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.info-icon.yellow {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.info-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.info-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.info-helper {
+  font-size: 0.813rem;
+  color: #6b7280;
+  margin: 6px 0 0 0;
   font-weight: 500;
 }
 
-.detail-notes {
-  color: white;
-  line-height: 1.6;
+/* Notes Box */
+.notes-box {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  gap: 16px;
+}
+
+.notes-icon {
+  font-size: 1.5rem;
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notes-content {
+  color: #e5e7eb;
+  line-height: 1.7;
   margin: 0;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Cost Breakdown */

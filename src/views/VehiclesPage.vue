@@ -489,6 +489,18 @@ ion-card.error-state-card {
   border-radius: 24px;
   padding: 3rem 2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .empty-icon {
@@ -787,6 +799,25 @@ ion-card.error-state-card {
   cursor: pointer;
   position: relative;
   isolation: isolate;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.vehicle-card:nth-child(1) { animation-delay: 0.1s; }
+.vehicle-card:nth-child(2) { animation-delay: 0.15s; }
+.vehicle-card:nth-child(3) { animation-delay: 0.2s; }
+.vehicle-card:nth-child(4) { animation-delay: 0.25s; }
+.vehicle-card:nth-child(5) { animation-delay: 0.3s; }
+.vehicle-card:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vehicle-card::before {

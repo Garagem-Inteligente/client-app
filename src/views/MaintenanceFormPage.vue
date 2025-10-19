@@ -89,13 +89,49 @@
                   <label for="description" class="block text-sm font-medium text-gray-300 mb-2">
                     Descrição *
                   </label>
-                  <AInput
+                  <input
                     id="description"
                     v-model="formData.description"
                     type="text"
                     placeholder="Descreva o serviço realizado"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                     :disabled="loading"
+                  />
+                </div>
+
+                <!-- Data da Manutenção -->
+                <div>
+                  <label for="date" class="block text-sm font-medium text-gray-300 mb-2">
+                    Data da Manutenção *
+                  </label>
+                  <input
+                    id="date"
+                    v-model="formData.date"
+                    type="date"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                    :disabled="loading"
+                    :max="maxDate.split('T')[0]"
+                  />
+                </div>
+
+                <!-- Quilometragem -->
+                <div>
+                  <label for="mileage" class="block text-sm font-medium text-gray-300 mb-2">
+                    Quilometragem *
+                  </label>
+                  <input
+                    id="mileage"
+                    v-model="displayMileage"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="Ex: 50.000 km"
+                    required
+                    :disabled="loading"
+                    @input="handleMileageInput"
+                    @blur="formatMileage"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
@@ -145,24 +181,6 @@
                   </div>
                 </div>
 
-               
-
-                <!-- Data da Manutenção -->
-                <div>
-                  <label for="date" class="block text-sm font-medium text-gray-300 mb-2">
-                    Data da Manutenção *
-                  </label>
-                  <input
-                    id="date"
-                    v-model="formData.date"
-                    type="date"
-                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    :disabled="loading"
-                    :max="maxDate.split('T')[0]"
-                  />
-                </div>
-
                 <!-- Próxima Manutenção (Data) -->
                 <div>
                   <label for="nextDueDate" class="block text-sm font-medium text-gray-300 mb-2">
@@ -175,25 +193,6 @@
                     class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     :disabled="loading"
                     :min="formData.date.split('T')[0]"
-                  />
-                </div>
-
-                <!-- Quilometragem -->
-                <div>
-                  <label for="mileage" class="block text-sm font-medium text-gray-300 mb-2">
-                    Quilometragem *
-                  </label>
-                  <input
-                    id="mileage"
-                    v-model="displayMileage"
-                    type="text"
-                    inputmode="numeric"
-                    placeholder="Ex: 50.000 km"
-                    required
-                    :disabled="loading"
-                    @input="handleMileageInput"
-                    @blur="formatMileage"
-                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
@@ -220,11 +219,12 @@
                   <label for="serviceProvider" class="block text-sm font-medium text-gray-300 mb-2">
                     Prestador de Serviço
                   </label>
-                  <AInput
+                  <input
                     id="serviceProvider"
                     v-model="formData.serviceProvider"
                     type="text"
                     placeholder="Nome da oficina ou mecânico"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     :disabled="loading"
                   />
                 </div>
@@ -423,7 +423,7 @@ import type { MaintenanceType, MaintenanceAttachment } from '@/stores/vehicles'
 import { MAINTENANCE_TYPE_OPTIONS } from '@/constants/vehicles'
 import { applyCurrencyMask, applyMileageMask, unmaskCurrency, unmaskMileage } from '@/utils/masks'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
-import { AAlert, AInput } from '@/components'
+import { AAlert } from '@/components'
 import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue'
 
 const route = useRoute()
@@ -703,7 +703,6 @@ onMounted(async () => {
   if (route.params.id) {
     isEdit.value = true
     recordId.value = route.params.id as string
-    // TODO: Load existing maintenance data
   }
 
   // Pre-fill vehicle if provided

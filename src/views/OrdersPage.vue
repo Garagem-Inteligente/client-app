@@ -119,6 +119,18 @@ const showNewOrderModal = ref(false)
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .empty-state h2 {

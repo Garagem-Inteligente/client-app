@@ -1023,16 +1023,17 @@ const formatCurrency = (value: number) => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--ion-background-color);
-  border: 1px solid transparent;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .vehicle-item:hover {
-  background: #374151;
+  background: rgba(55, 65, 81, 0.7);
   border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
 }
 
 .vehicle-icon-wrapper {
@@ -1115,15 +1116,17 @@ const formatCurrency = (value: number) => {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  background: var(--ion-background-color);
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .maintenance-item:hover {
-  background: #374151;
-  transform: scale(1.02);
+  background: rgba(55, 65, 81, 0.7);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
 }
 
 .maintenance-item.danger {
