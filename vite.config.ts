@@ -9,7 +9,9 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [
     vue(),
-    legacy()
+    legacy({
+      targets: ['defaults', 'not IE 11']
+    })
   ],
   resolve: {
     alias: {

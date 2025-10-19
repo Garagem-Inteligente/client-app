@@ -73,6 +73,18 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'order/:id',
         component: () => import('@/views/OrderDetailPage.vue')
+      },
+      {
+        path: 'vehicle-transfer/:id',
+        component: () => import('@/views/VehicleTransferPage.vue')
+      },
+      {
+        path: 'transfer-confirm',
+        component: () => import('@/views/TransferConfirmPage.vue')
+      },
+      {
+        path: 'transferred-vehicles',
+        component: () => import('@/views/TransferredVehiclesPage.vue')
       }
     ]
   }

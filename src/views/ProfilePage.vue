@@ -128,6 +128,35 @@
           </div>
         </div>
 
+        <!-- Vehicle Management -->
+        <div class="settings-section">
+          <h2 class="section-title">Gerenciamento de Veículos</h2>
+          
+          <div class="settings-card">
+            <button class="setting-item" @click="router.push('/tabs/transfer-confirm')">
+              <div class="setting-icon-wrapper icon-warning">
+                <ion-icon :icon="swapHorizontalOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Transferências Pendentes</span>
+                <span class="setting-description">Ver e confirmar transferências</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+
+            <button class="setting-item" @click="router.push('/tabs/transferred-vehicles')">
+              <div class="setting-icon-wrapper icon-medium">
+                <ion-icon :icon="archiveOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Carros Transferidos</span>
+                <span class="setting-description">Histórico de veículos vendidos</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+          </div>
+        </div>
+
         <!-- Preferences -->
         <div class="settings-section">
           <h2 class="section-title">Preferências</h2>
@@ -558,7 +587,9 @@ import {
   carSportOutline,
   checkmarkCircleOutline,
   trashOutline,
-  imagesOutline
+  imagesOutline,
+  swapHorizontalOutline,
+  archiveOutline
 } from 'ionicons/icons'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { ref as storageRef, uploadString, getDownloadURL, deleteObject } from 'firebase/storage'

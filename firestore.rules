@@ -151,6 +151,52 @@ service cloud.firestore {
                       resource.data.userId == request.auth.uid;
     }
     
+    // Transfers collection
+    match /transfers/{transferId} {
+      // Users can create transfers for their own vehicles
+      allow create: if isAuthenticated() && 
+                      request.resource.data.fromUserId == request.auth.uid &&
+                      request.resource.data.vehicleId is string &&
+                      request.resource.data.vehicleId.size() > 0 &&
+                      request.resource.data.toEmail is string &&
+                      isValidEmail(request.resource.data.toEmail) &&
+                      request.resource.data.fromConfirmationCode is string &&
+                      request.resource.data.fromConfirmationCode.size() == 6 &&
+                      request.resource.data.toConfirmationCode is string &&
+                      request.resource.data.toConfirmationCode.size() == 6 &&
+                      request.resource.data.fromConfirmed == false &&
+                      request.resource.data.toConfirmed == false &&
+                      request.resource.data.status == 'pending';
+      
+      // Users can read transfers where they are sender or receiver
+      allow read: if isAuthenticated() && 
+                    (resource.data.fromUserId == request.auth.uid ||
+                     resource.data.toEmail == request.auth.token.email ||
+                     (resource.data.toUserId is string && resource.data.toUserId == request.auth.uid));
+      
+      // Only Cloud Functions can update transfers (prevents client-side manipulation)
+      // This ensures security as confirmation codes are checked server-side
+      allow update: if false;
+      
+      // Sender can delete/cancel pending transfers
+      allow delete: if isAuthenticated() && 
+                      resource.data.fromUserId == request.auth.uid &&
+                      resource.data.status == 'pending';
+    }
+    
+    // Transferred Vehicles collection (historical record)
+    match /transferredVehicles/{docId} {
+      // Only Cloud Functions can create (created during transfer completion)
+      allow create: if false;
+      
+      // Users can read their own transferred vehicles (previous owners)
+      allow read: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid;
+      
+      // No updates or deletes allowed (historical record is immutable)
+      allow update, delete: if false;
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

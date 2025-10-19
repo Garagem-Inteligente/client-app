@@ -41,27 +41,6 @@
               </div>
             </div>
 
-            <div class="header-actions">
-              <AButton 
-                size="small" 
-                variant="outline"
-                @click="handleExportPDF"
-                :disabled="generatingPDF || maintenanceHistory.length === 0"
-              >
-                <template #start>
-                  <ion-icon v-if="!generatingPDF" :icon="downloadOutline" />
-                  <ion-spinner v-else name="crescent" style="width: 16px; height: 16px;" />
-                </template>
-                {{ generatingPDF ? 'Gerando...' : 'Exportar PDF' }}
-              </AButton>
-              
-              <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
-                <template #start>
-                  <ion-icon :icon="addCircleOutline" />
-                </template>
-                Nova Manutenção
-              </AButton>
-            </div>
           </div>
 
           <!-- Tabs -->
@@ -71,6 +50,58 @@
           <div class="tab-content">
             <!-- TAB: Informações -->
             <div v-if="activeTab === 'info'" class="tab-panel">
+              <!-- Quick Actions Cards -->
+              <div class="quick-actions-grid">
+                <!-- Export PDF -->
+                <div 
+                  class="action-card pdf-card"
+                  :class="{ 'disabled': generatingPDF || maintenanceHistory.length === 0 }"
+                  @click="handleExportPDF"
+                >
+                  <div class="action-icon-wrapper pdf">
+                    <ion-icon v-if="!generatingPDF" :icon="documentTextOutline" />
+                    <ion-spinner v-else name="crescent" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">{{ generatingPDF ? 'Gerando...' : 'Exportar PDF' }}</h3>
+                    <p class="action-description">
+                      {{ maintenanceHistory.length === 0 ? 'Nenhuma manutenção' : `${maintenanceHistory.length} manutenç${maintenanceHistory.length === 1 ? 'ão' : 'ões'}` }}
+                    </p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+
+                <!-- New Maintenance -->
+                <div 
+                  class="action-card maintenance-card"
+                  @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)"
+                >
+                  <div class="action-icon-wrapper maintenance">
+                    <ion-icon :icon="addCircleOutline" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">Nova Manutenção</h3>
+                    <p class="action-description">Registrar serviço</p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+
+                <!-- Transfer Vehicle -->
+                <div 
+                  class="action-card transfer-card"
+                  @click="handleTransferVehicle"
+                >
+                  <div class="action-icon-wrapper transfer">
+                    <ion-icon :icon="swapHorizontalOutline" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">Transferir Histórico</h3>
+                    <p class="action-description">Enviar para novo dono</p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+              </div>
+
               <!-- Stats Cards -->
               <div class="stats-grid">
                 <!-- Quilometragem -->
@@ -708,7 +739,6 @@ import {
   documentTextOutline,
   calendarOutline,
   cloudUploadOutline,
-  downloadOutline,
   eyeOutline,
   shieldCheckmarkOutline,
   closeCircleOutline,
@@ -732,7 +762,9 @@ import {
   callOutline,
   imageOutline,
   documentOutline,
-  closeOutline
+  closeOutline,
+  swapHorizontalOutline,
+  chevronForwardOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useAuthStore } from '@/stores/auth'
@@ -929,6 +961,32 @@ const handleExportPDF = async () => {
 
 const handleEdit = () => {
   router.push(`/tabs/vehicle/${vehicleId}/edit`)
+}
+
+const handleTransferVehicle = async () => {
+  if (!vehicle.value) return
+  
+  const alert = await alertController.create({
+    header: 'Transferir Histórico',
+    message: 'Você está prestes a iniciar a transferência do histórico deste veículo.\n\n⚠️ IMPORTANTE:\n• Todo o histórico de manutenções será transferido\n• Você não poderá mais editar este veículo\n• Esta ação requer confirmação de ambas as partes\n• O processo pode levar até 7 dias',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        cssClass: 'alert-button-cancel'
+      },
+      {
+        text: 'Continuar',
+        cssClass: 'alert-button-confirm',
+        handler: () => {
+          router.push(`/tabs/vehicle-transfer/${vehicleId}`)
+        }
+      }
+    ],
+    cssClass: 'custom-alert'
+  })
+
+  await alert.present()
 }
 
 const handleDelete = async () => {
@@ -1221,9 +1279,158 @@ onMounted(async () => {
   color: #4b5563;
 }
 
-.header-actions {
+/* Quick Actions Cards */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.action-card {
+  background: #1f2937;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-card:hover::before {
+  opacity: 0.1;
+}
+
+.action-card:active {
+  transform: translateY(0);
+}
+
+.action-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.action-card.pdf-card {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.action-card.pdf-card::before {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.action-card.maintenance-card {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.action-card.maintenance-card::before {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.action-card.transfer-card {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.action-card.transfer-card::before {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+}
+
+.action-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.action-icon-wrapper ion-icon,
+.action-icon-wrapper ion-spinner {
+  font-size: 24px;
+  color: white;
+}
+
+.action-icon-wrapper.pdf {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-icon-wrapper.maintenance {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.action-icon-wrapper.transfer {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+
+.action-content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.action-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 0.25rem 0;
+}
+
+.action-description {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.action-arrow {
+  font-size: 20px;
+  color: #6b7280;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.action-card:hover .action-arrow {
+  transform: translateX(4px);
+  color: #9ca3af;
 }
 
 /* Stats Grid */
@@ -3127,5 +3334,40 @@ onMounted(async () => {
 
 .clickable:active {
   transform: scale(0.98) translateX(4px);
+}
+
+/* Custom Alert Styles */
+:deep(.custom-alert) {
+  --backdrop-opacity: 0.6;
+}
+
+:deep(.custom-alert .alert-wrapper) {
+  border-radius: 16px;
+}
+
+:deep(.custom-alert .alert-head) {
+  padding: 20px 20px 16px;
+}
+
+:deep(.custom-alert .alert-title) {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+:deep(.custom-alert .alert-message) {
+  padding: 0 20px 20px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  text-align: left;
+}
+
+:deep(.alert-button-cancel) {
+  color: var(--ion-color-medium) !important;
+}
+
+:deep(.alert-button-confirm) {
+  font-weight: 600;
+  color: var(--ion-color-primary) !important;
 }
 </style>

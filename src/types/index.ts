@@ -83,12 +83,43 @@ export interface Notification {
 export interface Transfer {
   id: string
   vehicleId: string
+  vehicleName: string // Make + Model for display
+  vehiclePlate: string
   fromUserId: string
+  fromUserName: string
+  fromUserEmail: string
+  toUserId?: string // Only set after new owner accepts
+  toUserName?: string
   toEmail: string
-  status: 'pending' | 'accepted' | 'rejected' | 'cancelled'
+  fromConfirmationCode: string // Code for current owner
+  toConfirmationCode: string // Code for new owner
+  fromConfirmed: boolean
+  toConfirmed: boolean
+  status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'cancelled' | 'expired'
   message?: string
   createdAt: Date
   updatedAt: Date
+  expiresAt: Date // Transfer expires after 7 days
+  completedAt?: Date
+}
+
+// Transferred Vehicle (historical record)
+export interface TransferredVehicle {
+  id: string
+  vehicleId: string
+  userId: string // Original owner
+  transferredAt: Date
+  transferredTo: string // New owner email (partially hidden: j***@example.com)
+  transferId: string
+  // Snapshot of vehicle data at transfer time
+  vehicleSnapshot: {
+    make: string
+    model: string
+    year: number
+    plate: string
+    mileage: number
+    imageUrl?: string
+  }
 }
 
 // Order/Service Types
