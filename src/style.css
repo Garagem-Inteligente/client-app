@@ -23,9 +23,11 @@ ion-content {
   --overflow: hidden;
   overflow: auto;
   scroll-behavior: smooth;
+  --padding-bottom: 80px; /* Espaço para navbar fixa */
 }
 
 ion-content::part(scroll) {
   scroll-behavior: smooth;
+  padding-bottom: 80px; /* Espaço para navbar fixa */
 }
 

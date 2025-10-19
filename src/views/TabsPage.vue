@@ -113,11 +113,15 @@ ion-router-outlet {
 .premium-tab-bar {
   --background: transparent;
   --border: none;
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
   height: 65px;
-  padding: 8px 16px 12px;
-  margin: 0 16px 16px;
-  border-radius: 32px;
+  padding: 8px 0 0;
+  margin: 0;
+  border-radius: 0;
   overflow: visible;
   display: flex;
   align-items: center;
@@ -134,15 +138,15 @@ ion-router-outlet {
     rgba(17, 24, 39, 0.98) 50%, 
     rgba(31, 41, 55, 0.95) 100%
   );
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 -20px 60px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   z-index: 0;
   animation: gradientShift 15s ease-in-out infinite;
 }
@@ -437,8 +441,6 @@ ion-router-outlet {
   .premium-tab-bar {
     height: 70px;
     padding: 8px 12px 12px;
-    margin: 0 12px 12px;
-    border-radius: 28px;
   }
 
   .icon-container {
@@ -461,10 +463,8 @@ ion-router-outlet {
 
 @media (min-width: 768px) {
   .premium-tab-bar {
-    height: 82px;
+    height: 72px;
     padding: 12px 24px 16px;
-    margin: 0 16px 16px;
-    border-radius: 36px;
   }
 
   .icon-container {
