@@ -675,7 +675,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { alertController, actionSheetController } from '@ionic/vue'
+import { 
+  IonPage, 
+  IonContent, 
+  IonSpinner, 
+  IonIcon,
+  alertController, 
+  actionSheetController 
+} from '@ionic/vue'
 import {
   createOutline,
   trashOutline,
@@ -1105,7 +1112,7 @@ onMounted(async () => {
 
 /* Content */
 .detail-content {
-  --background: #111827;
+  --background: var(--ion-background-color);
 }
 
 .detail-container {

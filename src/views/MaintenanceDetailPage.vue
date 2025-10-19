@@ -49,49 +49,61 @@
         </div>
 
         <!-- Quick Stats -->
-        <div class="stats-grid">
+        <div class="modern-stats-grid">
           <!-- Custo Total -->
-          <div class="stat-card blue-gradient">
-            <div class="stat-icon-wrapper blue">
-              <ion-icon :icon="cashOutline"></ion-icon>
+          <div class="modern-stat-card gradient-blue">
+            <div class="stat-background"></div>
+            <div class="stat-content-wrapper">
+              <div class="stat-icon-modern blue">
+                <ion-icon :icon="cashOutline"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <p class="stat-label-modern">Custo Total</p>
+                <h3 class="stat-value-modern">{{ formatCurrency(maintenanceRecord.cost) }}</h3>
+              </div>
             </div>
-            <div class="stat-value">
-              {{ formatCurrency(maintenanceRecord.cost) }}
-            </div>
-            <p class="stat-label">Custo Total</p>
           </div>
 
           <!-- Peças -->
-          <div v-if="maintenanceRecord.partsCost" class="stat-card purple-gradient">
-            <div class="stat-icon-wrapper purple">
-              <ion-icon :icon="cubeOutline"></ion-icon>
+          <div v-if="maintenanceRecord.partsCost" class="modern-stat-card gradient-purple">
+            <div class="stat-background"></div>
+            <div class="stat-content-wrapper">
+              <div class="stat-icon-modern purple">
+                <ion-icon :icon="cubeOutline"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <p class="stat-label-modern">Peças</p>
+                <h3 class="stat-value-modern">{{ formatCurrency(maintenanceRecord.partsCost) }}</h3>
+              </div>
             </div>
-            <div class="stat-value">
-              {{ formatCurrency(maintenanceRecord.partsCost) }}
-            </div>
-            <p class="stat-label">Peças</p>
           </div>
 
           <!-- Mão de Obra -->
-          <div v-if="maintenanceRecord.laborCost" class="stat-card green-gradient">
-            <div class="stat-icon-wrapper green">
-              <ion-icon :icon="constructOutline"></ion-icon>
+          <div v-if="maintenanceRecord.laborCost" class="modern-stat-card gradient-green">
+            <div class="stat-background"></div>
+            <div class="stat-content-wrapper">
+              <div class="stat-icon-modern green">
+                <ion-icon :icon="constructOutline"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <p class="stat-label-modern">Mão de Obra</p>
+                <h3 class="stat-value-modern">{{ formatCurrency(maintenanceRecord.laborCost) }}</h3>
+              </div>
             </div>
-            <div class="stat-value">
-              {{ formatCurrency(maintenanceRecord.laborCost) }}
-            </div>
-            <p class="stat-label">Mão de Obra</p>
           </div>
 
           <!-- Próxima Manutenção -->
-          <div v-if="maintenanceRecord.nextDueDate" class="stat-card yellow-gradient">
-            <div class="stat-icon-wrapper yellow">
-              <ion-icon :icon="calendarOutline"></ion-icon>
+          <div v-if="maintenanceRecord.nextDueDate" class="modern-stat-card gradient-yellow">
+            <div class="stat-background"></div>
+            <div class="stat-content-wrapper">
+              <div class="stat-icon-modern yellow">
+                <ion-icon :icon="calendarOutline"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <p class="stat-label-modern">Próxima Manutenção</p>
+                <h3 class="stat-value-modern text-sm">{{ formatDate(maintenanceRecord.nextDueDate) }}</h3>
+              </div>
             </div>
-            <div class="stat-value text-sm">
-              {{ formatDate(maintenanceRecord.nextDueDate) }}
-            </div>
-            <p class="stat-label">Próxima Manutenção</p>
           </div>
         </div>
 
@@ -233,35 +245,85 @@
         </div>
 
         <!-- Photos Before/After -->
-        <div v-if="maintenanceRecord.beforePhoto || maintenanceRecord.afterPhoto" class="photos-section">
-          <h3 class="section-title">
+        <div v-if="maintenanceRecord.beforePhoto || maintenanceRecord.afterPhoto" class="modern-photos-section">
+          <h3 class="modern-section-title">
             <ion-icon :icon="cameraOutline"></ion-icon>
             Fotos Antes/Depois
           </h3>
 
-          <div class="photos-grid">
-            <div v-if="maintenanceRecord.beforePhoto" class="photo-card">
-              <div class="photo-header">
-                <span class="photo-label">📸 ANTES</span>
+          <div class="modern-photos-grid">
+            <!-- Before Photo -->
+            <div v-if="maintenanceRecord.beforePhoto" class="modern-photo-card">
+              <div class="photo-badge before-badge">
+                <ion-icon :icon="cameraOutline"></ion-icon>
+                <span>ANTES</span>
               </div>
-              <img 
-                :src="maintenanceRecord.beforePhoto" 
-                alt="Foto antes da manutenção"
-                class="maintenance-photo"
-                @click="viewPhoto(maintenanceRecord.beforePhoto)"
-              />
+              
+              <div class="photo-container" @click="viewPhoto(maintenanceRecord.beforePhoto, 'before')">
+                <img 
+                  :src="maintenanceRecord.beforePhoto" 
+                  alt="Foto antes da manutenção"
+                  class="modern-photo"
+                />
+                <div class="photo-overlay">
+                  <ion-icon :icon="eyeOutline" class="view-icon-large"></ion-icon>
+                  <p>Clique para ampliar</p>
+                </div>
+              </div>
+
+              <div class="photo-actions">
+                <button 
+                  class="photo-action-btn download-btn"
+                  @click.stop="downloadPhoto(maintenanceRecord.beforePhoto, 'antes')"
+                >
+                  <ion-icon :icon="downloadOutline"></ion-icon>
+                  <span>Baixar</span>
+                </button>
+                <button 
+                  class="photo-action-btn share-btn"
+                  @click.stop="sharePhoto(maintenanceRecord.beforePhoto, 'antes')"
+                >
+                  <ion-icon :icon="shareOutline"></ion-icon>
+                  <span>Compartilhar</span>
+                </button>
+              </div>
             </div>
 
-            <div v-if="maintenanceRecord.afterPhoto" class="photo-card">
-              <div class="photo-header">
-                <span class="photo-label">✅ DEPOIS</span>
+            <!-- After Photo -->
+            <div v-if="maintenanceRecord.afterPhoto" class="modern-photo-card">
+              <div class="photo-badge after-badge">
+                <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+                <span>DEPOIS</span>
               </div>
-              <img 
-                :src="maintenanceRecord.afterPhoto" 
-                alt="Foto depois da manutenção"
-                class="maintenance-photo"
-                @click="viewPhoto(maintenanceRecord.afterPhoto)"
-              />
+              
+              <div class="photo-container" @click="viewPhoto(maintenanceRecord.afterPhoto, 'after')">
+                <img 
+                  :src="maintenanceRecord.afterPhoto" 
+                  alt="Foto depois da manutenção"
+                  class="modern-photo"
+                />
+                <div class="photo-overlay">
+                  <ion-icon :icon="eyeOutline" class="view-icon-large"></ion-icon>
+                  <p>Clique para ampliar</p>
+                </div>
+              </div>
+
+              <div class="photo-actions">
+                <button 
+                  class="photo-action-btn download-btn"
+                  @click.stop="downloadPhoto(maintenanceRecord.afterPhoto, 'depois')"
+                >
+                  <ion-icon :icon="downloadOutline"></ion-icon>
+                  <span>Baixar</span>
+                </button>
+                <button 
+                  class="photo-action-btn share-btn"
+                  @click.stop="sharePhoto(maintenanceRecord.afterPhoto, 'depois')"
+                >
+                  <ion-icon :icon="shareOutline"></ion-icon>
+                  <span>Compartilhar</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -320,13 +382,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButtons,
-  IonButton,
-  IonBackButton,
   IonIcon,
   IonSpinner,
   alertController
@@ -348,7 +404,10 @@ import {
   eyeOutline,
   timeOutline,
   documentOutline,
-  imageOutline
+  imageOutline,
+  downloadOutline,
+  shareOutline,
+  checkmarkCircleOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import type { MaintenanceType } from '@/stores/vehicles'
@@ -456,14 +515,141 @@ const handleDelete = async () => {
   await alert.present()
 }
 
-const viewPhoto = async (photoUrl: string) => {
-  // TODO: Open photo in full screen modal
-  window.open(photoUrl, '_blank')
+const viewPhoto = async (photoUrl: string, type: string) => {
+  // Create a modal-like overlay to view the photo in full screen
+  const overlay = document.createElement('div')
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+  `
+  
+  const img = document.createElement('img')
+  img.src = photoUrl
+  img.alt = `Foto ${type} da manutenção`
+  img.style.cssText = `
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  `
+  
+  const label = document.createElement('div')
+  label.textContent = type === 'before' ? '📸 ANTES' : '✅ DEPOIS'
+  label.style.cssText = `
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  `
+  
+  const closeBtn = document.createElement('button')
+  closeBtn.innerHTML = '✕'
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  `
+  
+  closeBtn.onmouseover = () => {
+    closeBtn.style.background = 'rgba(220, 38, 38, 0.9)'
+    closeBtn.style.transform = 'scale(1.1)'
+  }
+  
+  closeBtn.onmouseout = () => {
+    closeBtn.style.background = 'rgba(239, 68, 68, 0.9)'
+    closeBtn.style.transform = 'scale(1)'
+  }
+  
+  const closeOverlay = () => {
+    overlay.remove()
+  }
+  
+  closeBtn.onclick = closeOverlay
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeOverlay()
+  }
+  
+  overlay.appendChild(label)
+  overlay.appendChild(img)
+  overlay.appendChild(closeBtn)
+  document.body.appendChild(overlay)
 }
 
-const viewAttachment = async (attachment: any) => {
-  // TODO: Open attachment in modal or download
-  window.open(attachment.data, '_blank')
+const downloadPhoto = (photoUrl: string, type: string) => {
+  const link = document.createElement('a')
+  link.href = photoUrl
+  link.download = `manutencao-${type}-${Date.now()}.jpg`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
+const sharePhoto = async (photoUrl: string, type: string) => {
+  try {
+    // Check if Web Share API is available
+    if (navigator.share) {
+      // Convert base64 to blob
+      const response = await fetch(photoUrl)
+      const blob = await response.blob()
+      const file = new File([blob], `manutencao-${type}.jpg`, { type: 'image/jpeg' })
+      
+      await navigator.share({
+        title: `Manutenção - Foto ${type}`,
+        text: `Foto ${type} da manutenção`,
+        files: [file]
+      })
+    } else {
+      // Fallback: copy to clipboard
+      await navigator.clipboard.writeText(photoUrl)
+      alert('Link da foto copiado para a área de transferência!')
+    }
+  } catch (error) {
+    console.error('Error sharing photo:', error)
+    // Fallback: download
+    downloadPhoto(photoUrl, type)
+  }
+}
+
+const viewAttachment = async (attachment: { name: string; data: string; type: string; size: number }) => {
+  // Open attachment in new tab or trigger download
+  if (attachment.type.includes('image')) {
+    viewPhoto(attachment.data, attachment.name)
+  } else {
+    // Download PDF or other files
+    const link = document.createElement('a')
+    link.href = attachment.data
+    link.download = attachment.name
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  }
 }
 
 onMounted(async () => {
@@ -485,7 +671,7 @@ onMounted(async () => {
 <style scoped>
 /* Dark Theme Base */
 .detail-content {
-  --background: #111827;
+  --background: var(--ion-background-color);
 }
 
 .detail-toolbar {
@@ -518,22 +704,40 @@ onMounted(async () => {
 
 /* Header */
 .maintenance-header {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #374151;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 1) 100%);
+  border-radius: 24px;
+  padding: 28px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.maintenance-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .header-content {
   display: flex;
-  gap: 1rem;
+  gap: 20px;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
 .type-icon {
-  font-size: 3rem;
+  font-size: 4rem;
   line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
 .header-info {
@@ -542,101 +746,141 @@ onMounted(async () => {
 
 .maintenance-title {
   color: white;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .maintenance-description {
-  color: #9ca3af;
-  font-size: 1rem;
-  margin: 0 0 0.75rem 0;
+  color: #d1d5db;
+  font-size: 1.125rem;
+  margin: 0 0 16px 0;
+  line-height: 1.6;
 }
 
 .maintenance-badges {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-/* Stats Grid */
-.stats-grid {
+/* Modern Stats Grid */
+.modern-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.stat-card {
-  padding: 1.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.modern-stat-card {
   position: relative;
+  padding: 24px;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.blue-gradient {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
+.modern-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-.purple-gradient {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(147, 51, 234, 0.05) 100%);
+.stat-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
-.green-gradient {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+.gradient-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
 }
 
-.yellow-gradient {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+.gradient-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%);
 }
 
-.stat-icon-wrapper {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
+.gradient-green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+}
+
+.gradient-yellow {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+}
+
+.stat-content-wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon-modern {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.75rem;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.stat-icon-wrapper.blue {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
+.stat-icon-modern.blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
 }
 
-.stat-icon-wrapper.purple {
-  background: rgba(168, 85, 247, 0.2);
-  color: #a855f7;
+.stat-icon-modern.purple {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: white;
 }
 
-.stat-icon-wrapper.green {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
+.stat-icon-modern.green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
 }
 
-.stat-icon-wrapper.yellow {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+.stat-icon-modern.yellow {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
 }
 
-.stat-value {
+.stat-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label-modern {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-modern {
   color: white;
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.stat-value.text-sm {
-  font-size: 1rem;
-}
-
-.stat-label {
-  color: #9ca3af;
-  font-size: 0.75rem;
   margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stat-value-modern.text-sm {
+  font-size: 1.125rem;
 }
 
 /* Cards */
@@ -645,21 +889,37 @@ onMounted(async () => {
 .cost-card,
 .attachments-card,
 .timeline-card {
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.vehicle-card:hover,
+.details-card:hover,
+.cost-card:hover,
+.attachments-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 .card-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 12px;
   color: white;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .card-title ion-icon {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: #3b82f6;
 }
 
@@ -856,46 +1116,181 @@ onMounted(async () => {
   margin: 0 0 0.75rem 0;
 }
 
-/* Photos Section */
-.photos-section {
-  margin-bottom: 1.5rem;
+/* Modern Photos Section */
+.modern-photos-section {
+  margin-bottom: 24px;
 }
 
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.photo-card {
-  border: 1px solid #374151;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background: #1f2937;
-}
-
-.photo-header {
-  padding: 0.75rem;
-  background: #111827;
-}
-
-.photo-label {
+.modern-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.maintenance-photo {
-  width: 100%;
-  height: 250px;
-  object-fit: contain;
-  background: #000;
+.modern-section-title ion-icon {
+  font-size: 1.75rem;
+  color: #3b82f6;
+}
+
+.modern-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.modern-photo-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%);
+  border-radius: 24px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.modern-photo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.photo-badge {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 2;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.before-badge {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.after-badge {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.photo-container {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
   cursor: pointer;
-  transition: transform 0.2s;
+  background: #000;
+  aspect-ratio: 4/3;
 }
 
-.maintenance-photo:hover {
-  transform: scale(1.02);
+.modern-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photo-container:hover .photo-overlay {
+  opacity: 1;
+}
+
+.photo-container:hover .modern-photo {
+  transform: scale(1.05);
+}
+
+.view-icon-large {
+  font-size: 3rem;
+  color: white;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.photo-overlay p {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.photo-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.photo-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.download-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.2) 100%);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.share-btn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.share-btn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.photo-action-btn ion-icon {
+  font-size: 1.125rem;
 }
 
 /* Attachments List */

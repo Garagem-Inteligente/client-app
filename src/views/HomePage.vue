@@ -1023,7 +1023,7 @@ const formatCurrency = (value: number) => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: #111827;
+  background: var(--ion-background-color);
   border: 1px solid transparent;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -1115,7 +1115,7 @@ const formatCurrency = (value: number) => {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  background: #111827;
+  background: var(--ion-background-color);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;

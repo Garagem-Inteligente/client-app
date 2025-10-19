@@ -40,6 +40,28 @@
 
           <!-- Main Fields Grid -->
           <div class="fields-grid">
+            <!-- Vehicle Type (FIRST FIELD) -->
+            <div class="full-width">
+              <label for="vehicleType" class="field-label">
+                Tipo de Veículo *
+              </label>
+              <select
+                id="vehicleType"
+                v-model="formData.vehicleType"
+                required
+                :disabled="vehiclesStore.loading"
+                class="field-select"
+              >
+                <option value="">Selecione o tipo</option>
+                <option value="car">🚗 Carro</option>
+                <option value="motorcycle">🏍️ Moto</option>
+                <option value="van">🚐 Van</option>
+                <option value="truck">🚚 Caminhão</option>
+                <option value="bus">🚌 Ônibus</option>
+                <option value="pickup">🛻 Caminhonete</option>
+              </select>
+            </div>
+
             <!-- Brand (FIPE) -->
             <div v-if="!isEdit">
               <MSearchableSelectFipe
@@ -123,6 +145,7 @@
                 id="year"
                 v-model.number="formData.year"
                 type="number"
+                inputmode="numeric"
                 :min="1900"
                 :max="new Date().getFullYear() + 1"
                 required
@@ -131,7 +154,7 @@
               />
             </div>
 
-            <!-- Plate -->
+            <!-- Plate with mask -->
             <div>
               <label for="plate" class="field-label">
                 Placa *
@@ -145,6 +168,12 @@
                 :disabled="vehiclesStore.loading"
                 class="field-input"
                 maxlength="8"
+                @input="(e) => {
+                  const target = e.target as HTMLInputElement
+                  const cleaned = target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+                  target.value = cleaned.length <= 3 ? cleaned : `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}`
+                  formData.plate = target.value
+                }"
               />
             </div>
 
@@ -163,49 +192,39 @@
               />
             </div>
 
-            <!-- Mileage -->
+            <!-- Mileage with mask -->
             <div>
               <label for="mileage" class="field-label">
                 Quilometragem *
               </label>
               <input
                 id="mileage"
-                v-model.number="formData.mileage"
-                type="number"
-                min="0"
+                v-model="formData.mileage"
+                type="text"
+                inputmode="numeric"
                 placeholder="0"
                 required
                 :disabled="vehiclesStore.loading"
                 class="field-input"
+                @input="(e) => {
+                  const target = e.target as HTMLInputElement
+                  const value = target.value.replace(/\\D/g, '')
+                  if (value) {
+                    const num = Number.parseInt(value)
+                    target.value = new Intl.NumberFormat('pt-BR').format(num)
+                    formData.mileage = num
+                  } else {
+                    target.value = ''
+                    formData.mileage = 0
+                  }
+                }"
               />
             </div>
 
-            <!-- Vehicle Type -->
-            <div>
-              <label for="vehicleType" class="field-label">
-                Tipo de Veículo *
-              </label>
-              <select
-                id="vehicleType"
-                v-model="formData.vehicleType"
-                required
-                :disabled="vehiclesStore.loading"
-                class="field-select"
-              >
-                <option value="">Selecione o tipo</option>
-                <option value="car">🚗 Carro</option>
-                <option value="motorcycle">🏍️ Moto</option>
-                <option value="van">🚐 Van</option>
-                <option value="truck">🚚 Caminhão</option>
-                <option value="bus">🚌 Ônibus</option>
-                <option value="pickup">🛻 Caminhonete</option>
-              </select>
-            </div>
-
-            <!-- Fuel Type -->
+            <!-- Fuel Type (Auto-inferred from FIPE) -->
             <div>
               <label for="fuelType" class="field-label">
-                Tipo de Combustível *
+                Tipo de Combustível * <span v-if="!isEdit" class="text-xs text-blue-400">(Auto-detectado da FIPE)</span>
               </label>
               <select
                 id="fuelType"
@@ -225,6 +244,18 @@
                 <option value="gnv">💨 GNV (Gás Natural)</option>
               </select>
             </div>
+
+            <!-- FIPE Value Display (if available) -->
+            <div v-if="formData.fipeValue > 0" class="full-width">
+              <div class="fipe-value-card">
+                <div class="fipe-icon">💰</div>
+                <div class="fipe-content">
+                  <div class="fipe-label">Valor FIPE</div>
+                  <div class="fipe-price">{{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(formData.fipeValue) }}</div>
+                  <div class="fipe-hint">Valor atualizado da tabela FIPE</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Photo Section -->
@@ -239,8 +270,9 @@
             </div>
 
             <div class="photo-content">
-              <label class="field-label">Adicionar Foto</label>
+              <label for="photo-upload" class="field-label">Adicionar Foto</label>
               <input
+                id="photo-upload"
                 type="file"
                 accept="image/*"
                 @change="handlePhotoUpload"
@@ -311,21 +343,6 @@
                 />
               </div>
 
-              <!-- Insurance Phone -->
-              <div>
-                <label for="insurancePhone" class="field-label">
-                  Telefone da Seguradora
-                </label>
-                <input
-                  id="insurancePhone"
-                  v-model="formData.insurancePhone"
-                  type="tel"
-                  placeholder="Ex: 0800 123 4567"
-                  :disabled="vehiclesStore.loading"
-                  class="field-input"
-                />
-              </div>
-
               <!-- Policy Number -->
               <div>
                 <label for="insurancePolicyNumber" class="field-label">
@@ -338,6 +355,68 @@
                   placeholder="Ex: 123456789"
                   :disabled="vehiclesStore.loading"
                   class="field-input"
+                />
+              </div>
+
+              <!-- Insurance Phone with mask -->
+              <div>
+                <label for="insurancePhone" class="field-label">
+                  Telefone da Seguradora
+                </label>
+                <input
+                  id="insurancePhone"
+                  v-model="formData.insurancePhone"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="(11) 98765-4321"
+                  :disabled="vehiclesStore.loading"
+                  class="field-input"
+                  @input="(e) => {
+                    const target = e.target as HTMLInputElement
+                    const value = target.value.replace(/\\D/g, '')
+                    if (value.length <= 10) {
+                      target.value = value
+                        .replace(/^(\\d{2})(\\d)/, '($1) $2')
+                        .replace(/(\\d{4})(\\d)/, '$1-$2')
+                    } else {
+                      target.value = value
+                        .replace(/^(\\d{2})(\\d)/, '($1) $2')
+                        .replace(/(\\d{5})(\\d)/, '$1-$2')
+                        .slice(0, 15)
+                    }
+                    formData.insurancePhone = target.value
+                  }"
+                />
+              </div>
+
+              <!-- Broker Contact with mask -->
+              <div>
+                <label for="brokerContact" class="field-label">
+                  Telefone do Corretor
+                </label>
+                <input
+                  id="brokerContact"
+                  v-model="formData.brokerContact"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="(11) 98765-4321"
+                  :disabled="vehiclesStore.loading"
+                  class="field-input"
+                  @input="(e) => {
+                    const target = e.target as HTMLInputElement
+                    const value = target.value.replace(/\\D/g, '')
+                    if (value.length <= 10) {
+                      target.value = value
+                        .replace(/^(\\d{2})(\\d)/, '($1) $2')
+                        .replace(/(\\d{4})(\\d)/, '$1-$2')
+                    } else {
+                      target.value = value
+                        .replace(/^(\\d{2})(\\d)/, '($1) $2')
+                        .replace(/(\\d{5})(\\d)/, '$1-$2')
+                        .slice(0, 15)
+                    }
+                    formData.brokerContact = target.value
+                  }"
                 />
               </div>
 
@@ -355,20 +434,39 @@
                 />
               </div>
 
-              <!-- Insurance Value -->
-              <div class="full-width">
+              <!-- Insurance Value with currency mask -->
+              <div>
                 <label for="insuranceValue" class="field-label">
                   Valor do Seguro (Anual)
                 </label>
                 <input
                   id="insuranceValue"
-                  v-model.number="formData.insuranceValue"
-                  type="number"
-                  min="0"
-                  step="0.01"
+                  v-model="formData.insuranceValue"
+                  type="text"
+                  inputmode="decimal"
                   placeholder="R$ 0,00"
                   :disabled="vehiclesStore.loading"
                   class="field-input"
+                  @input="(e) => {
+                    const target = e.target as HTMLInputElement
+                    const value = target.value.replace(/\\D/g, '')
+                    
+                    if (!value) {
+                      target.value = ''
+                      formData.insuranceValue = 0
+                      return
+                    }
+                    
+                    const cents = Number.parseInt(value)
+                    const reais = cents / 100
+                    
+                    target.value = new Intl.NumberFormat('pt-BR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }).format(reais)
+                    
+                    formData.insuranceValue = reais
+                  }"
                 />
               </div>
             </div>
@@ -404,7 +502,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   IonPage,
-  IonContent
+  IonContent,
+  alertController
 } from '@ionic/vue'
 import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles'
 import { fipeApi, type FipeVehicleType } from '@/services/fipeApi'
@@ -446,7 +545,10 @@ const formData = ref({
   insurancePhone: '',
   insurancePolicyNumber: '',
   insuranceExpiryDate: '',
-  insuranceValue: 0
+  insuranceValue: 0,
+  brokerContact: '',
+  fipeValue: 0,
+  fipeCode: ''
 })
 
 const isFormValid = computed(() => {
@@ -520,11 +622,11 @@ const handleModelSelect = (option: { code: string; name: string }) => {
   formData.value.model = option.name
 }
 
-const handleYearSelect = (option: { code: string; name: string }) => {
+const handleYearSelect = async (option: { code: string; name: string }) => {
   // Extract year from name (ex: "2023 Gasolina" -> 2023)
   const yearMatch = option.name.match(/^\d{4}/)
   if (yearMatch) {
-    formData.value.year = parseInt(yearMatch[0])
+    formData.value.year = Number.parseInt(yearMatch[0])
   }
 
   // Try to extract fuel type from name
@@ -543,6 +645,52 @@ const handleYearSelect = (option: { code: string; name: string }) => {
     formData.value.fuelType = 'gnv'
   } else if (nameLower.includes('gasolina')) {
     formData.value.fuelType = 'gasoline'
+  }
+
+  // Fetch FIPE value
+  if (formData.value.brandCode && formData.value.modelCode) {
+    try {
+      const fipeInfo = await fipeApi.getVehicleInfo(
+        vehicleType.value,
+        formData.value.brandCode,
+        formData.value.modelCode,
+        option.code
+      )
+      
+      if (fipeInfo) {
+        // Store FIPE code
+        formData.value.fipeCode = fipeInfo.codeFipe || ''
+        
+        // Parse and store FIPE value
+        // Format: "R$ 50.000,00" -> 50000
+        if (fipeInfo.price) {
+          const valueStr = fipeInfo.price.replaceAll(/[^\d,]/g, '').replaceAll(',', '.')
+          formData.value.fipeValue = Number.parseFloat(valueStr) || 0
+        }
+        
+        // Auto-infer fuel type from FIPE if not already set by year name
+        if (fipeInfo.fuel && !nameLower.includes('gasolina') && !nameLower.includes('diesel') && !nameLower.includes('flex')) {
+          const fipeFuel = fipeInfo.fuel.toLowerCase()
+          if (fipeFuel.includes('diesel')) {
+            formData.value.fuelType = 'diesel'
+          } else if (fipeFuel.includes('elétrico') || fipeFuel.includes('eletrico')) {
+            formData.value.fuelType = 'electric'
+          } else if (fipeFuel.includes('etanol') || fipeFuel.includes('álcool')) {
+            formData.value.fuelType = 'ethanol'
+          } else if (fipeFuel.includes('flex')) {
+            formData.value.fuelType = 'flex'
+          } else if (fipeFuel.includes('híbrido') || fipeFuel.includes('hibrido')) {
+            formData.value.fuelType = 'hybrid-mild'
+          } else if (fipeFuel.includes('gnv')) {
+            formData.value.fuelType = 'gnv'
+          } else if (fipeFuel.includes('gasolina')) {
+            formData.value.fuelType = 'gasoline'
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados FIPE:', error)
+    }
   }
 }
 
@@ -580,44 +728,101 @@ const handlePhotoUpload = (event: Event) => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return
 
-  try {
-    const vehicleData = {
-      vehicleType: formData.value.vehicleType,
-      make: formData.value.make,
-      model: formData.value.model,
-      year: formData.value.year,
-      plate: formData.value.plate,
-      color: formData.value.color,
-      mileage: formData.value.mileage,
-      fuelType: formData.value.fuelType,
-      ...(formData.value.imageUrl && { imageUrl: formData.value.imageUrl }),
-      ...(formData.value.insuranceCompany && { insuranceCompany: formData.value.insuranceCompany }),
-      ...(formData.value.insurancePhone && { insurancePhone: formData.value.insurancePhone }),
-      ...(formData.value.insurancePolicyNumber && { insurancePolicyNumber: formData.value.insurancePolicyNumber }),
-      ...(formData.value.insuranceExpiryDate && { insuranceExpiryDate: formData.value.insuranceExpiryDate }),
-      ...(formData.value.insuranceValue && { insuranceValue: formData.value.insuranceValue })
-    }
+  // Show confirmation modal
+  const alert = await alertController.create({
+    header: isEdit.value ? 'Confirmar Atualização' : 'Confirmar Adição',
+    message: isEdit.value
+      ? 'Deseja realmente atualizar este veículo?'
+      : 'Deseja realmente adicionar este veículo?',
+    cssClass: 'modern-alert',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        cssClass: 'alert-button-cancel'
+      },
+      {
+        text: isEdit.value ? 'Atualizar' : 'Adicionar',
+        cssClass: 'alert-button-confirm',
+        handler: async () => {
+          try {
+            const vehicleData = {
+              vehicleType: formData.value.vehicleType,
+              make: formData.value.make,
+              model: formData.value.model,
+              year: formData.value.year,
+              plate: formData.value.plate,
+              color: formData.value.color,
+              mileage: formData.value.mileage,
+              fuelType: formData.value.fuelType,
+              ...(formData.value.imageUrl && { imageUrl: formData.value.imageUrl }),
+              ...(formData.value.fipeValue && { fipeValue: formData.value.fipeValue }),
+              ...(formData.value.fipeCode && { fipeCode: formData.value.fipeCode }),
+              ...(formData.value.insuranceCompany && { insuranceCompany: formData.value.insuranceCompany }),
+              ...(formData.value.insurancePhone && { insurancePhone: formData.value.insurancePhone }),
+              ...(formData.value.insurancePolicyNumber && { insurancePolicyNumber: formData.value.insurancePolicyNumber }),
+              ...(formData.value.insuranceExpiryDate && { insuranceExpiryDate: formData.value.insuranceExpiryDate }),
+              ...(formData.value.insuranceValue && { insuranceValue: formData.value.insuranceValue }),
+              ...(formData.value.brokerContact && { brokerContact: formData.value.brokerContact })
+            }
 
-    if (isEdit.value) {
-      await vehiclesStore.updateVehicle(route.params.id as string, vehicleData)
-    } else {
-      await vehiclesStore.addVehicle(vehicleData)
-    }
+            if (isEdit.value) {
+              await vehiclesStore.updateVehicle(route.params.id as string, vehicleData)
+            } else {
+              await vehiclesStore.addVehicle(vehicleData)
+            }
 
-    router.push('/tabs/vehicles')
-  } catch (error) {
-    console.error('Erro ao salvar veículo:', error)
-  }
+            router.push('/tabs/vehicles')
+          } catch (error) {
+            console.error('Erro ao salvar veículo:', error)
+          }
+        }
+      }
+    ]
+  })
+
+  await alert.present()
 }
 
-const handleCancel = () => {
-  router.back()
+const handleCancel = async () => {
+  // Show confirmation modal
+  const alert = await alertController.create({
+    header: 'Cancelar Edição',
+    message: 'Deseja realmente cancelar? Todas as alterações serão perdidas.',
+    cssClass: 'modern-alert',
+    buttons: [
+      {
+        text: 'Continuar Editando',
+        role: 'cancel',
+        cssClass: 'alert-button-cancel'
+      },
+      {
+        text: 'Sim, Cancelar',
+        cssClass: 'alert-button-confirm',
+        handler: () => {
+          router.back()
+        }
+      }
+    ]
+  })
+
+  await alert.present()
 }
 
 onMounted(async () => {
   if (isEdit.value) {
     const vehicle = vehiclesStore.getVehicleById(route.params.id as string)
     if (vehicle) {
+      // Format insurance expiry date
+      let insuranceExpiry = ''
+      if (vehicle.insuranceExpiryDate) {
+        if (vehicle.insuranceExpiryDate instanceof Date) {
+          insuranceExpiry = vehicle.insuranceExpiryDate.toISOString().split('T')[0]
+        } else {
+          insuranceExpiry = String(vehicle.insuranceExpiryDate).split('T')[0]
+        }
+      }
+      
       formData.value = {
         vehicleType: vehicle.vehicleType,
         make: vehicle.make,
@@ -634,12 +839,11 @@ onMounted(async () => {
         insuranceCompany: vehicle.insuranceCompany || '',
         insurancePhone: vehicle.insurancePhone || '',
         insurancePolicyNumber: vehicle.insurancePolicyNumber || '',
-        insuranceExpiryDate: vehicle.insuranceExpiryDate
-          ? (vehicle.insuranceExpiryDate instanceof Date
-              ? vehicle.insuranceExpiryDate.toISOString().split('T')[0]
-              : String(vehicle.insuranceExpiryDate).split('T')[0])
-          : '',
-        insuranceValue: vehicle.insuranceValue || 0
+        insuranceExpiryDate: insuranceExpiry,
+        insuranceValue: vehicle.insuranceValue || 0,
+        brokerContact: vehicle.brokerContact || '',
+        fipeValue: vehicle.fipeValue || 0,
+        fipeCode: vehicle.fipeCode || ''
       }
     }
   } else {
@@ -653,7 +857,6 @@ onMounted(async () => {
 /* Page Container */
 .form-page {
   min-height: 100%;
-  background: #111827; /* gray-900 */
 }
 
 .form-content {
@@ -762,9 +965,8 @@ onMounted(async () => {
 .field-input:focus,
 .field-select:focus {
   outline: none;
-  ring: 2px;
-  ring-color: #3b82f6; /* ring-blue-500 */
-  border-color: transparent;
+  border-color: #3b82f6; /* border-blue-500 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* ring effect */
 }
 
 .field-input::placeholder {
@@ -845,8 +1047,8 @@ onMounted(async () => {
 
 .file-input:focus {
   outline: none;
-  ring: 2px;
-  ring-color: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .photo-hint {
@@ -982,4 +1184,106 @@ onMounted(async () => {
 .btn-outline:hover:not(:disabled) {
   background-color: #374151; /* hover:bg-gray-700 */
 }
+
+/* FIPE Value Card */
+.fipe-value-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fipe-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.fipe-content {
+  flex: 1;
+}
+
+.fipe-label {
+  font-size: 0.75rem;
+  color: #86efac; /* text-green-300 */
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fipe-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #22c55e; /* text-green-500 */
+  margin: 0.25rem 0;
+}
+
+.fipe-hint {
+  font-size: 0.75rem;
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* Modern Alert Styles (Global) */
+ion-alert.modern-alert {
+  --background: #1f2937;
+  --max-width: 400px;
+}
+
+ion-alert.modern-alert .alert-wrapper {
+  border-radius: 1rem;
+  border: 1px solid #374151;
+  backdrop-filter: blur(10px);
+}
+
+ion-alert.modern-alert .alert-head {
+  padding: 1.5rem 1.5rem 0;
+}
+
+ion-alert.modern-alert .alert-title {
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+ion-alert.modern-alert .alert-message {
+  color: #d1d5db;
+  padding: 0.75rem 1.5rem 1.5rem;
+  font-size: 0.875rem;
+}
+
+ion-alert.modern-alert .alert-button-group {
+  padding: 0 1rem 1rem;
+}
+
+ion-alert.modern-alert .alert-button {
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-transform: none;
+  height: 2.75rem;
+  margin: 0 0.25rem;
+}
+
+ion-alert.modern-alert .alert-button-cancel {
+  color: #9ca3af;
+  background-color: transparent;
+  border: 1px solid #4b5563;
+}
+
+ion-alert.modern-alert .alert-button-cancel:hover {
+  background-color: rgba(75, 85, 99, 0.2);
+}
+
+ion-alert.modern-alert .alert-button-confirm {
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+}
+
+ion-alert.modern-alert .alert-button-confirm:hover {
+  opacity: 0.9;
+}
+
 </style>

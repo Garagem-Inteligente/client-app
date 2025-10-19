@@ -1,6 +1,11 @@
 <template>
   <ion-page>
-    <ModernHeader title="Meus Veículos" />
+    <ModernHeader 
+      title="Meus Veículos"
+      :secondary-actions="[
+        { icon: add, handler: () => $router.push('/tabs/vehicle/new') }
+      ]"
+    />
 
     <ion-content :fullscreen="true" class="app-content">
       <!-- Background layers -->
@@ -208,6 +213,13 @@
         </div>
       </div>
       </div>
+
+      <!-- Floating Action Button -->
+      <ion-fab vertical="bottom" horizontal="end">
+        <ion-fab-button @click="$router.push('/tabs/vehicle/new')">
+          <ion-icon :icon="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
 
     <!-- Delete Confirmation Modal -->
@@ -233,7 +245,9 @@ import {
   IonIcon,
   IonSpinner,
   IonChip,
-  IonAlert
+  IonAlert,
+  IonFab,
+  IonFabButton
 } from '@ionic/vue'
 import {
   add,
@@ -1123,6 +1137,59 @@ ion-card.error-state-card {
   
   .vehicle-title {
     color: #f9fafb;
+  }
+}
+
+/* ====================================
+   FLOATING ACTION BUTTON
+   ==================================== */
+
+ion-fab-button {
+  --background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --background-activated: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.5), 
+                0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 56px;
+  height: 56px;
+}
+
+ion-fab-button::part(native) {
+  border-radius: 16px;
+}
+
+ion-fab-button:hover {
+  --box-shadow: 0 12px 32px -6px rgba(59, 130, 246, 0.6), 
+                0 6px 16px -3px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px) scale(1.05);
+}
+
+ion-fab-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+ion-fab-button ion-icon {
+  font-size: 28px;
+  color: white;
+}
+
+/* FAB positioning */
+ion-fab {
+  margin: 0 16px 80px 16px; /* 80px from bottom to avoid tab bar */
+}
+
+@media (min-width: 768px) {
+  ion-fab {
+    margin: 0 24px 24px 24px;
+  }
+  
+  ion-fab-button {
+    width: 64px;
+    height: 64px;
+  }
+  
+  ion-fab-button ion-icon {
+    font-size: 32px;
   }
 }
 </style>

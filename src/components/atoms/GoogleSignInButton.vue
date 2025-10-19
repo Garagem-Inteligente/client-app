@@ -86,14 +86,11 @@ const handleGoogleSignIn = async () => {
   loading.value = true
   try {
     console.log('Iniciando Google Sign-In...')
-    await showToast('Iniciando login com Google...', 'primary')
     
     const success = await authStore.signInWithGoogle()
     console.log('Resultado signInWithGoogle:', success)
     
     if (success) {
-      await showToast('Login bem-sucedido! Aguardando sincronização...', 'success')
-      
       // Aguarda o Pinia atualizar o usuário antes de redirecionar
       const waitForAuth = async () => {
         let tries = 0
