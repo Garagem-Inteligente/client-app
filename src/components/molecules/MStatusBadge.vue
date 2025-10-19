@@ -84,20 +84,10 @@ const badgeClass = computed(() => ({
   color: #60a5fa;
 }
 
-/* Variant: -pulse (animation for urgent states) */
+/* Removed pulse-error animation for better performance */
 .status-badge.-pulse {
-  animation: pulse-error 2s ease-in-out infinite;
-}
-
-@keyframes pulse-error {
-  0%, 100% {
-    border-color: rgba(239, 68, 68, 0.4);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-  }
-  50% {
-    border-color: rgba(239, 68, 68, 0.6);
-    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
-  }
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.05);
 }
 
 /* Element: icon */

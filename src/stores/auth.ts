@@ -75,11 +75,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     
     try {
-      console.log('🔐 Tentando login com email/senha:', email)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const firebaseUser = userCredential.user
-      console.log('✅ Login bem-sucedido! UID:', firebaseUser.uid)
-      console.log('📋 Provedores disponíveis:', firebaseUser.providerData.map(p => p.providerId))
       
       // Buscar userType do Firestore (com fallback para 'user')
       let userType: 'user' | 'workshop' = 'user'
@@ -181,7 +178,6 @@ export const useAuthStore = defineStore('auth', () => {
       
       if (isNative) {
         // Fluxo nativo usando @capgo/capacitor-social-login
-        console.log('🔐 Login Google via @capgo/capacitor-social-login (Nativo)')
         
         // Web Client ID do OAuth 2.0 (OBRIGATÓRIO para Android)
         const WEB_CLIENT_ID = '868408826724-fraf20uj8jeflctur19rif19lbgiapse.apps.googleusercontent.com'
@@ -192,14 +188,12 @@ export const useAuthStore = defineStore('auth', () => {
             webClientId: WEB_CLIENT_ID
           }
         })
-        console.log('✅ Plugin @capgo inicializado com Web Client ID')
         
         // Fazer login (sem scopes - o plugin usa profile e email por padrão)
         const result = await SocialLogin.login({
           provider: 'google',
           options: {}
         })
-        console.log('📱 Resultado do login:', result)
         
         // Validar estrutura da resposta
         if (!result.result || result.result.responseType !== 'online') {
@@ -213,10 +207,6 @@ export const useAuthStore = defineStore('auth', () => {
           throw new Error('Perfil do usuário não encontrado')
         }
         
-        console.log('✅ Perfil recebido do Google:', profile.id)
-        console.log('📧 Email do usuário:', profile.email)
-        console.log('👤 Nome do usuário:', profile.name)
-        
         // Obter ID Token do Firebase usando a credencial do Google
         const idToken = result.result.idToken
         if (!idToken) {
@@ -225,18 +215,12 @@ export const useAuthStore = defineStore('auth', () => {
         }
         
         // Autenticar no Firebase usando o ID Token do Google
-        console.log('� Autenticando no Firebase com ID Token...')
         const credential = GoogleAuthProvider.credential(idToken)
         const userCredential = await signInWithCredential(auth, credential)
         firebaseUser = userCredential.user
         
-        console.log('✅ Firebase Auth sincronizado:', firebaseUser.uid)
-        console.log('📧 Email sincronizado:', firebaseUser.email)
-        console.log('👤 Nome sincronizado:', firebaseUser.displayName)
       } else {
-        // Fluxo web usando popup
-        console.log('🔐 Login Google via Popup (Web)')
-        
+        // Fluxo web usando popup        
         const provider = new GoogleAuthProvider()
         provider.setCustomParameters({
           prompt: 'select_account'

@@ -216,12 +216,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
   // Actions
   const fetchVehicles = async () => {
     const authStore = useAuthStore()
-    if (!authStore.isAuthenticated) return
+    if (!authStore.isAuthenticated) {
+      logger.warn('User not authenticated, skipping vehicles fetch')
+      return
+    }
 
     loading.value = true
     error.value = null
 
     try {
+      logger.info('🔍 Fetching vehicles for user:', authStore.user!.id)
+      
       const vehiclesRef = collection(db, 'vehicles')
       const q = query(
         vehiclesRef,
@@ -230,6 +235,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       )
       
       const querySnapshot = await getDocs(q)
+      
+      logger.info(`✅ Found ${querySnapshot.size} vehicles`)
+      
       vehicles.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -237,9 +245,12 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         updatedAt: doc.data().updatedAt?.toDate() || new Date(),
         insuranceExpiryDate: doc.data().insuranceExpiryDate?.toDate()
       })) as Vehicle[]
+      
+      logger.info('✅ Vehicles loaded successfully')
     } catch (err) {
       const errorMessage = (err as { message?: string })?.message
       error.value = errorMessage || 'Erro ao carregar veículos'
+      logger.error('❌ Error fetching vehicles:', err)
     } finally {
       loading.value = false
     }
@@ -430,7 +441,13 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.isAuthenticated) return
+      if (!authStore.isAuthenticated) {
+        logger.warn('User not authenticated, skipping maintenance fetch')
+        loading.value = false
+        return
+      }
+
+      logger.info('🔍 Fetching maintenance records for user:', authStore.user!.id)
 
       // Buscar todas as manutenções do usuário (as rules exigem filtro por userId)
       const maintenanceRef = collection(db, 'maintenance')
@@ -442,6 +459,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       const querySnapshot = await getDocs(q)
       const fetchedRecords: MaintenanceRecord[] = []
+      
+      logger.info(`✅ Found ${querySnapshot.size} maintenance records`)
       
       querySnapshot.forEach((doc) => {
         const data = doc.data()
@@ -478,10 +497,11 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       })
       
       maintenanceRecords.value = fetchedRecords
+      logger.info('✅ Maintenance records loaded successfully')
     } catch (err) {
       const errorMessage = (err as { message?: string })?.message
       error.value = errorMessage || 'Erro ao buscar manutenções'
-      logger.error('Error fetching maintenance records:', err)
+      logger.error('❌ Error fetching maintenance records:', err)
     } finally {
       loading.value = false
     }
@@ -503,15 +523,52 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     try {
       logger.info('📝 Creating maintenance record...')
       
+      // Validar campos obrigatórios
+      if (!maintenanceData.vehicleId) {
+        logger.error('❌ Missing vehicleId')
+        error.value = 'ID do veículo é obrigatório'
+        loading.value = false
+        return false
+      }
+      
+      if (!maintenanceData.type) {
+        logger.error('❌ Missing type')
+        error.value = 'Tipo de manutenção é obrigatório'
+        loading.value = false
+        return false
+      }
+      
+      if (!maintenanceData.description) {
+        logger.error('❌ Missing description')
+        error.value = 'Descrição é obrigatória'
+        loading.value = false
+        return false
+      }
+      
       // Primeiro, criar o documento sem as imagens para obter o ID
       const tempRecord = {
-        ...maintenanceData,
+        vehicleId: maintenanceData.vehicleId,
+        type: maintenanceData.type,
+        description: maintenanceData.description,
+        cost: maintenanceData.cost || 0,
+        partsCost: maintenanceData.partsCost || 0,
+        laborCost: maintenanceData.laborCost || 0,
+        mileage: maintenanceData.mileage || 0,
+        date: maintenanceData.date ? Timestamp.fromDate(maintenanceData.date) : Timestamp.now(),
+        nextDueDate: maintenanceData.nextDueDate ? Timestamp.fromDate(maintenanceData.nextDueDate) : null,
+        nextDueMileage: maintenanceData.nextDueMileage || null,
+        serviceProvider: maintenanceData.serviceProvider || null,
+        notes: maintenanceData.notes || null,
+        warrantyParts: maintenanceData.warrantyParts || null,
+        warrantyLabor: maintenanceData.warrantyLabor || null,
         beforePhoto: null,
         afterPhoto: null,
-        attachments: [], // Temporariamente vazio
+        attachments: [],
         userId: authStore.user.id,
         createdAt: Timestamp.now()
       }
+      
+      logger.info('📦 Document to create:', tempRecord)
 
       const docRef = await addDoc(collection(db, 'maintenance'), tempRecord)
       logger.info('✅ Maintenance document created:', docRef.id)

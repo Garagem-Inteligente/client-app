@@ -15,6 +15,44 @@
 @tailwind utilities;
 
 /* ====================================
+   GLOBAL: REMOVER TRANSIÇÕES DE ELEMENTOS
+   ==================================== */
+
+/* Remove TODAS as transições e animações de elementos individuais */
+* {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Mantém APENAS transições de interação (hover, focus, active) em elementos clicáveis */
+button:hover,
+button:focus,
+button:active,
+a:hover,
+a:focus,
+a:active,
+ion-button:hover,
+ion-button:focus,
+ion-button:active,
+.clickable:hover,
+.clickable:focus,
+.clickable:active,
+input:focus,
+select:focus,
+textarea:focus {
+  transition: opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* ====================================
+   GLOBAL: TRANSIÇÃO DE PÁGINA (SLIDE HORIZONTAL)
+   ==================================== */
+
+/* Transição suave apenas na tela toda */
+ion-page {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ====================================
    GLOBAL SMOOTH SCROLL
    ==================================== */
 
@@ -30,4 +68,3 @@ ion-content::part(scroll) {
   scroll-behavior: smooth;
   padding-bottom: 80px; /* Espaço para navbar fixa */
 }
-

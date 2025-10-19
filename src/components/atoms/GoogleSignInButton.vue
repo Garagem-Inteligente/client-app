@@ -84,11 +84,8 @@ const linkingModalRef = ref<InstanceType<typeof AccountLinkingModal> | null>(nul
 
 const handleGoogleSignIn = async () => {
   loading.value = true
-  try {
-    console.log('Iniciando Google Sign-In...')
-    
+  try {   
     const success = await authStore.signInWithGoogle()
-    console.log('Resultado signInWithGoogle:', success)
     
     if (success) {
       // Aguarda o Pinia atualizar o usuário antes de redirecionar
@@ -278,17 +275,8 @@ const handleDismissModal = () => {
   }
 }
 
-/* Animation for loading state */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
+/* Removed pulse animation for better performance */
 .google-sign-in-button:disabled .button-text {
-  animation: pulse 1.5s ease-in-out infinite;
+  opacity: 0.7;
 }
 </style>

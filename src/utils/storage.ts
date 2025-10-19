@@ -132,7 +132,13 @@ export async function uploadMaintenanceAttachment(
   fileName: string
 ): Promise<string> {
   const timestamp = Date.now()
-  const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_')
+  // Sanitize: remove caracteres especiais, múltiplos underscores, normalizar
+  const sanitizedName = fileName
+    .normalize('NFD') // Decompor acentos
+    .replace(/[\u0300-\u036f]/g, '') // Remover marcas diacríticas
+    .replace(/[^a-zA-Z0-9.-]/g, '_') // Substituir especiais por _
+    .replace(/_+/g, '_') // Múltiplos _ vira um só
+    .replace(/^_|_$/g, '') // Remove _ no início/fim
   const path = `maintenance/${userId}/${maintenanceId}/attachments/${timestamp}_${sanitizedName}`
   return uploadImage(dataURL, path)
 }

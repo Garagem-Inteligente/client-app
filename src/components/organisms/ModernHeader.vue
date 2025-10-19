@@ -253,25 +253,14 @@ const handleBack = () => {
   cursor: not-allowed;
 }
 
-/* Pulse Animation for Primary Button */
+/* Removed pulse-glow animation for better performance */
 .pulse-animation {
-  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 
+    0 4px 12px rgba(102, 126, 234, 0.4),
+    0 0 0 0 rgba(102, 126, 234, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 
-      0 4px 12px rgba(102, 126, 234, 0.4),
-      0 0 0 0 rgba(102, 126, 234, 0.7),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    box-shadow: 
-      0 4px 12px rgba(102, 126, 234, 0.4),
-      0 0 0 8px rgba(102, 126, 234, 0),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-}
 
 .action-icon {
   font-size: 1.25rem;

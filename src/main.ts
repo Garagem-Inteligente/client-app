@@ -41,10 +41,16 @@ import './theme/backgrounds.css';
 /* Tailwind CSS */
 import './style.css';
 
+/* Performance optimization */
+import { applyPerformanceMode } from './utils/performance'
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router)
   .use(createPinia());
+
+// Apply performance optimizations
+applyPerformanceMode()
 
 router.isReady().then(() => {
   app.mount('#app');
