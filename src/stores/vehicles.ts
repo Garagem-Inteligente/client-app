@@ -513,16 +513,89 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     try {
       logger.info('📝 Creating maintenance record...')
       
-      const newRecord = {
+      // Primeiro, criar o documento sem as imagens para obter o ID
+      const tempRecord = {
         ...maintenanceData,
+        beforePhoto: null,
+        afterPhoto: null,
+        attachments: [], // Temporariamente vazio
         userId: authStore.user.id,
         createdAt: Timestamp.now()
       }
 
-      logger.debug('📦 Record to be saved:', newRecord)
+      const docRef = await addDoc(collection(db, 'maintenance'), tempRecord)
+      logger.info('✅ Maintenance document created:', docRef.id)
 
-      const docRef = await addDoc(collection(db, 'maintenance'), newRecord)
-      logger.info('✅ Record saved with ID:', docRef.id)
+      // Upload de fotos before/after se existirem e forem base64
+      let finalBeforePhoto = maintenanceData.beforePhoto
+      let finalAfterPhoto = maintenanceData.afterPhoto
+
+      if (maintenanceData.beforePhoto && isBase64DataURL(maintenanceData.beforePhoto)) {
+        logger.info('� Uploading before photo to Storage...')
+        try {
+          finalBeforePhoto = await uploadMaintenancePhoto(
+            authStore.user.id,
+            docRef.id,
+            maintenanceData.beforePhoto,
+            'before'
+          )
+          logger.info('✅ Before photo uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading before photo:', uploadError)
+        }
+      }
+
+      if (maintenanceData.afterPhoto && isBase64DataURL(maintenanceData.afterPhoto)) {
+        logger.info('📤 Uploading after photo to Storage...')
+        try {
+          finalAfterPhoto = await uploadMaintenancePhoto(
+            authStore.user.id,
+            docRef.id,
+            maintenanceData.afterPhoto,
+            'after'
+          )
+          logger.info('✅ After photo uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading after photo:', uploadError)
+        }
+      }
+
+      // Upload de attachments se existirem e forem base64
+      let finalAttachments = maintenanceData.attachments || []
+      if (maintenanceData.attachments && maintenanceData.attachments.length > 0) {
+        logger.info('📎 Uploading', maintenanceData.attachments.length, 'attachments to Storage...')
+        
+        finalAttachments = await Promise.all(
+          maintenanceData.attachments.map(async (att) => {
+            if (att.data && isBase64DataURL(att.data)) {
+              try {
+                const url = await uploadMaintenanceAttachment(
+                  authStore.user!.id,
+                  docRef.id,
+                  att.data,
+                  att.name
+                )
+                return { ...att, data: url }
+              } catch (uploadError) {
+                logger.error('❌ Error uploading attachment:', att.name, uploadError)
+                return att // Manter original se falhar
+              }
+            }
+            return att
+          })
+        )
+        
+        logger.info('✅ Attachments processed')
+      }
+
+      // Atualizar documento com as URLs do Storage
+      await updateDoc(doc(db, 'maintenance', docRef.id), {
+        beforePhoto: finalBeforePhoto || null,
+        afterPhoto: finalAfterPhoto || null,
+        attachments: finalAttachments
+      })
+
+      logger.info('✅ Maintenance record updated with Storage URLs')
 
       // Recarrega a lista de manutenções
       await fetchMaintenanceRecords(maintenanceData.vehicleId!)
@@ -531,8 +604,10 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       return true
     } catch (err) {
       logger.error('❌ Error adding maintenance record:', err)
-      logger.error('Error code:', (err as any).code)
-      logger.error('Error message:', (err as any).message)
+      const errorCode = (err as { code?: string })?.code
+      const errorMessage = (err as { message?: string })?.message
+      logger.error('Error code:', errorCode)
+      logger.error('Error message:', errorMessage)
       error.value = translateFirebaseError(err)
       return false
     } finally {
