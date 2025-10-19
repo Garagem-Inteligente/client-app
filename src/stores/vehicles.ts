@@ -16,6 +16,13 @@ import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
 import { translateFirebaseError } from '@/utils/errorMessages'
 import { logger } from '@/utils/logger'
+import { 
+  uploadVehicleImage, 
+  isBase64DataURL, 
+  deleteImage,
+  uploadMaintenancePhoto,
+  uploadMaintenanceAttachment
+} from '@/utils/storage'
 
 // Tipos de veículos disponíveis no Brasil
 export type VehicleType = 'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'
@@ -245,6 +252,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
 
     try {
+      logger.info('🚗 Adding new vehicle...')
+      
       // Converter insuranceExpiryDate para Date se for string
       const insuranceDate = vehicleData.insuranceExpiryDate 
         ? (typeof vehicleData.insuranceExpiryDate === 'string' 
@@ -252,19 +261,48 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             : vehicleData.insuranceExpiryDate)
         : undefined
 
+      // Primeiro, criar o documento sem a imagem para obter o ID
       const vehicleRef = collection(db, 'vehicles')
       const docRef = await addDoc(vehicleRef, {
         ...vehicleData,
+        imageUrl: null, // Temporariamente null
         userId: authStore.user!.id,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
       })
+      
+      logger.info('✅ Vehicle document created:', docRef.id)
+
+      // Se houver imagem em base64, fazer upload para Storage
+      let finalImageUrl = vehicleData.imageUrl
+      if (vehicleData.imageUrl && isBase64DataURL(vehicleData.imageUrl)) {
+        logger.info('📤 Uploading vehicle image to Storage...')
+        try {
+          finalImageUrl = await uploadVehicleImage(
+            authStore.user!.id,
+            docRef.id,
+            vehicleData.imageUrl
+          )
+          
+          // Atualizar documento com a URL do Storage
+          await updateDoc(doc(db, 'vehicles', docRef.id), {
+            imageUrl: finalImageUrl,
+            updatedAt: Timestamp.now()
+          })
+          
+          logger.info('✅ Vehicle image uploaded and document updated')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading vehicle image:', uploadError)
+          // Continuar mesmo se o upload falhar - documento já foi criado
+        }
+      }
 
       // Adicionar o novo veículo à lista local
       const newVehicle: Vehicle = {
         id: docRef.id,
         ...vehicleData,
+        imageUrl: finalImageUrl,
         userId: authStore.user!.id,
         insuranceExpiryDate: insuranceDate,
         createdAt: new Date(),
@@ -272,9 +310,11 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       }
       vehicles.value.unshift(newVehicle)
 
+      logger.info('✅ Vehicle added successfully')
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao adicionar veículo'
+    } catch (err) {
+      logger.error('❌ Error adding vehicle:', err)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
@@ -289,6 +329,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
 
     try {
+      logger.info('🔄 Updating vehicle:', vehicleId)
+      
       // Converter insuranceExpiryDate para Date se for string
       const insuranceDate = vehicleData.insuranceExpiryDate 
         ? (typeof vehicleData.insuranceExpiryDate === 'string' 
@@ -296,9 +338,36 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             : vehicleData.insuranceExpiryDate)
         : undefined
 
+      let finalImageUrl = vehicleData.imageUrl
+
+      // Se houver nova imagem em base64, fazer upload para Storage
+      if (vehicleData.imageUrl && isBase64DataURL(vehicleData.imageUrl)) {
+        logger.info('📤 Uploading new vehicle image to Storage...')
+        try {
+          // Buscar veículo atual para deletar imagem antiga
+          const currentVehicle = vehicles.value.find(v => v.id === vehicleId)
+          if (currentVehicle?.imageUrl && currentVehicle.imageUrl.includes('firebasestorage')) {
+            logger.info('🗑️ Deleting old vehicle image...')
+            await deleteImage(currentVehicle.imageUrl)
+          }
+
+          // Upload nova imagem
+          finalImageUrl = await uploadVehicleImage(
+            authStore.user!.id,
+            vehicleId,
+            vehicleData.imageUrl
+          )
+          logger.info('✅ New vehicle image uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading vehicle image:', uploadError)
+          // Continuar com a atualização mesmo se o upload falhar
+        }
+      }
+
       const vehicleRef = doc(db, 'vehicles', vehicleId)
       await updateDoc(vehicleRef, {
         ...vehicleData,
+        imageUrl: finalImageUrl,
         updatedAt: Timestamp.now(),
         insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
       })
@@ -309,14 +378,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         vehicles.value[index] = {
           ...vehicles.value[index],
           ...vehicleData,
+          imageUrl: finalImageUrl,
           insuranceExpiryDate: insuranceDate,
           updatedAt: new Date()
         }
       }
 
+      logger.info('✅ Vehicle updated successfully')
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao atualizar veículo'
+    } catch (err) {
+      logger.error('❌ Error updating vehicle:', err)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
