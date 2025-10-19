@@ -237,8 +237,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         updatedAt: doc.data().updatedAt?.toDate() || new Date(),
         insuranceExpiryDate: doc.data().insuranceExpiryDate?.toDate()
       })) as Vehicle[]
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao carregar veículos'
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao carregar veículos'
     } finally {
       loading.value = false
     }
@@ -409,8 +410,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       vehicles.value = vehicles.value.filter(v => v.id !== vehicleId)
 
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao excluir veículo'
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao excluir veículo'
       return false
     } finally {
       loading.value = false
@@ -430,68 +432,56 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       const authStore = useAuthStore()
       if (!authStore.isAuthenticated) return
 
-      // Se não há veículos, não há manutenções para buscar
-      if (vehicles.value.length === 0) {
-        maintenanceRecords.value = []
-        return
-      }
-
-      // Buscar manutenções para cada veículo do usuário
+      // Buscar todas as manutenções do usuário (as rules exigem filtro por userId)
       const maintenanceRef = collection(db, 'maintenance')
+      const q = query(
+        maintenanceRef,
+        where('userId', '==', authStore.user!.id),
+        orderBy('date', 'desc')
+      )
+      
+      const querySnapshot = await getDocs(q)
       const fetchedRecords: MaintenanceRecord[] = []
       
-      // Para cada veículo do usuário, buscar suas manutenções
-      for (const vehicle of vehicles.value) {
-        const q = query(
-          maintenanceRef,
-          where('vehicleId', '==', vehicle.id),
-          orderBy('date', 'desc')
-        )
-        
-        const querySnapshot = await getDocs(q)
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data()
-          fetchedRecords.push({
-            id: doc.id,
-            vehicleId: data.vehicleId,
-            type: data.type,
-            description: data.description,
-            cost: data.cost,
-            partsCost: data.partsCost,
-            laborCost: data.laborCost,
-            warrantyParts: data.warrantyParts ? {
-              months: data.warrantyParts.months,
-              expiryDate: data.warrantyParts.expiryDate?.toDate()
-            } : undefined,
-            warrantyLabor: data.warrantyLabor ? {
-              months: data.warrantyLabor.months,
-              expiryDate: data.warrantyLabor.expiryDate?.toDate()
-            } : undefined,
-            mileage: data.mileage,
-            date: data.date?.toDate() || new Date(),
-            nextDueDate: data.nextDueDate?.toDate(),
-            nextDueMileage: data.nextDueMileage,
-            serviceProvider: data.serviceProvider,
-            notes: data.notes,
-            attachments: data.attachments?.map((att: any) => ({
-              ...att,
-              uploadedAt: att.uploadedAt?.toDate() || new Date()
-            })),
-            beforePhoto: data.beforePhoto,
-            afterPhoto: data.afterPhoto,
-            createdAt: data.createdAt?.toDate() || new Date()
-          })
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        fetchedRecords.push({
+          id: doc.id,
+          vehicleId: data.vehicleId,
+          type: data.type,
+          description: data.description,
+          cost: data.cost,
+          partsCost: data.partsCost,
+          laborCost: data.laborCost,
+          warrantyParts: data.warrantyParts ? {
+            months: data.warrantyParts.months,
+            expiryDate: data.warrantyParts.expiryDate?.toDate()
+          } : undefined,
+          warrantyLabor: data.warrantyLabor ? {
+            months: data.warrantyLabor.months,
+            expiryDate: data.warrantyLabor.expiryDate?.toDate()
+          } : undefined,
+          mileage: data.mileage,
+          date: data.date?.toDate() || new Date(),
+          nextDueDate: data.nextDueDate?.toDate(),
+          nextDueMileage: data.nextDueMileage,
+          serviceProvider: data.serviceProvider,
+          notes: data.notes,
+          attachments: data.attachments?.map((att: { uploadedAt?: { toDate: () => Date } }) => ({
+            ...att,
+            uploadedAt: att.uploadedAt?.toDate() || new Date()
+          })),
+          beforePhoto: data.beforePhoto,
+          afterPhoto: data.afterPhoto,
+          createdAt: data.createdAt?.toDate() || new Date()
         })
-      }
-      
-      // Ordenar todas as manutenções por data (mais recentes primeiro)
-      fetchedRecords.sort((a, b) => b.date.getTime() - a.date.getTime())
+      })
       
       maintenanceRecords.value = fetchedRecords
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao buscar manutenções'
-      console.error('Error fetching maintenance records:', err)
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao buscar manutenções'
+      logger.error('Error fetching maintenance records:', err)
     } finally {
       loading.value = false
     }
@@ -598,7 +588,7 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       logger.info('✅ Maintenance record updated with Storage URLs')
 
       // Recarrega a lista de manutenções
-      await fetchMaintenanceRecords(maintenanceData.vehicleId!)
+      await fetchMaintenanceRecords()
       logger.info('🔄 Maintenance list reloaded')
 
       return true
@@ -628,9 +618,10 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       maintenanceRecords.value = maintenanceRecords.value.filter(r => r.id !== id)
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao deletar manutenção'
-      console.error('Error deleting maintenance record:', err)
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao deletar manutenção'
+      logger.error('Error deleting maintenance record:', err)
       return false
     } finally {
       loading.value = false
