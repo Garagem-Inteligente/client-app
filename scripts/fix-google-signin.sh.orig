@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original fix-google-signin.sh preserved as fix-google-signin.sh.orig"

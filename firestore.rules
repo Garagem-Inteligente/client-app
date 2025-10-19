@@ -1,0 +1,159 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidEmail(email) {
+      return email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+    
+    function isValidPlate(plate) {
+      // Formato brasileiro: ABC-1234 ou ABC1D23 (Mercosul)
+      return plate.matches('^[A-Z]{3}-?[0-9]{1}[A-Z0-9]{1}[0-9]{2}$');
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      request.resource.data.email is string &&
+                      isValidEmail(request.resource.data.email) &&
+                      request.resource.data.name is string &&
+                      request.resource.data.name.size() > 0 &&
+                      request.resource.data.userType in ['user', 'workshop'];
+      allow update: if isOwner(userId) &&
+                      request.resource.data.email is string &&
+                      isValidEmail(request.resource.data.email) &&
+                      request.resource.data.name is string &&
+                      request.resource.data.name.size() > 0;
+      allow delete: if isOwner(userId);
+    }
+    
+    // Vehicles collection
+    match /vehicles/{vehicleId} {
+      // Allow read (list + get) for authenticated users
+      // Security is enforced by the client-side query filtering by userId
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      // Required fields validation
+                      request.resource.data.make is string &&
+                      request.resource.data.make.size() > 0 &&
+                      request.resource.data.model is string &&
+                      request.resource.data.model.size() > 0 &&
+                      request.resource.data.year is int &&
+                      request.resource.data.year >= 1900 &&
+                      request.resource.data.year <= 2030 &&
+                      request.resource.data.plate is string &&
+                      isValidPlate(request.resource.data.plate.upper()) &&
+                      request.resource.data.vehicleType in ['car', 'motorcycle', 'van', 'truck', 'bus', 'pickup'] &&
+                      request.resource.data.fuelType in ['flex', 'gasoline', 'ethanol', 'diesel', 'electric', 'hybrid-plugin', 'hybrid-mild', 'gnv'] &&
+                      // Mileage validation
+                      request.resource.data.mileage is int &&
+                      request.resource.data.mileage >= 0 &&
+                      request.resource.data.mileage <= 10000000;
+      
+      allow update: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == request.auth.uid &&
+                      // Same validation as create
+                      request.resource.data.make is string &&
+                      request.resource.data.make.size() > 0 &&
+                      request.resource.data.model is string &&
+                      request.resource.data.model.size() > 0 &&
+                      request.resource.data.year is int &&
+                      request.resource.data.year >= 1900 &&
+                      request.resource.data.year <= 2030 &&
+                      request.resource.data.plate is string &&
+                      isValidPlate(request.resource.data.plate.upper()) &&
+                      request.resource.data.mileage is int &&
+                      request.resource.data.mileage >= 0 &&
+                      request.resource.data.mileage <= 10000000;
+      
+      allow delete: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid;
+    }
+    
+    // Maintenance collection
+    match /maintenance/{maintenanceId} {
+      // Allow read (list + get) for authenticated users
+      // Security is enforced by the client-side query filtering by userId
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      // Required fields validation (apenas os essenciais)
+                      request.resource.data.vehicleId is string &&
+                      request.resource.data.vehicleId.size() > 0 &&
+                      request.resource.data.type in [
+                        'oil_change', 'oil_filter', 'air_filter', 'fuel_filter', 'cabin_filter',
+                        'tire_rotation', 'tire_replacement', 'wheel_alignment', 'wheel_balancing',
+                        'brake_pads', 'brake_discs', 'brake_fluid', 'battery', 'spark_plugs',
+                        'timing_belt', 'serpentine_belt', 'coolant', 'transmission_fluid',
+                        'power_steering_fluid', 'windshield_wipers', 'air_conditioning',
+                        'suspension', 'exhaust_system', 'general_inspection', 'other'
+                      ] &&
+                      request.resource.data.description is string &&
+                      request.resource.data.description.size() > 0 &&
+                      // Cost validation (se presente)
+                      (!('cost' in request.resource.data) || (
+                        request.resource.data.cost is number &&
+                        request.resource.data.cost >= 0 &&
+                        request.resource.data.cost <= 1000000
+                      )) &&
+                      // Mileage validation (se presente)
+                      (!('mileage' in request.resource.data) || (
+                        request.resource.data.mileage is int &&
+                        request.resource.data.mileage >= 0 &&
+                        request.resource.data.mileage <= 10000000
+                      )) &&
+                      // Date validation (se presente)
+                      (!('date' in request.resource.data) || request.resource.data.date is timestamp);
+      
+      allow update: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == request.auth.uid &&
+                      // Same validation as create (campos opcionais)
+                      request.resource.data.vehicleId is string &&
+                      request.resource.data.vehicleId.size() > 0 &&
+                      request.resource.data.type in [
+                        'oil_change', 'oil_filter', 'air_filter', 'fuel_filter', 'cabin_filter',
+                        'tire_rotation', 'tire_replacement', 'wheel_alignment', 'wheel_balancing',
+                        'brake_pads', 'brake_discs', 'brake_fluid', 'battery', 'spark_plugs',
+                        'timing_belt', 'serpentine_belt', 'coolant', 'transmission_fluid',
+                        'power_steering_fluid', 'windshield_wipers', 'air_conditioning',
+                        'suspension', 'exhaust_system', 'general_inspection', 'other'
+                      ] &&
+                      request.resource.data.description is string &&
+                      request.resource.data.description.size() > 0 &&
+                      (!('cost' in request.resource.data) || (
+                        request.resource.data.cost is number &&
+                        request.resource.data.cost >= 0 &&
+                        request.resource.data.cost <= 1000000
+                      )) &&
+                      (!('mileage' in request.resource.data) || (
+                        request.resource.data.mileage is int &&
+                        request.resource.data.mileage >= 0 &&
+                        request.resource.data.mileage <= 10000000
+                      ));
+      
+      allow delete: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid;
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

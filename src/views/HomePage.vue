@@ -1021,13 +1021,14 @@ const formatCurrency = (value: number) => {
 .vehicle-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.875rem;
   background: rgba(31, 41, 55, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  flex-wrap: wrap;
 }
 
 .vehicle-item:hover {
@@ -1037,11 +1038,12 @@ const formatCurrency = (value: number) => {
 }
 
 .vehicle-icon-wrapper {
-  padding: 0.75rem;
+  padding: 0.625rem;
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.3);
   border-radius: 0.5rem;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .vehicle-item:hover .vehicle-icon-wrapper {
@@ -1050,14 +1052,15 @@ const formatCurrency = (value: number) => {
 }
 
 .vehicle-icon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
   color: #60a5fa;
 }
 
 .vehicle-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .vehicle-name {
@@ -1065,6 +1068,10 @@ const formatCurrency = (value: number) => {
   color: white;
   margin: 0 0 0.25rem 0;
   transition: color 0.2s;
+  font-size: 0.9375rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vehicle-item:hover .vehicle-name {
@@ -1072,9 +1079,12 @@ const formatCurrency = (value: number) => {
 }
 
 .vehicle-details {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #9ca3af;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vehicle-meta {
@@ -1083,25 +1093,67 @@ const formatCurrency = (value: number) => {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .vehicle-mileage {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: white;
   margin: 0 0 0.25rem 0;
+  white-space: nowrap;
 }
 
 .chevron-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
   color: #6b7280;
   flex-shrink: 0;
   transition: color 0.2s;
+  margin-left: auto;
 }
 
 .vehicle-item:hover .chevron-icon {
   color: #60a5fa;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .vehicle-item {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .vehicle-icon-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .vehicle-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .vehicle-name {
+    font-size: 0.875rem;
+  }
+  
+  .vehicle-details {
+    font-size: 0.75rem;
+  }
+  
+  .vehicle-mileage {
+    font-size: 0.75rem;
+  }
+  
+  .badge {
+    font-size: 0.5625rem;
+    padding: 0.125rem 0.375rem;
+  }
+  
+  .chevron-icon {
+    width: 1rem;
+    height: 1rem;
+  }
 }
 
 /* Maintenance List */

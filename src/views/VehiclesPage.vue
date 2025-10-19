@@ -345,7 +345,6 @@ const getEmptyCategoryMessage = () => {
 }
 
 const handleViewDetails = (vehicleId: string) => {
-  console.log('Navigating to vehicle:', vehicleId)
   router.push(`/tabs/vehicle/${vehicleId}`)
 }
 
@@ -422,12 +421,8 @@ onMounted(async () => {
   color: rgba(255, 255, 255, 0.7);
   font-size: 1rem;
   font-weight: 500;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  /* Removed pulse animation for better performance */
+  opacity: 0.7;
 }
 
 /* Error State */
@@ -508,13 +503,8 @@ ion-card.error-state-card {
   height: 6rem;
   margin: 0 auto 2rem;
   color: rgba(129, 140, 248, 0.4);
-  animation: float 3s ease-in-out infinite;
+  /* Removed float animation for better performance */
   filter: drop-shadow(0 4px 12px rgba(129, 140, 248, 0.3));
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-12px) rotate(3deg); }
 }
 
 .empty-state h3 {
@@ -555,7 +545,7 @@ ion-card.error-state-card {
 
 .empty-state ion-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 14px rgba(102, 126, 234, 0.5);
 }
 
 /* Vehicles Container */
@@ -618,8 +608,8 @@ ion-card.error-state-card {
   border-color: rgba(129, 140, 248, 0.6);
   color: white;
   box-shadow: 
-    0 8px 24px rgba(102, 126, 234, 0.5),
-    0 0 32px rgba(102, 126, 234, 0.3),
+    0 4px 12px rgba(102, 126, 234, 0.5),
+    0 0 16px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-4px);
 }
@@ -729,18 +719,8 @@ ion-card.error-state-card {
 .empty-category-icon {
   font-size: 5rem;
   color: rgba(129, 140, 248, 0.6);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { 
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% { 
-    opacity: 1;
-    transform: scale(1.05);
-  }
+  /* Removed pulse animation for better performance */
+  opacity: 0.7;
 }
 
 .empty-category-title {
@@ -777,7 +757,7 @@ ion-card.error-state-card {
 
 .empty-category-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 14px rgba(102, 126, 234, 0.5);
 }
 
 .empty-category-button ion-icon {
@@ -799,26 +779,10 @@ ion-card.error-state-card {
   cursor: pointer;
   position: relative;
   isolation: isolate;
-  animation: fadeInUp 0.6s ease-out backwards;
+  /* Removed fadeInUp animation for better performance */
 }
 
-.vehicle-card:nth-child(1) { animation-delay: 0.1s; }
-.vehicle-card:nth-child(2) { animation-delay: 0.15s; }
-.vehicle-card:nth-child(3) { animation-delay: 0.2s; }
-.vehicle-card:nth-child(4) { animation-delay: 0.25s; }
-.vehicle-card:nth-child(5) { animation-delay: 0.3s; }
-.vehicle-card:nth-child(6) { animation-delay: 0.35s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Removed nth-child animation delays for better performance */
 
 .vehicle-card::before {
   content: '';
@@ -831,12 +795,12 @@ ion-card.error-state-card {
   );
   border-radius: 24px;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.2s ease;
   z-index: -1;
 }
 
 .vehicle-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-4px);
   border-color: rgba(129, 140, 248, 0.4);
   box-shadow: 
     0 24px 48px rgba(0, 0, 0, 0.4),
@@ -876,11 +840,11 @@ ion-card.error-state-card {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease;
 }
 
 .vehicle-card:hover .vehicle-image img {
-  transform: scale(1.15);
+  transform: scale(1.05);
 }
 
 .vehicle-placeholder {
@@ -1204,14 +1168,18 @@ ion-fab-button ion-icon {
   color: white;
 }
 
-/* FAB positioning */
+/* FAB positioning - Always visible above tab bar */
 ion-fab {
-  margin: 0 16px 80px 16px; /* 80px from bottom to avoid tab bar */
+  position: fixed;
+  bottom: 80px; /* Above tab bar (60px) + margin */
+  right: 16px;
+  z-index: 999;
 }
 
 @media (min-width: 768px) {
   ion-fab {
-    margin: 0 24px 24px 24px;
+    bottom: 24px;
+    right: 24px;
   }
   
   ion-fab-button {

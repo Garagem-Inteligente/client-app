@@ -168,7 +168,7 @@ Estatísticas:
 **Comando para Build Android:**
 ```bash
 cd /home/michel/Documentos/Pessoal/autocare-landing-page/Garagem-inteligente/App-client
-./build-android.sh
+./scripts/build-android.sh
 ```
 
 ---
@@ -266,10 +266,10 @@ cd /home/michel/Documentos/Pessoal/autocare-landing-page/Garagem-inteligente/App
 # Ctrl+C no terminal
 
 # Build para Android
-./build-android.sh
+./scripts/build-android.sh
 
 # Instalar no dispositivo
-./install-apk.sh
+./scripts/install-apk.sh
 
 # Ver logs do dispositivo
 adb logcat | grep -i "chromium\|capacitor"

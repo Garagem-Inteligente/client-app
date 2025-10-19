@@ -74,7 +74,7 @@ npx cap sync               # Sync web build to native
 npx cap run android        # Run on Android device/emulator
 
 # Production builds
-./build-android.sh         # Complete Android APK build
+./scripts/build-android.sh         # Complete Android APK build
 pnpm build && npx cap sync # Sync for native builds
 ```
 
@@ -140,7 +140,7 @@ const handleNavigation = (path: string) => {
 ```
 
 ### Build & Deployment
-- **Android builds**: Use `./build-android.sh` script (handles pnpm build + cap sync + gradle)
+  - **Android builds**: Use `./scripts/build-android.sh` script (handles pnpm build + cap sync + gradle)
 - **Version management**: `src/version.json` tracks app version
 - **CI/CD**: Check `docs/CI-CD-*.md` for deployment workflows
 

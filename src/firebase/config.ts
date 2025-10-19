@@ -47,8 +47,8 @@ export const db = getFirestore(app)
 // Initialize Firebase Storage
 export const storage = getStorage(app)
 
-// Initialize Cloud Functions
-export const functions = getFunctions(app)
+// Initialize Cloud Functions with region
+export const functions = getFunctions(app, 'us-central1')
 
 export default app
 

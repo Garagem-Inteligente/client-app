@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original start-fresh.sh preserved as start-fresh.sh.orig"

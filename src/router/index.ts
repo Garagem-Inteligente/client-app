@@ -63,6 +63,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/VehicleFormPage.vue')
       },
       {
+        path: 'vehicle/:id/edit',
+        component: () => import('@/views/VehicleFormPage.vue')
+      },
+      {
         path: 'vehicle/:id',
         component: () => import('@/views/VehicleDetailPage.vue')
       },

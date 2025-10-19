@@ -368,13 +368,14 @@
                     <span class="text-sm font-medium text-blue-300">📎 Anexos (Opcional)</span>
                   </div>
                   <p class="text-xs text-gray-400 mb-3">
-                    Anexe notas fiscais, comprovantes ou outros documentos relacionados à manutenção.
-                    Você pode adicionar até 5 arquivos (imagens ou PDFs de até 5MB cada).
+                    📎 Anexe notas fiscais, comprovantes ou outros documentos relacionados à manutenção.
+                    Você pode adicionar até 5 arquivos (imagens ou PDFs de até 10MB cada).
+                    <span class="block mt-1 text-yellow-400">💡 Dica: PDFs grandes? Use um compressor online antes de anexar.</span>
                   </p>
                   <MFileUpload
                     ref="fileUploadRef"
                     :max-files="5"
-                    :max-size="5"
+                    :max-size="10"
                     accept="image/*,application/pdf"
                     @files-selected="handleFilesSelected"
                     @files-changed="handleFilesChanged"
@@ -425,6 +426,7 @@ import { applyCurrencyMask, applyMileageMask, unmaskCurrency, unmaskMileage } fr
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import { AAlert } from '@/components'
 import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 const router = useRouter()
@@ -564,14 +566,14 @@ const takePicture = async (photoType: 'before' | 'after', sourceType: 'camera' |
     })
 
     if (image.dataUrl) {
-      console.log(`📸 Foto ${photoType} capturada, tamanho:`, image.dataUrl.length, 'bytes')
+      logger.info(`📸 Foto ${photoType} capturada, tamanho:`, image.dataUrl.length, 'bytes')
       
       if (photoType === 'before') {
         formData.value.beforePhoto = image.dataUrl
-        console.log('✅ beforePhoto atualizado:', formData.value.beforePhoto.substring(0, 50) + '...')
+        logger.debug('✅ beforePhoto atualizado:', formData.value.beforePhoto.substring(0, 50) + '...')
       } else {
         formData.value.afterPhoto = image.dataUrl
-        console.log('✅ afterPhoto atualizado:', formData.value.afterPhoto.substring(0, 50) + '...')
+        logger.debug('✅ afterPhoto atualizado:', formData.value.afterPhoto.substring(0, 50) + '...')
       }
       
       // Show success toast
@@ -606,7 +608,7 @@ const removePhoto = (photoType: 'before' | 'after') => {
     formData.value.afterPhoto = ''
   }
   
-  console.log(`🗑️ Foto ${photoType} removida`)
+  logger.info(`🗑️ Foto ${photoType} removida`)
 }
 
 const handleFilesSelected = (files: FileUploadItem[]) => {
@@ -618,13 +620,18 @@ const handleFilesChanged = (files: FileUploadItem[]) => {
 }
 
 const handleSubmit = async () => {
-  if (!isFormValid.value || loading.value) return
+  if (!isFormValid.value || loading.value) {
+    logger.warn('⚠️ Form validation failed or already loading')
+    return
+  }
 
+  logger.info('🚀 Starting maintenance submission...')
   loading.value = true
   vehiclesStore.clearError()
 
   try {
     // Process attachments
+    logger.info('📎 Processing attachments...', uploadedFiles.value.length)
     const attachments: MaintenanceAttachment[] = []
     if (uploadedFiles.value.length > 0) {
       for (const item of uploadedFiles.value) {
@@ -638,6 +645,7 @@ const handleSubmit = async () => {
           })
         }
       }
+      logger.info('✅ Attachments processed:', attachments.length)
     }
 
     const recordData = {
@@ -658,9 +666,20 @@ const handleSubmit = async () => {
       attachments: attachments.length > 0 ? attachments : undefined
     }
 
+    logger.info('📝 Maintenance data prepared:', {
+      vehicleId: recordData.vehicleId,
+      type: recordData.type,
+      cost: recordData.cost,
+      mileage: recordData.mileage,
+      hasAttachments: !!recordData.attachments,
+      hasBeforePhoto: !!recordData.beforePhoto,
+      hasAfterPhoto: !!recordData.afterPhoto
+    })
+
     const success = await vehiclesStore.addMaintenanceRecord(recordData)
 
     if (success) {
+      logger.info('✅ Maintenance registered successfully!')
       successMessage.value = 'Manutenção registrada com sucesso!'
       
       // Show toast
@@ -676,19 +695,37 @@ const handleSubmit = async () => {
       setTimeout(() => {
         router.push('/tabs/maintenance')
       }, 1500)
+    } else {
+      // Failed but no exception - check store error
+      logger.error('❌ Failed to register maintenance (success=false)')
+      const errorMsg = vehiclesStore.error || 'Erro desconhecido ao registrar manutenção'
+      
+      const toast = await toastController.create({
+        message: `❌ ${errorMsg}`,
+        duration: 4000,
+        position: 'top',
+        color: 'danger'
+      })
+      await toast.present()
     }
   } catch (error) {
-    console.error('Error submitting maintenance:', error)
+    logger.error('❌ Exception during maintenance submission:', error)
+    
+    let errorMessage = 'Erro ao registrar manutenção'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    }
     
     const toast = await toastController.create({
-      message: '❌ Erro ao registrar manutenção',
-      duration: 3000,
+      message: `❌ ${errorMessage}`,
+      duration: 4000,
       position: 'top',
       color: 'danger'
     })
     await toast.present()
   } finally {
     loading.value = false
+    logger.info('🏁 Maintenance submission finished, loading=false')
   }
 }
 

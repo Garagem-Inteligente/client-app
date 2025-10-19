@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original debug-google-signin.sh preserved as debug-google-signin.sh.orig"

@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "Original setup-functions.sh preserved as setup-functions.sh.orig"

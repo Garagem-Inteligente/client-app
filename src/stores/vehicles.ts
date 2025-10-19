@@ -14,6 +14,15 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
+import { translateFirebaseError } from '@/utils/errorMessages'
+import { logger } from '@/utils/logger'
+import { 
+  uploadVehicleImage, 
+  isBase64DataURL, 
+  deleteImage,
+  uploadMaintenancePhoto,
+  uploadMaintenanceAttachment
+} from '@/utils/storage'
 
 // Tipos de veículos disponíveis no Brasil
 export type VehicleType = 'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'
@@ -207,12 +216,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
   // Actions
   const fetchVehicles = async () => {
     const authStore = useAuthStore()
-    if (!authStore.isAuthenticated) return
+    if (!authStore.isAuthenticated) {
+      logger.warn('User not authenticated, skipping vehicles fetch')
+      return
+    }
 
     loading.value = true
     error.value = null
 
     try {
+      logger.info('🔍 Fetching vehicles for user:', authStore.user!.id)
+      
       const vehiclesRef = collection(db, 'vehicles')
       const q = query(
         vehiclesRef,
@@ -221,6 +235,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       )
       
       const querySnapshot = await getDocs(q)
+      
+      logger.info(`✅ Found ${querySnapshot.size} vehicles`)
+      
       vehicles.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -228,8 +245,12 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         updatedAt: doc.data().updatedAt?.toDate() || new Date(),
         insuranceExpiryDate: doc.data().insuranceExpiryDate?.toDate()
       })) as Vehicle[]
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao carregar veículos'
+      
+      logger.info('✅ Vehicles loaded successfully')
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao carregar veículos'
+      logger.error('❌ Error fetching vehicles:', err)
     } finally {
       loading.value = false
     }
@@ -243,6 +264,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
 
     try {
+      logger.info('🚗 Adding new vehicle...')
+      
       // Converter insuranceExpiryDate para Date se for string
       const insuranceDate = vehicleData.insuranceExpiryDate 
         ? (typeof vehicleData.insuranceExpiryDate === 'string' 
@@ -250,19 +273,48 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             : vehicleData.insuranceExpiryDate)
         : undefined
 
+      // Primeiro, criar o documento sem a imagem para obter o ID
       const vehicleRef = collection(db, 'vehicles')
       const docRef = await addDoc(vehicleRef, {
         ...vehicleData,
+        imageUrl: null, // Temporariamente null
         userId: authStore.user!.id,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
       })
+      
+      logger.info('✅ Vehicle document created:', docRef.id)
+
+      // Se houver imagem em base64, fazer upload para Storage
+      let finalImageUrl = vehicleData.imageUrl
+      if (vehicleData.imageUrl && isBase64DataURL(vehicleData.imageUrl)) {
+        logger.info('📤 Uploading vehicle image to Storage...')
+        try {
+          finalImageUrl = await uploadVehicleImage(
+            authStore.user!.id,
+            docRef.id,
+            vehicleData.imageUrl
+          )
+          
+          // Atualizar documento com a URL do Storage
+          await updateDoc(doc(db, 'vehicles', docRef.id), {
+            imageUrl: finalImageUrl,
+            updatedAt: Timestamp.now()
+          })
+          
+          logger.info('✅ Vehicle image uploaded and document updated')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading vehicle image:', uploadError)
+          // Continuar mesmo se o upload falhar - documento já foi criado
+        }
+      }
 
       // Adicionar o novo veículo à lista local
       const newVehicle: Vehicle = {
         id: docRef.id,
         ...vehicleData,
+        imageUrl: finalImageUrl,
         userId: authStore.user!.id,
         insuranceExpiryDate: insuranceDate,
         createdAt: new Date(),
@@ -270,9 +322,11 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       }
       vehicles.value.unshift(newVehicle)
 
+      logger.info('✅ Vehicle added successfully')
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao adicionar veículo'
+    } catch (err) {
+      logger.error('❌ Error adding vehicle:', err)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
@@ -287,6 +341,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     error.value = null
 
     try {
+      logger.info('🔄 Updating vehicle:', vehicleId)
+      
       // Converter insuranceExpiryDate para Date se for string
       const insuranceDate = vehicleData.insuranceExpiryDate 
         ? (typeof vehicleData.insuranceExpiryDate === 'string' 
@@ -294,9 +350,36 @@ export const useVehiclesStore = defineStore('vehicles', () => {
             : vehicleData.insuranceExpiryDate)
         : undefined
 
+      let finalImageUrl = vehicleData.imageUrl
+
+      // Se houver nova imagem em base64, fazer upload para Storage
+      if (vehicleData.imageUrl && isBase64DataURL(vehicleData.imageUrl)) {
+        logger.info('📤 Uploading new vehicle image to Storage...')
+        try {
+          // Buscar veículo atual para deletar imagem antiga
+          const currentVehicle = vehicles.value.find(v => v.id === vehicleId)
+          if (currentVehicle?.imageUrl && currentVehicle.imageUrl.includes('firebasestorage')) {
+            logger.info('🗑️ Deleting old vehicle image...')
+            await deleteImage(currentVehicle.imageUrl)
+          }
+
+          // Upload nova imagem
+          finalImageUrl = await uploadVehicleImage(
+            authStore.user!.id,
+            vehicleId,
+            vehicleData.imageUrl
+          )
+          logger.info('✅ New vehicle image uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading vehicle image:', uploadError)
+          // Continuar com a atualização mesmo se o upload falhar
+        }
+      }
+
       const vehicleRef = doc(db, 'vehicles', vehicleId)
       await updateDoc(vehicleRef, {
         ...vehicleData,
+        imageUrl: finalImageUrl,
         updatedAt: Timestamp.now(),
         insuranceExpiryDate: insuranceDate ? Timestamp.fromDate(insuranceDate) : null
       })
@@ -307,14 +390,17 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         vehicles.value[index] = {
           ...vehicles.value[index],
           ...vehicleData,
+          imageUrl: finalImageUrl,
           insuranceExpiryDate: insuranceDate,
           updatedAt: new Date()
         }
       }
 
+      logger.info('✅ Vehicle updated successfully')
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao atualizar veículo'
+    } catch (err) {
+      logger.error('❌ Error updating vehicle:', err)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
@@ -335,8 +421,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       vehicles.value = vehicles.value.filter(v => v.id !== vehicleId)
 
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao excluir veículo'
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao excluir veículo'
       return false
     } finally {
       loading.value = false
@@ -354,147 +441,221 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     
     try {
       const authStore = useAuthStore()
-      if (!authStore.isAuthenticated) return
-
-      // Se não há veículos, não há manutenções para buscar
-      if (vehicles.value.length === 0) {
-        maintenanceRecords.value = []
+      if (!authStore.isAuthenticated) {
+        logger.warn('User not authenticated, skipping maintenance fetch')
+        loading.value = false
         return
       }
 
-      // Buscar manutenções para cada veículo do usuário
+      logger.info('🔍 Fetching maintenance records for user:', authStore.user!.id)
+
+      // Buscar todas as manutenções do usuário (as rules exigem filtro por userId)
       const maintenanceRef = collection(db, 'maintenance')
+      const q = query(
+        maintenanceRef,
+        where('userId', '==', authStore.user!.id),
+        orderBy('date', 'desc')
+      )
+      
+      const querySnapshot = await getDocs(q)
       const fetchedRecords: MaintenanceRecord[] = []
       
-      // Para cada veículo do usuário, buscar suas manutenções
-      for (const vehicle of vehicles.value) {
-        const q = query(
-          maintenanceRef,
-          where('vehicleId', '==', vehicle.id),
-          orderBy('date', 'desc')
-        )
-        
-        const querySnapshot = await getDocs(q)
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data()
-          fetchedRecords.push({
-            id: doc.id,
-            vehicleId: data.vehicleId,
-            type: data.type,
-            description: data.description,
-            cost: data.cost,
-            partsCost: data.partsCost,
-            laborCost: data.laborCost,
-            warrantyParts: data.warrantyParts ? {
-              months: data.warrantyParts.months,
-              expiryDate: data.warrantyParts.expiryDate?.toDate()
-            } : undefined,
-            warrantyLabor: data.warrantyLabor ? {
-              months: data.warrantyLabor.months,
-              expiryDate: data.warrantyLabor.expiryDate?.toDate()
-            } : undefined,
-            mileage: data.mileage,
-            date: data.date?.toDate() || new Date(),
-            nextDueDate: data.nextDueDate?.toDate(),
-            nextDueMileage: data.nextDueMileage,
-            serviceProvider: data.serviceProvider,
-            notes: data.notes,
-            attachments: data.attachments?.map((att: any) => ({
-              ...att,
-              uploadedAt: att.uploadedAt?.toDate() || new Date()
-            })),
-            beforePhoto: data.beforePhoto,
-            afterPhoto: data.afterPhoto,
-            createdAt: data.createdAt?.toDate() || new Date()
-          })
-        })
-      }
+      logger.info(`✅ Found ${querySnapshot.size} maintenance records`)
       
-      // Ordenar todas as manutenções por data (mais recentes primeiro)
-      fetchedRecords.sort((a, b) => b.date.getTime() - a.date.getTime())
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        fetchedRecords.push({
+          id: doc.id,
+          vehicleId: data.vehicleId,
+          type: data.type,
+          description: data.description,
+          cost: data.cost,
+          partsCost: data.partsCost,
+          laborCost: data.laborCost,
+          warrantyParts: data.warrantyParts ? {
+            months: data.warrantyParts.months,
+            expiryDate: data.warrantyParts.expiryDate?.toDate()
+          } : undefined,
+          warrantyLabor: data.warrantyLabor ? {
+            months: data.warrantyLabor.months,
+            expiryDate: data.warrantyLabor.expiryDate?.toDate()
+          } : undefined,
+          mileage: data.mileage,
+          date: data.date?.toDate() || new Date(),
+          nextDueDate: data.nextDueDate?.toDate(),
+          nextDueMileage: data.nextDueMileage,
+          serviceProvider: data.serviceProvider,
+          notes: data.notes,
+          attachments: data.attachments?.map((att: { uploadedAt?: { toDate: () => Date } }) => ({
+            ...att,
+            uploadedAt: att.uploadedAt?.toDate() || new Date()
+          })),
+          beforePhoto: data.beforePhoto,
+          afterPhoto: data.afterPhoto,
+          createdAt: data.createdAt?.toDate() || new Date()
+        })
+      })
       
       maintenanceRecords.value = fetchedRecords
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao buscar manutenções'
-      console.error('Error fetching maintenance records:', err)
+      logger.info('✅ Maintenance records loaded successfully')
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao buscar manutenções'
+      logger.error('❌ Error fetching maintenance records:', err)
     } finally {
       loading.value = false
     }
   }
 
-  const addMaintenanceRecord = async (recordData: Omit<MaintenanceRecord, 'id' | 'createdAt'>) => {
+  const addMaintenanceRecord = async (maintenanceData: Partial<MaintenanceRecord>): Promise<boolean> => {
+    logger.info('🚀 addMaintenanceRecord called with:', maintenanceData)
+    
+    const authStore = useAuthStore()
+    if (!authStore.user?.id) {
+      logger.error('❌ No authenticated user')
+      error.value = 'Usuário não autenticado'
+      return false
+    }
+
     loading.value = true
     error.value = null
-    
-    try {
-      const authStore = useAuthStore()
-      if (!authStore.isAuthenticated) return false
 
-      const maintenanceRef = collection(db, 'maintenance')
-      const now = Timestamp.now()
+    try {
+      logger.info('📝 Creating maintenance record...')
       
-      // Preparar dados removendo campos undefined
-      const newRecordData: any = {
-        vehicleId: recordData.vehicleId,
-        type: recordData.type,
-        description: recordData.description,
-        cost: recordData.cost,
-        mileage: recordData.mileage,
-        date: recordData.date instanceof Date ? Timestamp.fromDate(recordData.date) : now,
-        createdAt: now
+      // Validar campos obrigatórios
+      if (!maintenanceData.vehicleId) {
+        logger.error('❌ Missing vehicleId')
+        error.value = 'ID do veículo é obrigatório'
+        loading.value = false
+        return false
       }
       
-      // Adicionar campos opcionais
-      if (recordData.partsCost !== undefined) newRecordData.partsCost = recordData.partsCost
-      if (recordData.laborCost !== undefined) newRecordData.laborCost = recordData.laborCost
-      if (recordData.warrantyParts) {
-        newRecordData.warrantyParts = {
-          months: recordData.warrantyParts.months,
-          expiryDate: Timestamp.fromDate(recordData.warrantyParts.expiryDate)
+      if (!maintenanceData.type) {
+        logger.error('❌ Missing type')
+        error.value = 'Tipo de manutenção é obrigatório'
+        loading.value = false
+        return false
+      }
+      
+      if (!maintenanceData.description) {
+        logger.error('❌ Missing description')
+        error.value = 'Descrição é obrigatória'
+        loading.value = false
+        return false
+      }
+      
+      // Primeiro, criar o documento sem as imagens para obter o ID
+      const tempRecord = {
+        vehicleId: maintenanceData.vehicleId,
+        type: maintenanceData.type,
+        description: maintenanceData.description,
+        cost: maintenanceData.cost || 0,
+        partsCost: maintenanceData.partsCost || 0,
+        laborCost: maintenanceData.laborCost || 0,
+        mileage: maintenanceData.mileage || 0,
+        date: maintenanceData.date ? Timestamp.fromDate(maintenanceData.date) : Timestamp.now(),
+        nextDueDate: maintenanceData.nextDueDate ? Timestamp.fromDate(maintenanceData.nextDueDate) : null,
+        nextDueMileage: maintenanceData.nextDueMileage || null,
+        serviceProvider: maintenanceData.serviceProvider || null,
+        notes: maintenanceData.notes || null,
+        warrantyParts: maintenanceData.warrantyParts || null,
+        warrantyLabor: maintenanceData.warrantyLabor || null,
+        beforePhoto: null,
+        afterPhoto: null,
+        attachments: [],
+        userId: authStore.user.id,
+        createdAt: Timestamp.now()
+      }
+      
+      logger.info('📦 Document to create:', tempRecord)
+
+      const docRef = await addDoc(collection(db, 'maintenance'), tempRecord)
+      logger.info('✅ Maintenance document created:', docRef.id)
+
+      // Upload de fotos before/after se existirem e forem base64
+      let finalBeforePhoto = maintenanceData.beforePhoto
+      let finalAfterPhoto = maintenanceData.afterPhoto
+
+      if (maintenanceData.beforePhoto && isBase64DataURL(maintenanceData.beforePhoto)) {
+        logger.info('� Uploading before photo to Storage...')
+        try {
+          finalBeforePhoto = await uploadMaintenancePhoto(
+            authStore.user.id,
+            docRef.id,
+            maintenanceData.beforePhoto,
+            'before'
+          )
+          logger.info('✅ Before photo uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading before photo:', uploadError)
         }
       }
-      if (recordData.warrantyLabor) {
-        newRecordData.warrantyLabor = {
-          months: recordData.warrantyLabor.months,
-          expiryDate: Timestamp.fromDate(recordData.warrantyLabor.expiryDate)
+
+      if (maintenanceData.afterPhoto && isBase64DataURL(maintenanceData.afterPhoto)) {
+        logger.info('📤 Uploading after photo to Storage...')
+        try {
+          finalAfterPhoto = await uploadMaintenancePhoto(
+            authStore.user.id,
+            docRef.id,
+            maintenanceData.afterPhoto,
+            'after'
+          )
+          logger.info('✅ After photo uploaded')
+        } catch (uploadError) {
+          logger.error('❌ Error uploading after photo:', uploadError)
         }
       }
-      
-      // Persist attachments if present
-      if (recordData.attachments && Array.isArray(recordData.attachments)) {
-        newRecordData.attachments = recordData.attachments.map(att => ({
-          ...att,
-          uploadedAt: att.uploadedAt instanceof Date ? Timestamp.fromDate(att.uploadedAt) : att.uploadedAt
-        }))
+
+      // Upload de attachments se existirem e forem base64
+      let finalAttachments = maintenanceData.attachments || []
+      if (maintenanceData.attachments && maintenanceData.attachments.length > 0) {
+        logger.info('📎 Uploading', maintenanceData.attachments.length, 'attachments to Storage...')
+        
+        finalAttachments = await Promise.all(
+          maintenanceData.attachments.map(async (att) => {
+            if (att.data && isBase64DataURL(att.data)) {
+              try {
+                const url = await uploadMaintenanceAttachment(
+                  authStore.user!.id,
+                  docRef.id,
+                  att.data,
+                  att.name
+                )
+                return { ...att, data: url }
+              } catch (uploadError) {
+                logger.error('❌ Error uploading attachment:', att.name, uploadError)
+                return att // Manter original se falhar
+              }
+            }
+            return att
+          })
+        )
+        
+        logger.info('✅ Attachments processed')
       }
-      
-      if (recordData.nextDueDate) {
-        newRecordData.nextDueDate = Timestamp.fromDate(recordData.nextDueDate)
-      }
-      
-      if (recordData.nextDueMileage) {
-        newRecordData.nextDueMileage = recordData.nextDueMileage
-      }
-      
-      if (recordData.serviceProvider) newRecordData.serviceProvider = recordData.serviceProvider
-      if (recordData.notes) newRecordData.notes = recordData.notes
-      if (recordData.beforePhoto) newRecordData.beforePhoto = recordData.beforePhoto
-      if (recordData.afterPhoto) newRecordData.afterPhoto = recordData.afterPhoto
-      
-      const docRef = await addDoc(maintenanceRef, newRecordData)
-      
-      const newRecord: MaintenanceRecord = {
-        id: docRef.id,
-        ...recordData,
-        createdAt: now.toDate()
-      }
-      
-      maintenanceRecords.value.unshift(newRecord)
+
+      // Atualizar documento com as URLs do Storage
+      await updateDoc(doc(db, 'maintenance', docRef.id), {
+        beforePhoto: finalBeforePhoto || null,
+        afterPhoto: finalAfterPhoto || null,
+        attachments: finalAttachments
+      })
+
+      logger.info('✅ Maintenance record updated with Storage URLs')
+
+      // Recarrega a lista de manutenções
+      await fetchMaintenanceRecords()
+      logger.info('🔄 Maintenance list reloaded')
+
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao adicionar manutenção'
-      console.error('Error adding maintenance record:', err)
+    } catch (err) {
+      logger.error('❌ Error adding maintenance record:', err)
+      const errorCode = (err as { code?: string })?.code
+      const errorMessage = (err as { message?: string })?.message
+      logger.error('Error code:', errorCode)
+      logger.error('Error message:', errorMessage)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
@@ -514,9 +675,10 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       
       maintenanceRecords.value = maintenanceRecords.value.filter(r => r.id !== id)
       return true
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao deletar manutenção'
-      console.error('Error deleting maintenance record:', err)
+    } catch (err) {
+      const errorMessage = (err as { message?: string })?.message
+      error.value = errorMessage || 'Erro ao deletar manutenção'
+      logger.error('Error deleting maintenance record:', err)
       return false
     } finally {
       loading.value = false

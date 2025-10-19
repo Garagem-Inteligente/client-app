@@ -119,7 +119,7 @@ firebase functions:config:set sendgrid.key="SG.xxxxx"
 
 ```bash
 # Instalar dependências
-./setup-functions.sh
+./scripts/setup-functions.sh
 
 # Deploy
 firebase deploy --only functions
@@ -231,7 +231,7 @@ Veja `docs/PASSWORD-CHANGE-SENDGRID.md` para:
 - [ ] API Key obtida
 - [ ] Sender verificado no SendGrid
 - [ ] API Key configurada no Firebase
-- [ ] Functions instaladas (`./setup-functions.sh`)
+- [ ] Functions instaladas (`./scripts/setup-functions.sh`)
 - [ ] Functions deployadas (`firebase deploy --only functions`)
 - [ ] Teste realizado em ambiente de desenvolvimento
 - [ ] Email de confirmação recebido

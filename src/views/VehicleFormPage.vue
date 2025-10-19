@@ -441,32 +441,14 @@
                 </label>
                 <input
                   id="insuranceValue"
-                  v-model="formData.insuranceValue"
+                  v-model="displayInsuranceValue"
                   type="text"
                   inputmode="decimal"
                   placeholder="R$ 0,00"
                   :disabled="vehiclesStore.loading"
                   class="field-input"
-                  @input="(e) => {
-                    const target = e.target as HTMLInputElement
-                    const value = target.value.replace(/\\D/g, '')
-                    
-                    if (!value) {
-                      target.value = ''
-                      formData.insuranceValue = 0
-                      return
-                    }
-                    
-                    const cents = Number.parseInt(value)
-                    const reais = cents / 100
-                    
-                    target.value = new Intl.NumberFormat('pt-BR', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
-                    }).format(reais)
-                    
-                    formData.insuranceValue = reais
-                  }"
+                  @input="handleInsuranceValueInput"
+                  @blur="formatInsuranceValue"
                 />
               </div>
             </div>
@@ -550,6 +532,40 @@ const formData = ref({
   fipeValue: 0,
   fipeCode: ''
 })
+
+// Display value for insurance value with mask
+const displayInsuranceValue = ref('')
+
+// Handler for insurance value input with currency mask
+const handleInsuranceValueInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value.replace(/\D/g, '')
+  
+  if (!value) {
+    displayInsuranceValue.value = ''
+    formData.value.insuranceValue = 0
+    return
+  }
+  
+  const cents = Number.parseInt(value)
+  const reais = cents / 100
+  
+  displayInsuranceValue.value = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(reais)
+  
+  formData.value.insuranceValue = reais
+}
+
+const formatInsuranceValue = () => {
+  if (formData.value.insuranceValue > 0) {
+    displayInsuranceValue.value = new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(formData.value.insuranceValue)
+  }
+}
 
 const isFormValid = computed(() => {
   return formData.value.make && formData.value.model && formData.value.plate
@@ -844,6 +860,14 @@ onMounted(async () => {
         brokerContact: vehicle.brokerContact || '',
         fipeValue: vehicle.fipeValue || 0,
         fipeCode: vehicle.fipeCode || ''
+      }
+      
+      // Format insurance value for display
+      if (vehicle.insuranceValue && vehicle.insuranceValue > 0) {
+        displayInsuranceValue.value = new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(vehicle.insuranceValue)
       }
     }
   } else {

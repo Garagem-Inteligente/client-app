@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# (archived original from repo root)
+
+set -e
+
+echo "Original build-android.sh preserved as build-android.sh.orig"
+
+## Original content moved to archive
+

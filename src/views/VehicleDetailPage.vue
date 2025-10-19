@@ -42,6 +42,19 @@
             </div>
 
             <div class="header-actions">
+              <AButton 
+                size="small" 
+                variant="outline"
+                @click="handleExportPDF"
+                :disabled="generatingPDF || maintenanceHistory.length === 0"
+              >
+                <template #start>
+                  <ion-icon v-if="!generatingPDF" :icon="downloadOutline" />
+                  <ion-spinner v-else name="crescent" style="width: 16px; height: 16px;" />
+                </template>
+                {{ generatingPDF ? 'Gerando...' : 'Exportar PDF' }}
+              </AButton>
+              
               <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
                 <template #start>
                   <ion-icon :icon="addCircleOutline" />
@@ -695,6 +708,7 @@ import {
   documentTextOutline,
   calendarOutline,
   cloudUploadOutline,
+  downloadOutline,
   eyeOutline,
   shieldCheckmarkOutline,
   closeCircleOutline,
@@ -721,8 +735,10 @@ import {
   closeOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
+import { useAuthStore } from '@/stores/auth'
 import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
+import { generateMaintenancePDF, downloadPDF } from '@/services/pdfService'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import AButton from '@/components/atoms/AButton.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
@@ -735,7 +751,9 @@ import MaintenanceSection from '@/components/organisms/MaintenanceSection.vue'
 const route = useRoute()
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
+const authStore = useAuthStore()
 const activeTab = ref('info')
+const generatingPDF = ref(false)
 
 const vehicleId = route.params.id as string
 
@@ -873,8 +891,44 @@ const daysUntilNext = (date: Date) => {
   return days
 }
 
+const handleExportPDF = async () => {
+  if (!vehicle.value || !authStore.user) return
+  
+  generatingPDF.value = true
+  
+  try {
+    const pdfUrl = await generateMaintenancePDF(vehicleId, authStore.user.id)
+    
+    // Generate file name
+    const fileName = `historico-manutencao-${vehicle.value.make}-${vehicle.value.model}-${vehicle.value.plate}.pdf`.replace(/\s+/g, '-').toLowerCase()
+    
+    // Download PDF
+    downloadPDF(pdfUrl, fileName)
+    
+    // Show success alert
+    const alert = await alertController.create({
+      header: 'PDF Gerado!',
+      message: 'O histórico de manutenção foi exportado com sucesso.',
+      buttons: ['OK']
+    })
+    await alert.present()
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro ao gerar PDF. Tente novamente.'
+    console.error('Error exporting PDF:', error)
+    
+    const alert = await alertController.create({
+      header: 'Erro',
+      message: errorMessage,
+      buttons: ['OK']
+    })
+    await alert.present()
+  } finally {
+    generatingPDF.value = false
+  }
+}
+
 const handleEdit = () => {
-  router.push(`/tabs/vehicle/${vehicleId}`)
+  router.push(`/tabs/vehicle/${vehicleId}/edit`)
 }
 
 const handleDelete = async () => {
@@ -2182,8 +2236,7 @@ onMounted(async () => {
 .filter-pill.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-color: rgba(129, 140, 248, 0.6);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
 
 .filter-pill.disabled {
