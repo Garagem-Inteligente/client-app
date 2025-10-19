@@ -14,6 +14,8 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from './auth'
+import { translateFirebaseError } from '@/utils/errorMessages'
+import { logger } from '@/utils/logger'
 
 // Tipos de veículos disponíveis no Brasil
 export type VehicleType = 'car' | 'motorcycle' | 'van' | 'truck' | 'bus' | 'pickup'
@@ -423,101 +425,43 @@ export const useVehiclesStore = defineStore('vehicles', () => {
     }
   }
 
-  const addMaintenanceRecord = async (recordData: Omit<MaintenanceRecord, 'id' | 'createdAt'>) => {
+  const addMaintenanceRecord = async (maintenanceData: Partial<MaintenanceRecord>): Promise<boolean> => {
+    logger.info('🚀 addMaintenanceRecord called with:', maintenanceData)
+    
+    const authStore = useAuthStore()
+    if (!authStore.user?.id) {
+      logger.error('❌ No authenticated user')
+      error.value = 'Usuário não autenticado'
+      return false
+    }
+
     loading.value = true
     error.value = null
-    
+
     try {
-      const authStore = useAuthStore()
-      if (!authStore.isAuthenticated) {
-        error.value = 'Usuário não autenticado'
-        console.error('❌ User not authenticated')
-        return false
+      logger.info('📝 Creating maintenance record...')
+      
+      const newRecord = {
+        ...maintenanceData,
+        userId: authStore.user.id,
+        createdAt: Timestamp.now()
       }
 
-      console.log('📝 Adding maintenance record to Firestore...')
-      const maintenanceRef = collection(db, 'maintenance')
-      const now = Timestamp.now()
-      
-      // Preparar dados removendo campos undefined
-      const newRecordData: any = {
-        vehicleId: recordData.vehicleId,
-        type: recordData.type,
-        description: recordData.description,
-        cost: recordData.cost,
-        mileage: recordData.mileage,
-        date: recordData.date instanceof Date ? Timestamp.fromDate(recordData.date) : now,
-        createdAt: now
-      }
-      
-      // Adicionar campos opcionais
-      if (recordData.partsCost !== undefined) newRecordData.partsCost = recordData.partsCost
-      if (recordData.laborCost !== undefined) newRecordData.laborCost = recordData.laborCost
-      if (recordData.warrantyParts) {
-        newRecordData.warrantyParts = {
-          months: recordData.warrantyParts.months,
-          expiryDate: Timestamp.fromDate(recordData.warrantyParts.expiryDate)
-        }
-      }
-      if (recordData.warrantyLabor) {
-        newRecordData.warrantyLabor = {
-          months: recordData.warrantyLabor.months,
-          expiryDate: Timestamp.fromDate(recordData.warrantyLabor.expiryDate)
-        }
-      }
-      
-      // Persist attachments if present
-      if (recordData.attachments && Array.isArray(recordData.attachments)) {
-        console.log(`📎 Including ${recordData.attachments.length} attachments`)
-        newRecordData.attachments = recordData.attachments.map(att => ({
-          ...att,
-          uploadedAt: att.uploadedAt instanceof Date ? Timestamp.fromDate(att.uploadedAt) : att.uploadedAt
-        }))
-      }
-      
-      if (recordData.nextDueDate) {
-        newRecordData.nextDueDate = Timestamp.fromDate(recordData.nextDueDate)
-      }
-      
-      if (recordData.nextDueMileage) {
-        newRecordData.nextDueMileage = recordData.nextDueMileage
-      }
-      
-      if (recordData.serviceProvider) newRecordData.serviceProvider = recordData.serviceProvider
-      if (recordData.notes) newRecordData.notes = recordData.notes
-      if (recordData.beforePhoto) {
-        console.log('📸 Including before photo')
-        newRecordData.beforePhoto = recordData.beforePhoto
-      }
-      if (recordData.afterPhoto) {
-        console.log('📸 Including after photo')
-        newRecordData.afterPhoto = recordData.afterPhoto
-      }
-      
-      console.log('🔥 Firestore addDoc starting...', {
-        collection: 'maintenance',
-        vehicleId: newRecordData.vehicleId,
-        type: newRecordData.type
-      })
-      
-      const docRef = await addDoc(maintenanceRef, newRecordData)
-      console.log('✅ Firestore document created with ID:', docRef.id)
-      
-      const newRecord: MaintenanceRecord = {
-        id: docRef.id,
-        ...recordData,
-        createdAt: now.toDate()
-      }
-      
-      maintenanceRecords.value.unshift(newRecord)
-      console.log('✅ Maintenance record added to local state')
+      logger.debug('📦 Record to be saved:', newRecord)
+
+      const docRef = await addDoc(collection(db, 'maintenance'), newRecord)
+      logger.info('✅ Record saved with ID:', docRef.id)
+
+      // Recarrega a lista de manutenções
+      await fetchMaintenanceRecords(maintenanceData.vehicleId!)
+      logger.info('🔄 Maintenance list reloaded')
+
       return true
-    } catch (err: any) {
-      const errorMsg = err.message || 'Erro ao adicionar manutenção'
-      error.value = errorMsg
-      console.error('❌ Error adding maintenance record:', err)
-      console.error('Error code:', err.code)
-      console.error('Error details:', err)
+    } catch (err) {
+      logger.error('❌ Error adding maintenance record:', err)
+      logger.error('Error code:', (err as any).code)
+      logger.error('Error message:', (err as any).message)
+      error.value = translateFirebaseError(err)
       return false
     } finally {
       loading.value = false
