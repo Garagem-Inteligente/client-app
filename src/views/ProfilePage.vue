@@ -1355,6 +1355,7 @@ onMounted(() => {
   padding: 24px 16px;
   position: relative;
   z-index: 1;
+  height: 91vh;
 }
 
 /* Profile Header Card */

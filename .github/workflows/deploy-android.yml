@@ -85,14 +85,6 @@ jobs:
           }
           EOF
 
-      - name: 🔧 Configure Firebase
-        run: |
-          echo "Configurando Firebase..."
-          # O google-services.json deve estar no repositório ou ser criado via secrets
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
-          fi
-
       - name: 🏗️ Build Web Assets
         run: pnpm build
         env:
@@ -106,6 +98,17 @@ jobs:
 
       - name: 📲 Sync Capacitor
         run: npx cap sync android
+
+      - name: 🔧 Configure Firebase
+        run: |
+          echo "Configurando Firebase..."
+          # Verifica se o arquivo já existe no repositório
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "Criando google-services.json a partir do secret..."
+            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+          else
+            echo "google-services.json já existe no repositório"
+          fi
 
       - name: 🔐 Setup Keystore
         run: |
