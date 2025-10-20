@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Garagem Inteligente</string>
+    <string name="title_activity_main">Garagem Inteligente</string>
+    <string name="package_name">com.garageminteligente.app</string>
+    <string name="custom_url_scheme">com.garageminteligente.app</string>
+    <!-- Firebase Google Sign-In: Web Client ID (OBRIGATÓRIO para Android) -->
+    <string name="server_client_id">868408826724-fraf20uj8jeflctur19rif19lbgiapse.apps.googleusercontent.com</string>
+</resources>
