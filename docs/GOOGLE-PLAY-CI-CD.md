@@ -39,6 +39,7 @@
 Configure os seguintes secrets no repositório:
 
 ### Acessar GitHub Secrets
+
 1. Vá para o repositório no GitHub
 2. **Settings** → **Secrets and variables** → **Actions**
 3. Clique em **New repository secret**
@@ -46,6 +47,7 @@ Configure os seguintes secrets no repositório:
 ### Secrets Necessários
 
 #### **Firebase Secrets** (já configurados)
+
 ```
 VITE_FIREBASE_API_KEY
 VITE_FIREBASE_AUTH_DOMAIN
@@ -59,23 +61,29 @@ VITE_FIREBASE_MEASUREMENT_ID
 #### **Android Signing Secrets** (NOVOS)
 
 1. **`GOOGLE_SERVICES_JSON`**
+
    ```bash
    # Conteúdo do arquivo android/app/google-services.json
    cat android/app/google-services.json
    ```
+
    Cole o JSON completo no secret.
 
 2. **`ANDROID_KEYSTORE_BASE64`**
+
    ```bash
    # Encode do keystore em base64
    base64 -w 0 android/app/upload-keystore.jks
    ```
+
    Cole o resultado no secret.
 
 3. **`ANDROID_KEYSTORE_PASSWORD`**
+
    - A senha do keystore (a que você usa no `./scripts/build-aab.sh`)
 
 4. **`ANDROID_KEY_PASSWORD`**
+
    - A senha da chave (normalmente igual ao keystore password)
 
 5. **`ANDROID_KEY_ALIAS`**
@@ -156,6 +164,7 @@ vim android/whatsnew/whatsnew-pt-BR
 ```
 
 Exemplo:
+
 ```
 ✨ Novo sistema de manutenções
 🐛 Correções de bugs no login com Google
@@ -174,14 +183,17 @@ Após o deploy:
 ## ❗ Troubleshooting
 
 ### **Erro: "Package not found"**
+
 - Certifique-se de que o `packageName` no workflow é `com.garageminteligente.app`
 - Verifique se o app já foi publicado manualmente pelo menos uma vez
 
 ### **Erro: "Service account not authorized"**
+
 - Verifique se a Service Account foi adicionada na Play Console
 - Confirme que as permissões foram concedidas
 
 ### **Erro: "Invalid keystore"**
+
 - Verifique se o base64 do keystore está correto:
   ```bash
   echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > test.jks
@@ -189,6 +201,7 @@ Após o deploy:
   ```
 
 ### **Build falhou**
+
 - Veja os logs no GitHub Actions
 - Verifique se todos os secrets estão configurados
 - Confirme que o `google-services.json` é válido
@@ -196,10 +209,12 @@ Após o deploy:
 ## 📈 Versioning Automático
 
 O CI gera automaticamente:
+
 - **Version Code**: Número do build do GitHub Actions (incremental)
 - **Version Name**: Data + commit SHA (`2025.10.20-abc1234`)
 
 Exemplo:
+
 ```
 Version Code: 42
 Version Name: 2025.10.20-a1b2c3d
@@ -209,9 +224,11 @@ Version Name: 2025.10.20-a1b2c3d
 
 1. Configure os secrets no GitHub
 2. Faça o primeiro deploy manual:
+
    ```bash
    ./scripts/build-aab.sh
    ```
+
    E suba manualmente na Play Console
 
 3. Depois, deixe o CI fazer tudo automaticamente! 🚀

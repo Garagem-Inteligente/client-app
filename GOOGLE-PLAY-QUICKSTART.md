@@ -3,19 +3,23 @@
 ## ⚡ Início Rápido
 
 ### 1. Gerar Secrets
+
 ```bash
 ./scripts/generate-github-secrets.sh
 ```
 
 ### 2. Configurar Service Account
+
 Siga o guia: [docs/GOOGLE-PLAY-CI-CD.md](docs/GOOGLE-PLAY-CI-CD.md)
 
 ### 3. Adicionar Secrets no GitHub
+
 ```
 Settings → Secrets and variables → Actions → New repository secret
 ```
 
 ### 4. Fazer Deploy
+
 ```bash
 # Opção 1: Push automático
 git push origin master
@@ -28,7 +32,7 @@ Actions → Deploy Android → Run workflow
 
 - **internal**: Teste interno (até 100 pessoas)
 - **alpha**: Alpha testing
-- **beta**: Beta testing  
+- **beta**: Beta testing
 - **production**: Produção
 
 ## 🔗 Links Úteis

@@ -3,6 +3,7 @@
 ## ✨ O que foi implementado
 
 Sistema completo de **release notes automáticas** que:
+
 - ✅ Gera changelog baseado em commits do Git
 - ✅ Exibe release notes na tela "Sobre" do perfil
 - ✅ Integra com CI/CD para atualização automática
@@ -14,11 +15,13 @@ Sistema completo de **release notes automáticas** que:
 ### **Novos Arquivos**
 
 1. **`src/constants/changelog.ts`**
+
    - Define interfaces do changelog
    - Lista de versões e mudanças
    - Funções helper para labels e cores
 
 2. **`src/composables/useChangelog.ts`**
+
    - Composable para gerenciar changelog
    - Acesso à última versão
    - Busca de versões específicas
@@ -32,6 +35,7 @@ Sistema completo de **release notes automáticas** que:
 ### **Arquivos Modificados**
 
 1. **`src/views/ProfilePage.vue`**
+
    - Adicionado tab "Novidades" no modal "Sobre"
    - Exibe changelog com versões e mudanças
    - Formatação visual com badges coloridos
@@ -47,6 +51,7 @@ Sistema completo de **release notes automáticas** que:
 ### **1. Conventional Commits**
 
 O sistema reconhece commits no formato:
+
 ```
 <tipo>(<escopo>): <mensagem>
 
@@ -59,26 +64,29 @@ docs(readme): atualizar instruções
 
 ### **2. Tipos Suportados**
 
-| Tipo | Badge | Cor | Descrição |
-|------|-------|-----|-----------|
-| `feat` | ✨ Novidade | Verde (success) | Nova funcionalidade |
-| `fix` | 🐛 Correção | Vermelho (danger) | Correção de bug |
-| `perf` | ⚡ Performance | Laranja (warning) | Melhoria de performance |
-| `docs` | 📝 Documentação | Azul (primary) | Documentação |
-| `style` | 💄 Visual | Roxo (secondary) | Mudanças visuais |
-| `refactor` | ♻️ Refatoração | Cinza (tertiary) | Refatoração de código |
-| `test` | ✅ Testes | Cinza (medium) | Adição de testes |
-| `chore` | 🔧 Manutenção | Cinza (medium) | Tarefas de manutenção |
+| Tipo       | Badge           | Cor               | Descrição               |
+| ---------- | --------------- | ----------------- | ----------------------- |
+| `feat`     | ✨ Novidade     | Verde (success)   | Nova funcionalidade     |
+| `fix`      | 🐛 Correção     | Vermelho (danger) | Correção de bug         |
+| `perf`     | ⚡ Performance  | Laranja (warning) | Melhoria de performance |
+| `docs`     | 📝 Documentação | Azul (primary)    | Documentação            |
+| `style`    | 💄 Visual       | Roxo (secondary)  | Mudanças visuais        |
+| `refactor` | ♻️ Refatoração  | Cinza (tertiary)  | Refatoração de código   |
+| `test`     | ✅ Testes       | Cinza (medium)    | Adição de testes        |
+| `chore`    | 🔧 Manutenção   | Cinza (medium)    | Tarefas de manutenção   |
 
 ### **3. Geração do Changelog**
 
 #### **Manual (desenvolvimento)**
+
 ```bash
 ./scripts/generate-changelog.sh "1.2.3"
 ```
 
 #### **Automático (CI/CD)**
+
 O CI/CD executa automaticamente:
+
 ```yaml
 - name: 📝 Generate Changelog
   run: |
@@ -156,6 +164,7 @@ git push origin master
 ```
 
 O CI automaticamente:
+
 1. ✅ Gera o changelog dos commits
 2. ✅ Atualiza `src/constants/changelog.ts`
 3. ✅ Builda o app com as mudanças
@@ -208,11 +217,13 @@ graph LR
 ### **Changelog não aparece no app**
 
 1. Verifique se `changelog.ts` foi atualizado:
+
    ```bash
    cat src/constants/changelog.ts
    ```
 
 2. Faça rebuild:
+
    ```bash
    pnpm build
    ```
@@ -235,6 +246,7 @@ git push origin v1.0.0
 Commits sem tipo aparecem como "🔧 Manutenção" (chore).
 
 Use conventional commits:
+
 ```bash
 git commit -m "feat: sua mensagem"
 ```
