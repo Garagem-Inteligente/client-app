@@ -7,17 +7,20 @@
 **Status:** ✅ **ATIVO**
 
 **Trigger:**
+
 - Push em `master`
 - Tags `v*.*.*`
 - Manual (workflow_dispatch com opções)
 
 **O que faz:**
+
 - **Job 1:** Build compartilhado (web assets + version + changelog)
 - **Job 2:** Deploy Web (Firebase Hosting) - **Paralelo**
 - **Job 3:** Build Android AAB - **Paralelo**
 - **Job 4:** Deploy Play Store
 
 **Vantagens:**
+
 - ✅ Reutilização de build entre jobs
 - ✅ Execução paralela de deploys (Web + Android)
 - ✅ Workflow dispatch customizado
@@ -44,15 +47,18 @@ GitHub → Actions → 🚀 Deploy Completo (Otimizado) → Run workflow
 Todos os workflows abaixo foram **desabilitados** para evitar execuções duplicadas.
 
 ### ❌ `deploy-android.yml.disabled`
+
 - Workflow sequencial (1 job) sem otimizações
 - **Substituído por:** `deploy-optimized.yml`
 - **Motivo:** Execuções duplicadas + sem paralelização
 
 ### ❌ `deploy-simple.disabled`
+
 - Workflow básico antigo
 - Substituído por versões otimizadas
 
 ### ❌ `deploy-simple-fixed.yml.disabled`
+
 - Versão intermediária com correções
 - Substituído por versões otimizadas
 
