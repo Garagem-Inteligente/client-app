@@ -37,9 +37,11 @@ subprojects {
         }
         
         // Configura Kotlin JVM target para 17 (capacitor-geolocation usa Kotlin)
-        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-            kotlinOptions {
-                jvmTarget = "17"
+        tasks.configureEach { task ->
+            if (task.name.contains('Kotlin') && task.hasProperty('kotlinOptions')) {
+                task.kotlinOptions {
+                    jvmTarget = '17'
+                }
             }
         }
     }
