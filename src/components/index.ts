@@ -24,6 +24,9 @@ export { default as MaintenanceSection } from './organisms/MaintenanceSection.vu
 export { default as LoginHeader } from './organisms/LoginHeader.vue';
 export { default as LoginCard } from './organisms/LoginCard.vue';
 export { default as LoginFooter } from './organisms/LoginFooter.vue';
+export { default as RegisterHeader } from './organisms/RegisterHeader.vue';
+export { default as RegisterCard } from './organisms/RegisterCard.vue';
+export { default as RegisterFooter } from './organisms/RegisterFooter.vue';
 
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue';
