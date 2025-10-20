@@ -396,9 +396,20 @@
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
+        <ion-toolbar>
+          <ion-segment v-model="aboutTab" mode="md">
+            <ion-segment-button value="info">
+              <ion-label>Info</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="changelog">
+              <ion-label>Novidades</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-toolbar>
       </ion-header>
       <ion-content class="modal-content">
-        <div class="about-content">
+        <!-- Info Tab -->
+        <div v-show="aboutTab === 'info'" class="about-content">
           <div class="about-logo">
             <ion-icon :icon="carSportOutline"></ion-icon>
           </div>
@@ -429,6 +440,40 @@
           <p class="about-footer">
             Desenvolvido com ❤️ para facilitar sua vida
           </p>
+        </div>
+
+        <!-- Changelog Tab -->
+        <div v-show="aboutTab === 'changelog'" class="changelog-content">
+          <div v-for="entry in changelog" :key="entry.version" class="changelog-entry">
+            <div class="changelog-header">
+              <div class="version-badge">
+                <ion-icon :icon="gitBranchOutline"></ion-icon>
+                <span>{{ entry.version }}</span>
+              </div>
+              <div class="changelog-date">{{ formatChangelogDate(entry.date) }}</div>
+            </div>
+            
+            <div class="changelog-changes">
+              <div 
+                v-for="(change, index) in entry.changes" 
+                :key="index" 
+                class="changelog-item"
+              >
+                <ion-badge 
+                  :color="getChangeTypeColor(change.type)" 
+                  class="change-badge"
+                >
+                  {{ getChangeTypeLabel(change.type) }}
+                </ion-badge>
+                <span class="change-message">{{ change.message }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="changelog.length === 0" class="empty-changelog">
+            <ion-icon :icon="documentTextOutline"></ion-icon>
+            <p>Nenhuma atualização disponível</p>
+          </div>
         </div>
       </ion-content>
     </ion-modal>
@@ -595,6 +640,10 @@ import {
   IonButton,
   IonSpinner,
   IonActionSheet,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonBadge,
   toastController
 } from '@ionic/vue'
 import {
@@ -622,7 +671,9 @@ import {
   trashOutline,
   imagesOutline,
   swapHorizontalOutline,
-  archiveOutline
+  archiveOutline,
+  gitBranchOutline,
+  documentTextOutline
 } from 'ionicons/icons'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { ref as storageRef, uploadString, getDownloadURL, deleteObject } from 'firebase/storage'
@@ -637,6 +688,8 @@ import { auth, storage, db } from '@/firebase/config'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useVersion } from '@/composables/useVersion'
+import { useChangelog } from '@/composables/useChangelog'
+import { getChangeTypeLabel, getChangeTypeColor } from '@/constants/changelog'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
@@ -644,8 +697,10 @@ const router = useRouter()
 const authStore = useAuthStore()
 const vehiclesStore = useVehiclesStore()
 const { fullVersionString, formattedBuildDate, shortSha, isProduction } = useVersion()
+const { changelog } = useChangelog()
 
 // State
+const aboutTab = ref<'info' | 'changelog'>('info')
 const showPhotoSheet = ref(false)
 const showRemovePhotoModal = ref(false)
 const showUnlinkGoogleModal = ref(false)
@@ -1114,7 +1169,17 @@ const showHelp = async () => {
 }
 
 const showAbout = () => {
+  aboutTab.value = 'info'
   showAboutModal.value = true
+}
+
+const formatChangelogDate = (date: string) => {
+  const dateObj = new Date(date)
+  return dateObj.toLocaleDateString('pt-BR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 }
 
 const handleLogout = async () => {
@@ -1887,6 +1952,95 @@ onMounted(() => {
 .about-footer {
   font-size: 14px;
   color: #9ca3af;
+  margin: 0;
+}
+
+/* Changelog Content */
+.changelog-content {
+  padding: 16px;
+}
+
+.changelog-entry {
+  background: rgba(31, 41, 55, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.changelog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.version-badge ion-icon {
+  font-size: 18px;
+}
+
+.changelog-date {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.changelog-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.changelog-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.change-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.change-message {
+  flex: 1;
+  font-size: 14px;
+  color: #e5e7eb;
+  line-height: 1.5;
+}
+
+.empty-changelog {
+  text-align: center;
+  padding: 60px 24px;
+  color: #9ca3af;
+}
+
+.empty-changelog ion-icon {
+  font-size: 64px;
+  color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 16px;
+}
+
+.empty-changelog p {
+  font-size: 16px;
   margin: 0;
 }
 
