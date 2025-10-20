@@ -116,8 +116,19 @@ jobs:
       - name: 🔐 Setup Keystore
         run: |
           echo "Configurando keystore..."
-          echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 -d > android/app/upload-keystore.jks
-
+          
+          # Decode base64 do keystore (usando -w 0 para evitar quebras de linha)
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          
+          # Valida que o arquivo foi criado corretamente
+          if [ ! -f "android/app/upload-keystore.jks" ]; then
+            echo "❌ Erro: Keystore não foi criado!"
+            exit 1
+          fi
+          
+          KEYSTORE_SIZE=$(stat -c%s android/app/upload-keystore.jks)
+          echo "✅ Keystore criado: $KEYSTORE_SIZE bytes"
+          
           # Cria key.properties
           cat > android/key.properties << EOF
           storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
