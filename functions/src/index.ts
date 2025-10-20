@@ -32,8 +32,24 @@ interface PasswordChangeConfirmationData {
 }
 
 interface FunctionResponse {
-  success: boolean;
-  message: string;
+  success: boolean
+  message: string
+}
+
+interface InitiateTransferData {
+  vehicleId: string
+  toEmail: string
+  message?: string
+}
+
+interface ConfirmTransferData {
+  transferId: string
+  confirmationCode: string
+  isNewOwner: boolean
+}
+
+interface CancelTransferData {
+  transferId: string
 }
 
 /**
@@ -1229,3 +1245,1305 @@ function getPDFEmailTemplate(
 </html>
   `;
 }
+
+// ==================== VEHICLE TRANSFER SYSTEM ====================
+
+/**
+ * Generate a random 6-character confirmation code
+ * @return {string} - Random code (alphanumeric uppercase)
+ */
+function generateConfirmationCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * Partially hide email for privacy
+ * @param {string} email - Email to hide
+ * @return {string} - Partially hidden email
+ */
+function hideEmail(email: string): string {
+  const [username, domain] = email.split("@");
+  if (!username || !domain) return email;
+  
+  if (username.length <= 2) {
+    return `${username[0]}***@${domain}`;
+  }
+  
+  return `${username[0]}***${username[username.length - 1]}@${domain}`;
+}
+
+/**
+ * Current owner transfer confirmation email template
+ * @param {string} ownerName - Current owner name
+ * @param {string} vehicleInfo - Vehicle information
+ * @param {string} toEmail - New owner email
+ * @param {string} code - Confirmation code
+ * @param {string} message - Optional message
+ * @return {string} - HTML email template
+ */
+function getOwnerTransferConfirmationTemplate(
+  ownerName: string,
+  vehicleInfo: string,
+  toEmail: string,
+  code: string,
+  message?: string
+): string {
+  return `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirme a Transferência do Veículo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .vehicle-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .warning-box {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .warning-box h3 {
+      margin: 0 0 15px 0;
+      color: #b91c1c;
+    }
+    .warning-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .code-box {
+      background: #1f2937;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      margin: 30px 0;
+      border-radius: 12px;
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 8px;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #f59e0b;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔄 Confirme a Transferência</h1>
+    </div>
+    
+    <div class="content">
+      <p>Olá, <strong>${ownerName}</strong>!</p>
+      
+      <p>Você iniciou a transferência do veículo:</p>
+      
+      <div class="vehicle-box">
+        <strong>🚗 ${vehicleInfo}</strong><br>
+        Para: ${toEmail}
+        ${message ? `<br><br>Mensagem: "${message}"` : ""}
+      </div>
+      
+      <div class="warning-box">
+        <h3>⚠️ ATENÇÃO - LEIA COM CUIDADO</h3>
+        <p>Ao confirmar esta transferência:</p>
+        <ul>
+          <li>✓ Todo o histórico de manutenções será transferido</li>
+          <li>✓ O novo proprietário terá acesso completo aos dados</li>
+          <li>✓ Você não poderá mais editar o histórico deste veículo</li>
+          <li>✓ O veículo será movido para "Carros Transferidos"</li>
+          <li>✓ Você poderá apenas visualizar o histórico anterior</li>
+        </ul>
+        <p><strong>Esta ação é IRREVERSÍVEL após ambas as confirmações!</strong></p>
+      </div>
+      
+      <p>Seu código de confirmação:</p>
+      
+      <div class="code-box">${code}</div>
+      
+      <p><strong>Para confirmar:</strong></p>
+      <ol>
+        <li>Acesse a plataforma Garagem Inteligente</li>
+        <li>Vá em "Meus Veículos" > Selecione o veículo > "Transferir"</li>
+        <li>Digite o código acima</li>
+        <li>Aguarde a confirmação do novo proprietário</li>
+      </ol>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://app-garageminteligente.web.app" class="button">
+          Acessar Plataforma
+        </a>
+      </div>
+      
+      <p style="color: #6b7280; font-size: 14px;">
+        ⏰ Este código expira em 7 dias<br>
+        ❌ Para cancelar, acesse a plataforma antes de confirmar
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Garagem Inteligente</strong></p>
+      <p>Este é um email automático, por favor não responda.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+/**
+ * New owner transfer invitation email template
+ * @param {string} fromName - Current owner name
+ * @param {string} vehicleInfo - Vehicle information
+ * @param {string} code - Confirmation code
+ * @param {string} message - Optional message from seller
+ * @return {string} - HTML email template
+ */
+function getNewOwnerTransferInvitationTemplate(
+  fromName: string,
+  vehicleInfo: string,
+  code: string,
+  message?: string
+): string {
+  return `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Você Recebeu um Veículo!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .vehicle-box {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .info-box h3 {
+      margin: 0 0 15px 0;
+      color: #1e40af;
+    }
+    .info-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .code-box {
+      background: #1f2937;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      margin: 30px 0;
+      border-radius: 12px;
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 8px;
+    }
+    .message-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-style: italic;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #10b981;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎉 Você Recebeu um Veículo!</h1>
+    </div>
+    
+    <div class="content">
+      <p>Olá!</p>
+      
+      <p><strong>${fromName}</strong> está transferindo o seguinte veículo para você:</p>
+      
+      <div class="vehicle-box">
+        <strong>🚗 ${vehicleInfo}</strong>
+      </div>
+      
+      ${message ? `
+      <div class="message-box">
+        <strong>💬 Mensagem do vendedor:</strong><br>
+        "${message}"
+      </div>
+      ` : ""}
+      
+      <div class="info-box">
+        <h3>📋 O que você vai receber:</h3>
+        <ul>
+          <li>✓ Histórico completo de manutenções</li>
+          <li>✓ Todos os documentos e informações do veículo</li>
+          <li>✓ Acesso total para edição e gerenciamento</li>
+          <li>✓ Continuar registrando novas manutenções</li>
+        </ul>
+      </div>
+      
+      <p><strong>Como aceitar a transferência:</strong></p>
+      
+      <ol>
+        <li>Se você ainda não tem conta, <strong>cadastre-se</strong> com este email</li>
+        <li>Acesse a plataforma Garagem Inteligente</li>
+        <li>Vá em "Transferências Pendentes"</li>
+        <li>Digite o código de confirmação abaixo</li>
+      </ol>
+      
+      <p>Seu código de confirmação:</p>
+      
+      <div class="code-box">${code}</div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://app-garageminteligente.web.app" class="button">
+          Acessar Plataforma
+        </a>
+      </div>
+      
+      <p style="color: #6b7280; font-size: 14px;">
+        ⏰ Este código expira em 7 dias<br>
+        ℹ️ A transferência só será concluída após ambas as partes confirmarem
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Garagem Inteligente</strong></p>
+      <p>Gerencie seus veículos de forma inteligente</p>
+      <p style="margin-top: 10px;">Este é um email automático, por favor não responda.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Transfer completion confirmation email template
+ * @param {string} userName - User name
+ * @param {string} vehicleInfo - Vehicle information
+ * @param {boolean} isNewOwner - Whether this is the new owner
+ * @return {string} - HTML email template
+ */
+function getTransferCompletionTemplate(
+  userName: string,
+  vehicleInfo: string,
+  isNewOwner: boolean
+): string {
+  const timestamp = new Date().toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  if (isNewOwner) {
+    return `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transferência Concluída!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .success-box {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #10b981;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Transferência Concluída!</h1>
+    </div>
+    
+    <div class="content">
+      <p>Parabéns, <strong>${userName}</strong>! 🎉</p>
+      
+      <div class="success-box">
+        <h2 style="margin: 0 0 10px 0; color: #059669;">🚗 ${vehicleInfo}</h2>
+        <p style="margin: 0; color: #065f46;">Agora é oficialmente seu!</p>
+      </div>
+      
+      <p>A transferência foi concluída com sucesso em <strong>${timestamp}</strong>.</p>
+      
+      <div class="info-box">
+        <h3 style="margin: 0 0 15px 0; color: #1e40af;">O que você pode fazer agora:</h3>
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>✓ Visualizar todo o histórico de manutenções</li>
+          <li>✓ Adicionar novas manutenções</li>
+          <li>✓ Editar informações do veículo</li>
+          <li>✓ Gerar relatórios em PDF</li>
+          <li>✓ Gerenciar lembretes de manutenção</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://app-garageminteligente.web.app" class="button">
+          Ver Meu Veículo
+        </a>
+      </div>
+      
+      <p style="text-align: center; color: #10b981; font-weight: 600;">
+        Bem-vindo à Garagem Inteligente! 🚀
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Garagem Inteligente</strong></p>
+      <p>Gerencie seus veículos de forma inteligente</p>
+      <p style="margin-top: 10px;">Este é um email automático, por favor não responda.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  } else {
+    return `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transferência Concluída</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .access-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Transferência Concluída</h1>
+    </div>
+    
+    <div class="content">
+      <p>Olá, <strong>${userName}</strong>!</p>
+      
+      <div class="info-box">
+        <h2 style="margin: 0 0 10px 0; color: #1e40af;">🚗 ${vehicleInfo}</h2>
+        <p style="margin: 0; color: #1e40af;">Foi transferido com sucesso</p>
+      </div>
+      
+      <p>A transferência foi concluída em <strong>${timestamp}</strong>.</p>
+      
+      <div class="access-box">
+        <h3 style="margin: 0 0 15px 0; color: #d97706;">📖 Acesso ao Histórico</h3>
+        <p style="margin: 0;">
+          O veículo foi movido para <strong>"Carros Transferidos"</strong>.<br>
+          Você pode visualizar o histórico completo, mas não poderá mais editá-lo.
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://app-garageminteligente.web.app" class="button">
+          Ver Carros Transferidos
+        </a>
+      </div>
+      
+      <p style="text-align: center; color: #6b7280;">
+        Obrigado por usar a Garagem Inteligente! 🙏
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Garagem Inteligente</strong></p>
+      <p>Gerencie seus veículos de forma inteligente</p>
+      <p style="margin-top: 10px;">Este é um email automático, por favor não responda.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+}
+
+// ==================== VEHICLE TRANSFER CLOUD FUNCTIONS ====================
+
+/**
+ * Initiate vehicle transfer to a new owner
+ */
+export const initiateVehicleTransfer = onCall<InitiateTransferData>(
+  {
+    cors: [
+      "http://localhost:5173",
+      "http://localhost:8100",
+      "https://app-garageminteligente.web.app",
+      "https://app-garageminteligente.firebaseapp.com",
+      /\.firebaseapp\.com$/,
+      /\.web\.app$/,
+    ],
+    secrets: [sendgridApiKey],
+  },
+  async (request): Promise<FunctionResponse> => {
+    // Configure SendGrid with secret
+    sgMail.setApiKey(sendgridApiKey.value());
+    
+    logger.info("Vehicle transfer initiation requested", {
+      hasAuth: !!request.auth,
+    });
+
+    // Verify authentication
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Usuário não autenticado");
+    }
+
+    const { vehicleId, toEmail, message } = request.data;
+    const userId = request.auth.uid;
+
+    // Validate inputs
+    if (!vehicleId || !toEmail) {
+      throw new HttpsError(
+        "invalid-argument",
+        "vehicleId e toEmail são obrigatórios"
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(toEmail)) {
+      throw new HttpsError("invalid-argument", "Email inválido");
+    }
+
+    try {
+      const db = admin.firestore();
+
+      // Get vehicle data
+      const vehicleDoc = await db.collection("vehicles").doc(vehicleId).get();
+
+      if (!vehicleDoc.exists) {
+        throw new HttpsError("not-found", "Veículo não encontrado");
+      }
+
+      const vehicleData = vehicleDoc.data();
+
+      // Verify ownership
+      if (vehicleData?.userId !== userId) {
+        throw new HttpsError(
+          "permission-denied",
+          "Você não tem permissão para transferir este veículo"
+        );
+      }
+
+      // Check if there's already a pending transfer for this vehicle
+      const existingTransferQuery = await db
+        .collection("transfers")
+        .where("vehicleId", "==", vehicleId)
+        .where("status", "in", ["pending", "confirmed"])
+        .get();
+
+      if (!existingTransferQuery.empty) {
+        throw new HttpsError(
+          "already-exists",
+          "Já existe uma transferência pendente para este veículo"
+        );
+      }
+
+      // Get current user data
+      const userDoc = await db.collection("users").doc(userId).get();
+      const userData = userDoc.data();
+      const userName = userData?.name || request.auth.token.name || "Usuário";
+      const userEmail = userData?.email || request.auth.token.email || "";
+
+      // Generate confirmation codes
+      const fromConfirmationCode = generateConfirmationCode();
+      const toConfirmationCode = generateConfirmationCode();
+
+      // Create vehicle info string
+      const vehicleInfo =
+        `${vehicleData?.make || ""} ${vehicleData?.model || ""} ` +
+        `${vehicleData?.year || ""} - ${vehicleData?.plate || ""}`;
+
+      // Create transfer document
+      const transferDoc = {
+        vehicleId,
+        vehicleName: `${vehicleData?.make || ""} ${vehicleData?.model || ""}`,
+        vehiclePlate: vehicleData?.plate || "",
+        fromUserId: userId,
+        fromUserName: userName,
+        fromUserEmail: userEmail,
+        toEmail: toEmail.toLowerCase().trim(),
+        toUserId: null,
+        toUserName: null,
+        fromConfirmationCode,
+        toConfirmationCode,
+        fromConfirmed: false,
+        toConfirmed: false,
+        status: "pending",
+        message: message || null,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: admin.firestore.Timestamp.fromDate(
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        ),
+        completedAt: null,
+      };
+
+      const transferRef = await db.collection("transfers").add(transferDoc);
+
+      logger.info("Transfer document created", {
+        transferId: transferRef.id,
+        vehicleId,
+        fromUserId: userId,
+        toEmail,
+      });
+
+      // Send email to current owner
+      try {
+        const ownerMsg = {
+          to: userEmail,
+          from: {
+            email: "contato@agenciaragnar.com.br",
+            name: "Garagem Inteligente",
+          },
+          subject: `🔄 Confirme a Transferência - ${vehicleInfo}`,
+          html: getOwnerTransferConfirmationTemplate(
+            userName,
+            vehicleInfo,
+            hideEmail(toEmail),
+            fromConfirmationCode,
+            message
+          ),
+        };
+
+        await sgMail.send(ownerMsg);
+        logger.info("Owner confirmation email sent", { email: userEmail });
+      } catch (emailError) {
+        logger.error("Error sending owner email (non-blocking)", emailError);
+      }
+
+      // Send email to new owner
+      try {
+        const newOwnerMsg = {
+          to: toEmail,
+          from: {
+            email: "contato@agenciaragnar.com.br",
+            name: "Garagem Inteligente",
+          },
+          subject: `🎉 Você Recebeu um Veículo - ${vehicleInfo}`,
+          html: getNewOwnerTransferInvitationTemplate(
+            userName,
+            vehicleInfo,
+            toConfirmationCode,
+            message
+          ),
+        };
+
+        await sgMail.send(newOwnerMsg);
+        logger.info("New owner invitation email sent", { email: toEmail });
+      } catch (emailError) {
+        logger.error("Error sending new owner email (non-blocking)", emailError);
+      }
+
+      return {
+        success: true,
+        message: "Transferência iniciada com sucesso. Emails enviados para ambas as partes.",
+      };
+    } catch (error) {
+      logger.error("Error initiating vehicle transfer", error);
+
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      throw new HttpsError("internal", `Erro ao iniciar transferência: ${errorMessage}`);
+    }
+  }
+);
+
+/**
+ * Confirm vehicle transfer with confirmation code
+ */
+export const confirmVehicleTransfer = onCall<ConfirmTransferData>(
+  {
+    cors: [
+      "http://localhost:5173",
+      "http://localhost:8100",
+      "https://app-garageminteligente.web.app",
+      "https://app-garageminteligente.firebaseapp.com",
+      /\.firebaseapp\.com$/,
+      /\.web\.app$/,
+    ],
+    secrets: [sendgridApiKey],
+  },
+  async (request): Promise<FunctionResponse> => {
+    // Configure SendGrid with secret
+    sgMail.setApiKey(sendgridApiKey.value());
+    
+    logger.info("Vehicle transfer confirmation requested", {
+      hasAuth: !!request.auth,
+    });
+
+    // Verify authentication
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Usuário não autenticado");
+    }
+
+    const { transferId, confirmationCode, isNewOwner } = request.data;
+    const userId = request.auth.uid;
+
+    // Validate inputs
+    if (!transferId || !confirmationCode) {
+      throw new HttpsError(
+        "invalid-argument",
+        "transferId e confirmationCode são obrigatórios"
+      );
+    }
+
+    try {
+      const db = admin.firestore();
+      const transferRef = db.collection("transfers").doc(transferId);
+      const transferDoc = await transferRef.get();
+
+      if (!transferDoc.exists) {
+        throw new HttpsError("not-found", "Transferência não encontrada");
+      }
+
+      const transferData = transferDoc.data();
+
+      // Check if transfer is expired
+      const expiresAt = transferData?.expiresAt?.toDate();
+      if (expiresAt && expiresAt < new Date()) {
+        await transferRef.update({
+          status: "expired",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        throw new HttpsError("failed-precondition", "Esta transferência expirou");
+      }
+
+      // Check if transfer is still pending
+      if (transferData?.status !== "pending" && transferData?.status !== "confirmed") {
+        throw new HttpsError(
+          "failed-precondition",
+          `Esta transferência já foi ${transferData?.status === "completed" ? "concluída" : "cancelada"}`
+        );
+      }
+
+      // Get user data
+      const userDoc = await db.collection("users").doc(userId).get();
+      const userData = userDoc.data();
+      const userName = userData?.name || request.auth.token.name || "Usuário";
+      const userEmail = userData?.email || request.auth.token.email || "";
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = {
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      // Verify confirmation code and update accordingly
+      if (isNewOwner) {
+        // New owner confirmation
+        if (confirmationCode !== transferData?.toConfirmationCode) {
+          throw new HttpsError("invalid-argument", "Código de confirmação inválido");
+        }
+
+        // Verify email matches
+        if (userEmail.toLowerCase() !== transferData?.toEmail?.toLowerCase()) {
+          throw new HttpsError(
+            "permission-denied",
+            "Este código não pertence ao seu email"
+          );
+        }
+
+        updateData.toConfirmed = true;
+        updateData.toUserId = userId;
+        updateData.toUserName = userName;
+      } else {
+        // Current owner confirmation
+        if (confirmationCode !== transferData?.fromConfirmationCode) {
+          throw new HttpsError("invalid-argument", "Código de confirmação inválido");
+        }
+
+        // Verify ownership
+        if (userId !== transferData?.fromUserId) {
+          throw new HttpsError(
+            "permission-denied",
+            "Você não é o proprietário deste veículo"
+          );
+        }
+
+        updateData.fromConfirmed = true;
+      }
+
+      // Check if both parties have confirmed
+      const bothConfirmed = isNewOwner ?
+        (transferData?.fromConfirmed && true) :
+        (true && transferData?.toConfirmed);
+
+      if (bothConfirmed) {
+        // Both confirmed - execute transfer
+        updateData.status = "completed";
+        updateData.completedAt = admin.firestore.FieldValue.serverTimestamp();
+
+        // Start batch operation
+        const batch = db.batch();
+
+        // Update transfer document
+        batch.update(transferRef, updateData);
+
+        // Get vehicle data
+        const vehicleRef = db.collection("vehicles").doc(transferData?.vehicleId);
+        const vehicleDoc = await vehicleRef.get();
+        const vehicleData = vehicleDoc.data();
+
+        // Create historical snapshot for previous owner
+        const transferredVehicleRef = db.collection("transferredVehicles").doc();
+        batch.set(transferredVehicleRef, {
+          id: transferredVehicleRef.id,
+          vehicleId: transferData?.vehicleId,
+          userId: transferData?.fromUserId,
+          transferredAt: admin.firestore.FieldValue.serverTimestamp(),
+          transferredTo: hideEmail(transferData?.toEmail),
+          transferId,
+          vehicleSnapshot: {
+            make: vehicleData?.make || "",
+            model: vehicleData?.model || "",
+            year: vehicleData?.year || "",
+            plate: vehicleData?.plate || "",
+            mileage: vehicleData?.mileage || 0,
+            imageUrl: vehicleData?.imageUrl || null,
+          },
+        });
+
+        // Transfer vehicle ownership
+        batch.update(vehicleRef, {
+          userId: updateData.toUserId || transferData?.toUserId,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        // Update all maintenance records
+        const maintenanceQuery = await db
+          .collection("maintenance")
+          .where("vehicleId", "==", transferData?.vehicleId)
+          .get();
+
+        maintenanceQuery.forEach((doc) => {
+          batch.update(doc.ref, {
+            userId: updateData.toUserId || transferData?.toUserId,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        });
+
+        // Commit batch
+        await batch.commit();
+
+        logger.info("Vehicle transfer completed", {
+          transferId,
+          vehicleId: transferData?.vehicleId,
+          fromUserId: transferData?.fromUserId,
+          toUserId: updateData.toUserId || transferData?.toUserId,
+        });
+
+        // Send completion emails
+        const vehicleInfo =
+          `${vehicleData?.make || ""} ${vehicleData?.model || ""} ` +
+          `${vehicleData?.year || ""} - ${vehicleData?.plate || ""}`;
+
+        // Email to previous owner
+        try {
+          const prevOwnerMsg = {
+            to: transferData?.fromUserEmail,
+            from: {
+              email: "contato@agenciaragnar.com.br",
+              name: "Garagem Inteligente",
+            },
+            subject: `✅ Transferência Concluída - ${vehicleInfo}`,
+            html: getTransferCompletionTemplate(
+              transferData?.fromUserName || "Usuário",
+              vehicleInfo,
+              false
+            ),
+          };
+
+          await sgMail.send(prevOwnerMsg);
+          logger.info("Previous owner completion email sent");
+        } catch (emailError) {
+          logger.error("Error sending previous owner email", emailError);
+        }
+
+        // Email to new owner
+        try {
+          const newOwnerEmail = userEmail || transferData?.toEmail;
+          const newOwnerMsg = {
+            to: newOwnerEmail,
+            from: {
+              email: "contato@agenciaragnar.com.br",
+              name: "Garagem Inteligente",
+            },
+            subject: `🎉 Parabéns! ${vehicleInfo} é Seu!`,
+            html: getTransferCompletionTemplate(
+              userName || transferData?.toUserName || "Usuário",
+              vehicleInfo,
+              true
+            ),
+          };
+
+          await sgMail.send(newOwnerMsg);
+          logger.info("New owner completion email sent");
+        } catch (emailError) {
+          logger.error("Error sending new owner email", emailError);
+        }
+
+        return {
+          success: true,
+          message: "Transferência concluída com sucesso! O veículo agora pertence ao novo proprietário.",
+        };
+      } else {
+        // Only one party confirmed - update status to confirmed
+        updateData.status = "confirmed";
+        await transferRef.update(updateData);
+
+        logger.info("Transfer partially confirmed", {
+          transferId,
+          isNewOwner,
+          fromConfirmed: isNewOwner ? transferData?.fromConfirmed : true,
+          toConfirmed: isNewOwner ? true : transferData?.toConfirmed,
+        });
+
+        return {
+          success: true,
+          message: "Confirmação registrada. Aguardando confirmação da outra parte.",
+        };
+      }
+    } catch (error) {
+      logger.error("Error confirming vehicle transfer", error);
+
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      throw new HttpsError("internal", `Erro ao confirmar transferência: ${errorMessage}`);
+    }
+  }
+);
+
+/**
+ * Cancel a pending vehicle transfer
+ */
+export const cancelVehicleTransfer = onCall<CancelTransferData>(
+  {
+    cors: [
+      "http://localhost:5173",
+      "http://localhost:8100",
+      "https://app-garageminteligente.web.app",
+      "https://app-garageminteligente.firebaseapp.com",
+      /\.firebaseapp\.com$/,
+      /\.web\.app$/,
+    ],
+    secrets: [sendgridApiKey],
+  },
+  async (request): Promise<FunctionResponse> => {
+    // Configure SendGrid with secret
+    sgMail.setApiKey(sendgridApiKey.value());
+
+    logger.info("Vehicle transfer cancellation requested", {
+      hasAuth: !!request.auth,
+    });
+
+    // Verify authentication
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Usuário não autenticado");
+    }
+
+    const { transferId } = request.data;
+    const userId = request.auth.uid;
+
+    // Validate inputs
+    if (!transferId) {
+      throw new HttpsError("invalid-argument", "transferId é obrigatório");
+    }
+
+    try {
+      const db = admin.firestore();
+      const transferRef = db.collection("transfers").doc(transferId);
+      const transferDoc = await transferRef.get();
+
+      if (!transferDoc.exists) {
+        throw new HttpsError("not-found", "Transferência não encontrada");
+      }
+
+      const transferData = transferDoc.data();
+
+      // Only the current owner can cancel
+      if (transferData?.fromUserId !== userId) {
+        throw new HttpsError(
+          "permission-denied",
+          "Apenas o proprietário atual pode cancelar a transferência"
+        );
+      }
+
+      // Check if transfer can be cancelled
+      if (transferData?.status === "completed") {
+        throw new HttpsError(
+          "failed-precondition",
+          "Transferência já foi concluída e não pode ser cancelada"
+        );
+      }
+
+      if (transferData?.status === "cancelled") {
+        throw new HttpsError(
+          "failed-precondition",
+          "Transferência já foi cancelada"
+        );
+      }
+
+      if (transferData?.status === "expired") {
+        throw new HttpsError("failed-precondition", "Transferência já expirou");
+      }
+
+      // Update transfer status to cancelled
+      await transferRef.update({
+        status: "cancelled",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      logger.info("Vehicle transfer cancelled", {
+        transferId,
+        vehicleId: transferData?.vehicleId,
+        fromUserId: userId,
+      });
+
+      // Send cancellation email to new owner if they haven't confirmed yet
+      if (!transferData?.toConfirmed) {
+        try {
+          const vehicleInfo =
+            `${transferData?.vehicleName || ""} - ` +
+            `${transferData?.vehiclePlate || ""}`;
+
+          const cancellationMsg = {
+            to: transferData?.toEmail,
+            from: {
+              email: "contato@agenciaragnar.com.br",
+              name: "Garagem Inteligente",
+            },
+            subject: `❌ Transferência Cancelada - ${vehicleInfo}`,
+            html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transferência Cancelada</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    .content {
+      padding: 30px;
+    }
+    .info-box {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>❌ Transferência Cancelada</h1>
+    </div>
+
+    <div class="content">
+      <p>Olá!</p>
+
+      <div class="info-box">
+        <p><strong>${transferData?.fromUserName || "O proprietário"}</strong>
+        cancelou a transferência do veículo:</p>
+        <h3 style="margin: 10px 0; color: #dc2626;">🚗 ${vehicleInfo}</h3>
+      </div>
+
+      <p>Esta transferência foi cancelada e não é mais válida.</p>
+
+      <p style="color: #6b7280;">
+        Se você tinha interesse no veículo, entre em contato diretamente
+        com o vendedor.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p><strong>Garagem Inteligente</strong></p>
+      <p>Este é um email automático, por favor não responda.</p>
+    </div>
+  </div>
+</body>
+</html>
+            `,
+          };
+
+          await sgMail.send(cancellationMsg);
+          logger.info("Cancellation email sent to new owner");
+        } catch (emailError) {
+          logger.error(
+            "Error sending cancellation email (non-blocking)",
+            emailError
+          );
+        }
+      }
+
+      return {
+        success: true,
+        message: "Transferência cancelada com sucesso",
+      };
+    } catch (error) {
+      logger.error("Error cancelling vehicle transfer", error);
+
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+      throw new HttpsError(
+        "internal",
+        `Erro ao cancelar transferência: ${errorMessage}`
+      );
+    }
+  }
+);

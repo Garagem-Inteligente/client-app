@@ -41,27 +41,6 @@
               </div>
             </div>
 
-            <div class="header-actions">
-              <AButton 
-                size="small" 
-                variant="outline"
-                @click="handleExportPDF"
-                :disabled="generatingPDF || maintenanceHistory.length === 0"
-              >
-                <template #start>
-                  <ion-icon v-if="!generatingPDF" :icon="downloadOutline" />
-                  <ion-spinner v-else name="crescent" style="width: 16px; height: 16px;" />
-                </template>
-                {{ generatingPDF ? 'Gerando...' : 'Exportar PDF' }}
-              </AButton>
-              
-              <AButton size="small" @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)">
-                <template #start>
-                  <ion-icon :icon="addCircleOutline" />
-                </template>
-                Nova Manutenção
-              </AButton>
-            </div>
           </div>
 
           <!-- Tabs -->
@@ -71,6 +50,58 @@
           <div class="tab-content">
             <!-- TAB: Informações -->
             <div v-if="activeTab === 'info'" class="tab-panel">
+              <!-- Quick Actions Cards -->
+              <div class="quick-actions-grid">
+                <!-- Export PDF -->
+                <div 
+                  class="action-card pdf-card"
+                  :class="{ 'disabled': generatingPDF || maintenanceHistory.length === 0 }"
+                  @click="handleExportPDF"
+                >
+                  <div class="action-icon-wrapper pdf">
+                    <ion-icon v-if="!generatingPDF" :icon="documentTextOutline" />
+                    <ion-spinner v-else name="crescent" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">{{ generatingPDF ? 'Gerando...' : 'Exportar PDF' }}</h3>
+                    <p class="action-description">
+                      {{ maintenanceHistory.length === 0 ? 'Nenhuma manutenção' : `${maintenanceHistory.length} manutenç${maintenanceHistory.length === 1 ? 'ão' : 'ões'}` }}
+                    </p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+
+                <!-- New Maintenance -->
+                <div 
+                  class="action-card maintenance-card"
+                  @click="router.push(`/tabs/maintenance?vehicleId=${vehicleId}`)"
+                >
+                  <div class="action-icon-wrapper maintenance">
+                    <ion-icon :icon="addCircleOutline" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">Nova Manutenção</h3>
+                    <p class="action-description">Registrar serviço</p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+
+                <!-- Transfer Vehicle -->
+                <div 
+                  class="action-card transfer-card"
+                  @click="handleTransferVehicle"
+                >
+                  <div class="action-icon-wrapper transfer">
+                    <ion-icon :icon="swapHorizontalOutline" />
+                  </div>
+                  <div class="action-content">
+                    <h3 class="action-title">Transferir Histórico</h3>
+                    <p class="action-description">Enviar para novo dono</p>
+                  </div>
+                  <ion-icon :icon="chevronForwardOutline" class="action-arrow" />
+                </div>
+              </div>
+
               <!-- Stats Cards -->
               <div class="stats-grid">
                 <!-- Quilometragem -->
@@ -682,6 +713,66 @@
         </div>
       </div>
     </ion-content>
+
+    <!-- Modals -->
+    <MConfirmModal
+      v-model:is-open="showTransferModal"
+      title="Transferir Histórico"
+      message="Você está prestes a iniciar a transferência do histórico deste veículo."
+      :details="[
+        'Todo o histórico de manutenções será transferido',
+        'Você não poderá mais editar este veículo',
+        'Esta ação requer confirmação de ambas as partes',
+        'O processo pode levar até 7 dias'
+      ]"
+      variant="transfer"
+      confirm-text="Continuar"
+      cancel-text="Cancelar"
+      confirm-color="primary"
+      @confirm="confirmTransfer"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteModal"
+      title="Confirmar Exclusão"
+      :message="`Tem certeza que deseja excluir o veículo ${vehicle?.make} ${vehicle?.model}?`"
+      variant="danger"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmDelete"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteDocModal"
+      title="Confirmar Exclusão"
+      message="Tem certeza que deseja excluir este documento?"
+      variant="warning"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmDeleteDocument"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showSuccessModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      variant="success"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="success"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showErrorModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      variant="danger"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="danger"
+    />
   </ion-page>
 </template>
 
@@ -693,7 +784,6 @@ import {
   IonContent, 
   IonSpinner, 
   IonIcon,
-  alertController, 
   actionSheetController 
 } from '@ionic/vue'
 import {
@@ -708,7 +798,6 @@ import {
   documentTextOutline,
   calendarOutline,
   cloudUploadOutline,
-  downloadOutline,
   eyeOutline,
   shieldCheckmarkOutline,
   closeCircleOutline,
@@ -732,7 +821,9 @@ import {
   callOutline,
   imageOutline,
   documentOutline,
-  closeOutline
+  closeOutline,
+  swapHorizontalOutline,
+  chevronForwardOutline
 } from 'ionicons/icons'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useAuthStore } from '@/stores/auth'
@@ -745,6 +836,7 @@ import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
 import MFilterPills from '@/components/molecules/MFilterPills.vue'
 import MInfoItem from '@/components/molecules/MInfoItem.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
 import MaintenanceSection from '@/components/organisms/MaintenanceSection.vue'
 
@@ -758,6 +850,16 @@ const generatingPDF = ref(false)
 const vehicleId = route.params.id as string
 
 const vehicle = computed(() => vehiclesStore.getVehicleById(vehicleId))
+
+// Modal control refs
+const showTransferModal = ref(false)
+const showDeleteModal = ref(false)
+const showDeleteDocModal = ref(false)
+const docTypeToDelete = ref<'crlv' | 'insurance' | null>(null)
+const showSuccessModal = ref(false)
+const showErrorModal = ref(false)
+const modalMessage = ref('')
+const modalTitle = ref('')
 
 const maintenanceHistory = computed(() => {
   return vehiclesStore.maintenanceRecords.filter(
@@ -905,23 +1007,17 @@ const handleExportPDF = async () => {
     // Download PDF
     downloadPDF(pdfUrl, fileName)
     
-    // Show success alert
-    const alert = await alertController.create({
-      header: 'PDF Gerado!',
-      message: 'O histórico de manutenção foi exportado com sucesso.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    // Show success modal
+    modalTitle.value = 'PDF Gerado!'
+    modalMessage.value = 'O histórico de manutenção foi exportado com sucesso.'
+    showSuccessModal.value = true
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro ao gerar PDF. Tente novamente.'
     console.error('Error exporting PDF:', error)
     
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: errorMessage,
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = errorMessage
+    showErrorModal.value = true
   } finally {
     generatingPDF.value = false
   }
@@ -931,31 +1027,25 @@ const handleEdit = () => {
   router.push(`/tabs/vehicle/${vehicleId}/edit`)
 }
 
+const handleTransferVehicle = async () => {
+  if (!vehicle.value) return
+  showTransferModal.value = true
+}
+
+const confirmTransfer = () => {
+  router.push(`/tabs/vehicle-transfer/${vehicleId}`)
+}
+
 const handleDelete = async () => {
   if (!vehicle.value) return
-  
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: `Tem certeza que deseja excluir o veículo ${vehicle.value.make} ${vehicle.value.model}?`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: async () => {
-          const success = await vehiclesStore.deleteVehicle(vehicleId)
-          if (success) {
-            router.push('/tabs/vehicles')
-          }
-        }
-      }
-    ]
-  })
+  showDeleteModal.value = true
+}
 
-  await alert.present()
+const confirmDelete = async () => {
+  const success = await vehiclesStore.deleteVehicle(vehicleId)
+  if (success) {
+    router.push('/tabs/vehicles')
+  }
 }
 
 const uploadDocument = async (docType: 'crlv' | 'insurance') => {
@@ -1011,21 +1101,15 @@ const uploadImage = async (docType: 'crlv' | 'insurance') => {
 
       await vehiclesStore.updateVehicle(vehicleId, updateData)
       
-      const alert = await alertController.create({
-        header: 'Sucesso',
-        message: 'Imagem adicionada com sucesso!',
-        buttons: ['OK']
-      })
-      await alert.present()
+      modalTitle.value = 'Sucesso'
+      modalMessage.value = 'Imagem adicionada com sucesso!'
+      showSuccessModal.value = true
     }
   } catch (error) {
     console.error('Erro ao fazer upload da imagem:', error)
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: 'Erro ao fazer upload da imagem. Tente novamente.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = 'Erro ao fazer upload da imagem. Tente novamente.'
+    showErrorModal.value = true
   }
 }
 
@@ -1044,24 +1128,18 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
       
       // Check if it's a PDF
       if (file.type !== 'application/pdf') {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'Por favor, selecione apenas arquivos PDF.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'Por favor, selecione apenas arquivos PDF.'
+        showErrorModal.value = true
         return
       }
       
       // Check file size (max 5MB)
       const maxSize = 5 * 1024 * 1024 // 5MB
       if (file.size > maxSize) {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'O arquivo deve ter no máximo 5MB.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'O arquivo deve ter no máximo 5MB.'
+        showErrorModal.value = true
         return
       }
       
@@ -1079,21 +1157,15 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
 
         await vehiclesStore.updateVehicle(vehicleId, updateData)
         
-        const alert = await alertController.create({
-          header: 'Sucesso',
-          message: 'PDF adicionado com sucesso!',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Sucesso'
+        modalMessage.value = 'PDF adicionado com sucesso!'
+        showSuccessModal.value = true
       }
       
       reader.onerror = async () => {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'Erro ao ler o arquivo. Tente novamente.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'Erro ao ler o arquivo. Tente novamente.'
+        showErrorModal.value = true
       }
       
       reader.readAsDataURL(file)
@@ -1103,12 +1175,9 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
     input.click()
   } catch (error) {
     console.error('Erro ao fazer upload do PDF:', error)
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: 'Erro ao fazer upload do PDF. Tente novamente.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = 'Erro ao fazer upload do PDF. Tente novamente.'
+    showErrorModal.value = true
   }
 }
 
@@ -1118,32 +1187,22 @@ const viewDocument = (dataUrl: string) => {
 }
 
 const deleteDocument = async (docType: 'crlv' | 'insurance') => {
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: 'Tem certeza que deseja excluir este documento?',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: async () => {
-          const updateData: Record<string, null> = {}
-          if (docType === 'crlv') {
-            updateData.documentCRLV = null
-          } else {
-            updateData.documentInsurancePolicy = null
-          }
+  docTypeToDelete.value = docType
+  showDeleteDocModal.value = true
+}
 
-          await vehiclesStore.updateVehicle(vehicleId, updateData)
-        }
-      }
-    ]
-  })
+const confirmDeleteDocument = async () => {
+  if (!docTypeToDelete.value) return
+  
+  const updateData: Record<string, null> = {}
+  if (docTypeToDelete.value === 'crlv') {
+    updateData.documentCRLV = null
+  } else {
+    updateData.documentInsurancePolicy = null
+  }
 
-  await alert.present()
+  await vehiclesStore.updateVehicle(vehicleId, updateData)
+  docTypeToDelete.value = null
 }
 
 onMounted(async () => {
@@ -1221,9 +1280,158 @@ onMounted(async () => {
   color: #4b5563;
 }
 
-.header-actions {
+/* Quick Actions Cards */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.action-card {
+  background: #1f2937;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-card:hover::before {
+  opacity: 0.1;
+}
+
+.action-card:active {
+  transform: translateY(0);
+}
+
+.action-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.action-card.pdf-card {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.action-card.pdf-card::before {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.action-card.maintenance-card {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.action-card.maintenance-card::before {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.action-card.transfer-card {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.action-card.transfer-card::before {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+}
+
+.action-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.action-icon-wrapper ion-icon,
+.action-icon-wrapper ion-spinner {
+  font-size: 24px;
+  color: white;
+}
+
+.action-icon-wrapper.pdf {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-icon-wrapper.maintenance {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.action-icon-wrapper.transfer {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+
+.action-content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.action-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 0.25rem 0;
+}
+
+.action-description {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.action-arrow {
+  font-size: 20px;
+  color: #6b7280;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.action-card:hover .action-arrow {
+  transform: translateX(4px);
+  color: #9ca3af;
 }
 
 /* Stats Grid */
@@ -3127,5 +3335,40 @@ onMounted(async () => {
 
 .clickable:active {
   transform: scale(0.98) translateX(4px);
+}
+
+/* Custom Alert Styles */
+:deep(.custom-alert) {
+  --backdrop-opacity: 0.6;
+}
+
+:deep(.custom-alert .alert-wrapper) {
+  border-radius: 16px;
+}
+
+:deep(.custom-alert .alert-head) {
+  padding: 20px 20px 16px;
+}
+
+:deep(.custom-alert .alert-title) {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+:deep(.custom-alert .alert-message) {
+  padding: 0 20px 20px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  text-align: left;
+}
+
+:deep(.alert-button-cancel) {
+  color: var(--ion-color-medium) !important;
+}
+
+:deep(.alert-button-confirm) {
+  font-weight: 600;
+  color: var(--ion-color-primary) !important;
 }
 </style>

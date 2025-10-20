@@ -18,6 +18,10 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresGuest: true }
   },
   {
+    path: '/privacy-policy',
+    component: () => import('@/views/PrivacyPolicyPage.vue')
+  },
+  {
     path: '/tabs/',
     component: TabsPage,
     meta: { requiresAuth: true },
@@ -73,6 +77,18 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'order/:id',
         component: () => import('@/views/OrderDetailPage.vue')
+      },
+      {
+        path: 'vehicle-transfer/:id',
+        component: () => import('@/views/VehicleTransferPage.vue')
+      },
+      {
+        path: 'transfer-confirm',
+        component: () => import('@/views/TransferConfirmPage.vue')
+      },
+      {
+        path: 'transferred-vehicles',
+        component: () => import('@/views/TransferredVehiclesPage.vue')
       }
     ]
   }

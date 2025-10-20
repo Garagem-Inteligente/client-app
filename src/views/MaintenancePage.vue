@@ -308,6 +308,18 @@
         </ion-fab-button>
       </ion-fab>
     </ion-content>
+
+    <!-- Delete Confirmation Modal -->
+    <MConfirmModal
+      v-model:is-open="showDeleteModal"
+      title="Confirmar Exclusão"
+      message="Deseja realmente excluir este registro de manutenção?"
+      variant="danger"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="handleDeleteConfirmed"
+    />
   </ion-page>
 </template>
 
@@ -321,8 +333,7 @@ import {
   IonIcon,
   IonSpinner,
   IonFab,
-  IonFabButton,
-  alertController
+  IonFabButton
 } from '@ionic/vue'
 import {
   add,
@@ -343,11 +354,14 @@ import { useVehiclesStore } from '../stores/vehicles'
 import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles'
 import type { MaintenanceRecord } from '../stores/vehicles'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
 const selectedFilter = ref<'all' | 'upcoming' | 'overdue'>('all')
 const selectedVehicleId = ref<string>('all')
+const showDeleteModal = ref(false)
+const recordToDelete = ref<MaintenanceRecord | null>(null)
 
 const filteredMaintenanceRecords = computed(() => {
   // Filter by status
@@ -506,24 +520,14 @@ const viewDetails = (record: MaintenanceRecord) => {
 }
 
 const confirmDelete = async (record: MaintenanceRecord) => {
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: `Deseja realmente excluir este registro de manutenção?`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: () => {
-          handleDelete(record.id)
-        }
-      }
-    ]
-  })
-  await alert.present()
+  recordToDelete.value = record
+  showDeleteModal.value = true
+}
+
+const handleDeleteConfirmed = async () => {
+  if (!recordToDelete.value) return
+  await handleDelete(recordToDelete.value.id)
+  recordToDelete.value = null
 }
 
 const handleDelete = async (recordId: string) => {
