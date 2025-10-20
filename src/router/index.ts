@@ -18,6 +18,10 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresGuest: true }
   },
   {
+    path: '/privacy-policy',
+    component: () => import('@/views/PrivacyPolicyPage.vue')
+  },
+  {
     path: '/tabs/',
     component: TabsPage,
     meta: { requiresAuth: true },

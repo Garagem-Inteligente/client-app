@@ -1099,14 +1099,8 @@ const showNotificationsSettings = async () => {
   await toast.present()
 }
 
-const showPrivacySettings = async () => {
-  const toast = await toastController.create({
-    message: 'Em breve: Configurações de privacidade',
-    duration: 2000,
-    color: 'medium',
-    position: 'bottom'
-  })
-  await toast.present()
+const showPrivacySettings = () => {
+  router.push('/privacy-policy')
 }
 
 const showHelp = async () => {

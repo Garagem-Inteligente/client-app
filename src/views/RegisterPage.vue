@@ -150,7 +150,7 @@
           <p class="footer-text">
             Ao criar uma conta, você concorda com nossos
             <a href="#" class="footer-link">Termos de Uso</a> e
-            <a href="#" class="footer-link">Política de Privacidade</a>
+            <RouterLink to="/privacy-policy" class="footer-link">Política de Privacidade</RouterLink>
           </p>
         </div>
       </div>
