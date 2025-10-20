@@ -201,9 +201,6 @@ jobs:
       - name: 📚 Install dependencies (for Capacitor)
         run: pnpm install --frozen-lockfile
 
-      - name: 📲 Add Android Platform
-        run: npx cap add android
-
       - name: 📲 Sync Capacitor
         run: npx cap sync android
 
