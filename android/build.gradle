@@ -24,7 +24,7 @@ allprojects {
     }
 }
 
-// Força Java 17 em TODOS os módulos (incluindo Capacitor)
+// Força Java 17 E Kotlin 17 em TODOS os módulos (incluindo Capacitor)
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
@@ -33,6 +33,13 @@ subprojects {
                     sourceCompatibility JavaVersion.VERSION_17
                     targetCompatibility JavaVersion.VERSION_17
                 }
+            }
+        }
+        
+        // Configura Kotlin JVM target para 17 (capacitor-geolocation usa Kotlin)
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
             }
         }
     }
