@@ -1,34 +1,10 @@
 # 🤖 GitHub Actions Workflows
 
-## 📋 Workflows Ativos
+## 📋 Workflow Ativo
 
-### 1. `deploy-android.yml` - Deploy Android (Principal)
+### ✅ `deploy-optimized.yml` - Deploy Completo (PRINCIPAL)
+
 **Status:** ✅ **ATIVO**
-
-**Trigger:**
-- Push em `master` ou `release/android`
-- Tags `v*.*.*`
-- Manual (workflow_dispatch)
-
-**O que faz:**
-- Build web assets (pnpm build)
-- Sync Capacitor Android
-- Build AAB assinado
-- Deploy no Google Play Console (internal track default)
-
-**Uso:**
-```bash
-# Deploy automático
-git push origin master
-
-# Deploy manual
-GitHub → Actions → 🚀 Deploy Android → Run workflow
-```
-
----
-
-### 2. `deploy-optimized.yml` - Deploy Completo (Otimizado)
-**Status:** 🧪 **EXPERIMENTAL**
 
 **Trigger:**
 - Push em `master`
@@ -43,16 +19,18 @@ GitHub → Actions → 🚀 Deploy Android → Run workflow
 
 **Vantagens:**
 - ✅ Reutilização de build entre jobs
-- ✅ Execução paralela de deploys
+- ✅ Execução paralela de deploys (Web + Android)
 - ✅ Workflow dispatch customizado
 - ✅ Cache inteligente de dependências
+- ✅ Deploy seletivo (apenas Web, apenas Android, ou ambos)
 
 **Uso:**
+
 ```bash
-# Deploy completo (Web + Android)
+# Deploy completo automático (Web + Android)
 git push origin master
 
-# Deploy seletivo
+# Deploy manual customizado
 GitHub → Actions → 🚀 Deploy Completo (Otimizado) → Run workflow
   ☑️ Deploy Web: true/false
   ☑️ Deploy Android: true/false
@@ -63,47 +41,52 @@ GitHub → Actions → 🚀 Deploy Completo (Otimizado) → Run workflow
 
 ## 🗑️ Workflows Desabilitados
 
+Todos os workflows abaixo foram **desabilitados** para evitar execuções duplicadas.
+
+### ❌ `deploy-android.yml.disabled`
+- Workflow sequencial (1 job) sem otimizações
+- **Substituído por:** `deploy-optimized.yml`
+- **Motivo:** Execuções duplicadas + sem paralelização
+
 ### ❌ `deploy-simple.disabled`
-- Workflow antigo sem otimizações
-- Substituído por `deploy-android.yml`
+- Workflow básico antigo
+- Substituído por versões otimizadas
 
 ### ❌ `deploy-simple-fixed.yml.disabled`
 - Versão intermediária com correções
-- Substituído por `deploy-android.yml`
+- Substituído por versões otimizadas
 
-> **Nota:** Arquivos `.disabled` não são executados pelo GitHub Actions.  
+> **⚠️ Importante:** Arquivos `.disabled` **NÃO** são executados pelo GitHub Actions.  
 > Mantidos apenas para histórico/referência.
 
 ---
 
-## 🎯 Qual Workflow Usar?
+## 🎯 Workflow Recomendado
 
-### Para Deploy Rápido de Android
-**Use:** `deploy-android.yml` (principal)
-- ✅ Estável e testado
-- ✅ Sequencial e previsível
-- ✅ Menor complexidade
+**Use EXCLUSIVAMENTE:** `deploy-optimized.yml` ✅
 
-### Para Deploy Otimizado (Web + Android)
-**Use:** `deploy-optimized.yml` (experimental)
-- ✅ Deploys paralelos
-- ✅ Build compartilhado
-- ✅ Opções customizadas
-- ⚠️  Mais complexo (4 jobs)
+Todos os outros workflows foram desabilitados. Este workflow centralizado oferece:
+
+- 🚀 **Performance:** Jobs paralelos economizam tempo
+- 🔄 **Flexibilidade:** Deploy seletivo via workflow_dispatch
+- 💾 **Eficiência:** Build compartilhado entre jobs
+- 📦 **Completude:** Deploy Web + Android em um único workflow
 
 ---
 
 ## 🔧 Manutenção
 
 ### Desabilitar Workflow
+
 ```bash
 mv workflow.yml workflow.yml.disabled
 git add .
-git commit -m "ci: desabilita workflow antigo"
+git commit -m "ci: desabilita workflow"
 git push
 ```
 
 ### Reabilitar Workflow
+
 ```bash
 mv workflow.yml.disabled workflow.yml
 git add .
@@ -112,6 +95,7 @@ git push
 ```
 
 ### Deletar Workflow Permanentemente
+
 ```bash
 git rm workflow.yml.disabled
 git commit -m "ci: remove workflow obsoleto"
@@ -120,36 +104,58 @@ git push
 
 ---
 
-## 📊 Comparação
+## 📊 Arquitetura do Workflow Otimizado
 
-| Feature | deploy-android.yml | deploy-optimized.yml |
-|---------|-------------------|---------------------|
-| **Jobs** | 1 sequencial | 4 paralelos |
-| **Tempo** | 13-18 min | 13-16 min |
-| **Build Web** | 1x | 1x compartilhado |
-| **Deploy Web** | ❌ Não | ✅ Sim (Firebase) |
-| **Deploy Android** | ✅ Sim | ✅ Sim |
-| **Workflow Dispatch** | Básico | Customizado |
-| **Artifacts** | Final AAB | Web + AAB |
-| **Cache** | Básico | Inteligente |
-| **Complexidade** | 🟢 Baixa | 🟡 Média |
-| **Status** | ✅ Produção | 🧪 Experimental |
+```
+┌───────────────────────────────────────┐
+│  Job 1: BUILD (5-7 min)               │
+│  - Install dependencies (cache)       │
+│  - Build web assets                   │
+│  - Generate version & changelog       │
+│  - Upload artifacts                   │
+└─────────────┬─────────────────────────┘
+              │
+    ┌─────────┴─────────┐
+    ▼                   ▼
+┌─────────────┐  ┌──────────────────┐
+│ Job 2: WEB  │  │ Job 3: ANDROID   │
+│ (2-3 min)   │  │ (6-8 min)        │
+│             │  │                  │
+│ - Firebase  │  │ - Sync Capacitor │
+│   Hosting   │  │ - Build AAB      │
+└─────────────┘  │ - Upload AAB     │
+                 └────────┬─────────┘
+                          ▼
+                 ┌──────────────────┐
+                 │ Job 4: DEPLOY    │
+                 │ (2-3 min)        │
+                 │                  │
+                 │ - Play Store     │
+                 └──────────────────┘
+
+Total: ~13-16 minutos
+Jobs paralelos: 2 (Web + Android Build)
+```
 
 ---
 
 ## 🚀 Roadmap
 
-- [ ] Testar `deploy-optimized.yml` em produção
-- [ ] Migrar completamente para workflow otimizado
+- [x] Workflow otimizado com jobs paralelos
+- [x] Deploy seletivo via workflow_dispatch
+- [x] Cache inteligente de dependências
+- [x] Desabilitar workflows duplicados
 - [ ] Adicionar job de testes unitários
 - [ ] Implementar matrix strategy (multi-plataforma)
 - [ ] Adicionar análise de bundle size
-- [ ] Deletar workflows `.disabled` antigos
+- [ ] Configurar notificações Slack/Discord
+- [ ] Deletar workflows `.disabled` antigos (após validação)
 
 ---
 
-## 📚 Documentação
+## 📚 Documentação Relacionada
 
-- [CI/CD Optimization Guide](../docs/CI-CD-OPTIMIZATION.md)
-- [Google Play Setup](../docs/GOOGLE-PLAY-CI-CD.md)
-- [Release Notes Guide](../docs/RELEASE-NOTES-GUIDE.md)
+- [CI/CD Optimization Guide](../docs/CI-CD-OPTIMIZATION.md) - Detalhes técnicos da otimização
+- [Google Play Setup](../docs/GOOGLE-PLAY-CI-CD.md) - Configuração de secrets e service account
+- [Release Notes Guide](../docs/RELEASE-NOTES-GUIDE.md) - Sistema de changelog automático
+- [Fix Keystore Secret](../docs/FIX-KEYSTORE-SECRET.md) - Troubleshooting de secrets
