@@ -399,18 +399,29 @@
       </div>
       </div>
     </ion-content>
+
+    <!-- Delete Confirmation Modal -->
+    <MConfirmModal
+      v-model:is-open="showDeleteModal"
+      title="Confirmar Exclusão"
+      message="Tem certeza que deseja excluir esta manutenção? Esta ação não pode ser desfeita."
+      variant="danger"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmDelete"
+    />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage,
   IonContent,
   IonIcon,
-  IonSpinner,
-  alertController
+  IonSpinner
 } from '@ionic/vue'
 import {
   createOutline,
@@ -443,12 +454,14 @@ import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/veh
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
 
 const maintenanceId = route.params.id as string
+const showDeleteModal = ref(false)
 
 const maintenanceRecord = computed(() => {
   return vehiclesStore.maintenanceRecords.find(r => r.id === maintenanceId)
@@ -563,28 +576,14 @@ const handleEdit = () => {
 }
 
 const handleDelete = async () => {
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: 'Tem certeza que deseja excluir esta manutenção? Esta ação não pode ser desfeita.',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: async () => {
-          const success = await vehiclesStore.deleteMaintenanceRecord(maintenanceId)
-          if (success) {
-            router.back()
-          }
-        }
-      }
-    ]
-  })
+  showDeleteModal.value = true
+}
 
-  await alert.present()
+const confirmDelete = async () => {
+  const success = await vehiclesStore.deleteMaintenanceRecord(maintenanceId)
+  if (success) {
+    router.back()
+  }
 }
 
 const viewPhoto = async (photoUrl: string, type: string) => {

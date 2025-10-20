@@ -713,6 +713,66 @@
         </div>
       </div>
     </ion-content>
+
+    <!-- Modals -->
+    <MConfirmModal
+      v-model:is-open="showTransferModal"
+      title="Transferir Histórico"
+      message="Você está prestes a iniciar a transferência do histórico deste veículo."
+      :details="[
+        'Todo o histórico de manutenções será transferido',
+        'Você não poderá mais editar este veículo',
+        'Esta ação requer confirmação de ambas as partes',
+        'O processo pode levar até 7 dias'
+      ]"
+      variant="transfer"
+      confirm-text="Continuar"
+      cancel-text="Cancelar"
+      confirm-color="primary"
+      @confirm="confirmTransfer"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteModal"
+      title="Confirmar Exclusão"
+      :message="`Tem certeza que deseja excluir o veículo ${vehicle?.make} ${vehicle?.model}?`"
+      variant="danger"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmDelete"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteDocModal"
+      title="Confirmar Exclusão"
+      message="Tem certeza que deseja excluir este documento?"
+      variant="warning"
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmDeleteDocument"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showSuccessModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      variant="success"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="success"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showErrorModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      variant="danger"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="danger"
+    />
   </ion-page>
 </template>
 
@@ -724,7 +784,6 @@ import {
   IonContent, 
   IonSpinner, 
   IonIcon,
-  alertController, 
   actionSheetController 
 } from '@ionic/vue'
 import {
@@ -777,6 +836,7 @@ import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
 import MFilterPills from '@/components/molecules/MFilterPills.vue'
 import MInfoItem from '@/components/molecules/MInfoItem.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
 import MaintenanceSection from '@/components/organisms/MaintenanceSection.vue'
 
@@ -790,6 +850,16 @@ const generatingPDF = ref(false)
 const vehicleId = route.params.id as string
 
 const vehicle = computed(() => vehiclesStore.getVehicleById(vehicleId))
+
+// Modal control refs
+const showTransferModal = ref(false)
+const showDeleteModal = ref(false)
+const showDeleteDocModal = ref(false)
+const docTypeToDelete = ref<'crlv' | 'insurance' | null>(null)
+const showSuccessModal = ref(false)
+const showErrorModal = ref(false)
+const modalMessage = ref('')
+const modalTitle = ref('')
 
 const maintenanceHistory = computed(() => {
   return vehiclesStore.maintenanceRecords.filter(
@@ -937,23 +1007,17 @@ const handleExportPDF = async () => {
     // Download PDF
     downloadPDF(pdfUrl, fileName)
     
-    // Show success alert
-    const alert = await alertController.create({
-      header: 'PDF Gerado!',
-      message: 'O histórico de manutenção foi exportado com sucesso.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    // Show success modal
+    modalTitle.value = 'PDF Gerado!'
+    modalMessage.value = 'O histórico de manutenção foi exportado com sucesso.'
+    showSuccessModal.value = true
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro ao gerar PDF. Tente novamente.'
     console.error('Error exporting PDF:', error)
     
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: errorMessage,
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = errorMessage
+    showErrorModal.value = true
   } finally {
     generatingPDF.value = false
   }
@@ -965,55 +1029,23 @@ const handleEdit = () => {
 
 const handleTransferVehicle = async () => {
   if (!vehicle.value) return
-  
-  const alert = await alertController.create({
-    header: 'Transferir Histórico',
-    message: 'Você está prestes a iniciar a transferência do histórico deste veículo.\n\n⚠️ IMPORTANTE:\n• Todo o histórico de manutenções será transferido\n• Você não poderá mais editar este veículo\n• Esta ação requer confirmação de ambas as partes\n• O processo pode levar até 7 dias',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel',
-        cssClass: 'alert-button-cancel'
-      },
-      {
-        text: 'Continuar',
-        cssClass: 'alert-button-confirm',
-        handler: () => {
-          router.push(`/tabs/vehicle-transfer/${vehicleId}`)
-        }
-      }
-    ],
-    cssClass: 'custom-alert'
-  })
+  showTransferModal.value = true
+}
 
-  await alert.present()
+const confirmTransfer = () => {
+  router.push(`/tabs/vehicle-transfer/${vehicleId}`)
 }
 
 const handleDelete = async () => {
   if (!vehicle.value) return
-  
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: `Tem certeza que deseja excluir o veículo ${vehicle.value.make} ${vehicle.value.model}?`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: async () => {
-          const success = await vehiclesStore.deleteVehicle(vehicleId)
-          if (success) {
-            router.push('/tabs/vehicles')
-          }
-        }
-      }
-    ]
-  })
+  showDeleteModal.value = true
+}
 
-  await alert.present()
+const confirmDelete = async () => {
+  const success = await vehiclesStore.deleteVehicle(vehicleId)
+  if (success) {
+    router.push('/tabs/vehicles')
+  }
 }
 
 const uploadDocument = async (docType: 'crlv' | 'insurance') => {
@@ -1069,21 +1101,15 @@ const uploadImage = async (docType: 'crlv' | 'insurance') => {
 
       await vehiclesStore.updateVehicle(vehicleId, updateData)
       
-      const alert = await alertController.create({
-        header: 'Sucesso',
-        message: 'Imagem adicionada com sucesso!',
-        buttons: ['OK']
-      })
-      await alert.present()
+      modalTitle.value = 'Sucesso'
+      modalMessage.value = 'Imagem adicionada com sucesso!'
+      showSuccessModal.value = true
     }
   } catch (error) {
     console.error('Erro ao fazer upload da imagem:', error)
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: 'Erro ao fazer upload da imagem. Tente novamente.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = 'Erro ao fazer upload da imagem. Tente novamente.'
+    showErrorModal.value = true
   }
 }
 
@@ -1102,24 +1128,18 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
       
       // Check if it's a PDF
       if (file.type !== 'application/pdf') {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'Por favor, selecione apenas arquivos PDF.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'Por favor, selecione apenas arquivos PDF.'
+        showErrorModal.value = true
         return
       }
       
       // Check file size (max 5MB)
       const maxSize = 5 * 1024 * 1024 // 5MB
       if (file.size > maxSize) {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'O arquivo deve ter no máximo 5MB.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'O arquivo deve ter no máximo 5MB.'
+        showErrorModal.value = true
         return
       }
       
@@ -1137,21 +1157,15 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
 
         await vehiclesStore.updateVehicle(vehicleId, updateData)
         
-        const alert = await alertController.create({
-          header: 'Sucesso',
-          message: 'PDF adicionado com sucesso!',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Sucesso'
+        modalMessage.value = 'PDF adicionado com sucesso!'
+        showSuccessModal.value = true
       }
       
       reader.onerror = async () => {
-        const alert = await alertController.create({
-          header: 'Erro',
-          message: 'Erro ao ler o arquivo. Tente novamente.',
-          buttons: ['OK']
-        })
-        await alert.present()
+        modalTitle.value = 'Erro'
+        modalMessage.value = 'Erro ao ler o arquivo. Tente novamente.'
+        showErrorModal.value = true
       }
       
       reader.readAsDataURL(file)
@@ -1161,12 +1175,9 @@ const uploadPDF = async (docType: 'crlv' | 'insurance') => {
     input.click()
   } catch (error) {
     console.error('Erro ao fazer upload do PDF:', error)
-    const alert = await alertController.create({
-      header: 'Erro',
-      message: 'Erro ao fazer upload do PDF. Tente novamente.',
-      buttons: ['OK']
-    })
-    await alert.present()
+    modalTitle.value = 'Erro'
+    modalMessage.value = 'Erro ao fazer upload do PDF. Tente novamente.'
+    showErrorModal.value = true
   }
 }
 
@@ -1176,32 +1187,22 @@ const viewDocument = (dataUrl: string) => {
 }
 
 const deleteDocument = async (docType: 'crlv' | 'insurance') => {
-  const alert = await alertController.create({
-    header: 'Confirmar Exclusão',
-    message: 'Tem certeza que deseja excluir este documento?',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Excluir',
-        role: 'destructive',
-        handler: async () => {
-          const updateData: Record<string, null> = {}
-          if (docType === 'crlv') {
-            updateData.documentCRLV = null
-          } else {
-            updateData.documentInsurancePolicy = null
-          }
+  docTypeToDelete.value = docType
+  showDeleteDocModal.value = true
+}
 
-          await vehiclesStore.updateVehicle(vehicleId, updateData)
-        }
-      }
-    ]
-  })
+const confirmDeleteDocument = async () => {
+  if (!docTypeToDelete.value) return
+  
+  const updateData: Record<string, null> = {}
+  if (docTypeToDelete.value === 'crlv') {
+    updateData.documentCRLV = null
+  } else {
+    updateData.documentInsurancePolicy = null
+  }
 
-  await alert.present()
+  await vehiclesStore.updateVehicle(vehicleId, updateData)
+  docTypeToDelete.value = null
 }
 
 onMounted(async () => {

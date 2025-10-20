@@ -152,6 +152,38 @@
         </div>
       </ion-content>
     </ion-modal>
+
+    <!-- Confirmation Modals -->
+    <MConfirmModal
+      v-model:is-open="showCancelConfirmModal"
+      title="Cancelar Transferência"
+      message="Tem certeza que deseja cancelar esta transferência?"
+      variant="warning"
+      confirm-text="Sim, Cancelar"
+      cancel-text="Não"
+      confirm-color="danger"
+      @confirm="confirmCancel"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showSuccessModal"
+      title="Sucesso"
+      :message="modalMessage"
+      variant="success"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="success"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showErrorModal"
+      title="Erro"
+      :message="modalMessage"
+      variant="danger"
+      confirm-text="OK"
+      :show-cancel="false"
+      confirm-color="danger"
+    />
   </ion-page>
 </template>
 
@@ -169,7 +201,6 @@ import {
   IonButtons,
   IonButton,
   IonSpinner,
-  alertController,
   loadingController
 } from '@ionic/vue'
 import {
@@ -185,6 +216,7 @@ import {
 } from 'ionicons/icons'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import { AButton, ACard, AInput } from '@/components'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 import { useTransfersStore } from '@/stores/transfers'
 import { useAuthStore } from '@/stores/auth'
 import type { Transfer } from '@/types'
@@ -199,6 +231,13 @@ const showConfirmModal = ref(false)
 const confirmationCode = ref('')
 const selectedTransfer = ref<Transfer | null>(null)
 const submitting = ref(false)
+
+// Modal control
+const showCancelConfirmModal = ref(false)
+const showSuccessModal = ref(false)
+const showErrorModal = ref(false)
+const modalMessage = ref('')
+const transferToCancel = ref<Transfer | null>(null)
 const modalError = ref<string | null>(null)
 
 // Computed
@@ -265,15 +304,12 @@ const handleConfirm = async () => {
     )
 
     // Show success message
-    const alert = await alertController.create({
-      header: 'Confirmação Registrada!',
-      message: isNewOwner
-        ? 'Aguardando confirmação do vendedor para completar a transferência.'
-        : 'Aguardando confirmação do comprador para completar a transferência.',
-      buttons: ['OK']
-    })
-
-    await alert.present()
+    const message = isNewOwner
+      ? 'Aguardando confirmação do vendedor para completar a transferência.'
+      : 'Aguardando confirmação do comprador para completar a transferência.'
+    
+    modalMessage.value = message
+    showSuccessModal.value = true
     closeConfirmModal()
   } catch (err) {
     modalError.value = err instanceof Error ? err.message : 'Erro ao confirmar'
@@ -283,47 +319,31 @@ const handleConfirm = async () => {
 }
 
 const handleCancel = async (transferId: string) => {
-  const alert = await alertController.create({
-    header: 'Cancelar Transferência',
-    message: 'Tem certeza que deseja cancelar esta transferência?',
-    buttons: [
-      {
-        text: 'Não',
-        role: 'cancel'
-      },
-      {
-        text: 'Sim, Cancelar',
-        handler: async () => {
-          const loadingEl = await loadingController.create({
-            message: 'Cancelando...'
-          })
-          await loadingEl.present()
+  transferToCancel.value = transfersStore.activeTransfers.find((t: Transfer) => t.id === transferId) || null
+  showCancelConfirmModal.value = true
+}
 
-          try {
-            await transfersStore.cancelTransfer(transferId)
-            
-            const successAlert = await alertController.create({
-              header: 'Cancelado',
-              message: 'Transferência cancelada com sucesso',
-              buttons: ['OK']
-            })
-            await loadingEl.dismiss()
-            await successAlert.present()
-          } catch (err) {
-            await loadingEl.dismiss()
-            const errorAlert = await alertController.create({
-              header: 'Erro',
-              message: err instanceof Error ? err.message : 'Erro ao cancelar',
-              buttons: ['OK']
-            })
-            await errorAlert.present()
-          }
-        }
-      }
-    ]
+const confirmCancel = async () => {
+  if (!transferToCancel.value) return
+
+  const loadingEl = await loadingController.create({
+    message: 'Cancelando...'
   })
+  await loadingEl.present()
 
-  await alert.present()
+  try {
+    await transfersStore.cancelTransfer(transferToCancel.value.id)
+    
+    await loadingEl.dismiss()
+    modalMessage.value = 'Transferência cancelada com sucesso'
+    showSuccessModal.value = true
+  } catch (err) {
+    await loadingEl.dismiss()
+    modalMessage.value = err instanceof Error ? err.message : 'Erro ao cancelar'
+    showErrorModal.value = true
+  } finally {
+    transferToCancel.value = null
+  }
 }
 
 // Lifecycle

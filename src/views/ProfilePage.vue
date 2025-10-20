@@ -543,6 +543,40 @@
         </div>
       </ion-content>
     </ion-modal>
+
+    <!-- Confirm Modals -->
+    <MConfirmModal
+      v-model:is-open="showRemovePhotoModal"
+      title="Remover Foto"
+      message="Tem certeza que deseja remover sua foto de perfil?"
+      variant="warning"
+      confirm-text="Remover"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmRemovePhoto"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showUnlinkGoogleModal"
+      title="Desvincular Google"
+      message="Tem certeza que deseja desvincular sua conta Google? Você ainda poderá fazer login com email e senha."
+      variant="warning"
+      confirm-text="Desvincular"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmUnlinkGoogle"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteAccountModal"
+      title="Sair da Conta"
+      message="Tem certeza que deseja sair?"
+      variant="danger"
+      confirm-text="Sair"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmLogout"
+    />
   </ion-page>
 </template>
 
@@ -561,7 +595,6 @@ import {
   IonButton,
   IonSpinner,
   IonActionSheet,
-  alertController,
   toastController
 } from '@ionic/vue'
 import {
@@ -605,6 +638,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useVersion } from '@/composables/useVersion'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -613,6 +647,9 @@ const { fullVersionString, formattedBuildDate, shortSha, isProduction } = useVer
 
 // State
 const showPhotoSheet = ref(false)
+const showRemovePhotoModal = ref(false)
+const showUnlinkGoogleModal = ref(false)
+const showDeleteAccountModal = ref(false)
 const showEditModal = ref(false)
 const showConnectionsModal = ref(false)
 const showAboutModal = ref(false)
@@ -809,71 +846,58 @@ const takePhoto = async (source: 'camera' | 'gallery') => {
 
 const removePhoto = async () => {
   if (!auth.currentUser) return
+  showRemovePhotoModal.value = true
+}
 
-  const alert = await alertController.create({
-    header: 'Remover Foto',
-    message: 'Tem certeza que deseja remover sua foto de perfil?',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Remover',
-        role: 'destructive',
-        handler: async () => {
-          const loadingToast = await toastController.create({
-            message: 'Removendo foto...',
-            duration: 0
-          })
-          await loadingToast.present()
+const confirmRemovePhoto = async () => {
+  if (!auth.currentUser) return
 
-          try {
-            // Delete from Storage
-            const photoRef = storageRef(storage, `profilePhotos/${auth.currentUser!.uid}`)
-            await deleteObject(photoRef)
-            
-            // Update Firebase Auth profile
-            await updateProfile(auth.currentUser!, { photoURL: null })
-            
-            // Update Firestore
-            await updateDoc(doc(db, 'users', auth.currentUser!.uid), {
-              avatar: null
-            })
-            
-            // Update local state
-            currentPhotoUrl.value = ''
-            if (authStore.user) {
-              authStore.user.avatar = undefined
-            }
-
-            await loadingToast.dismiss()
-            
-            const successToast = await toastController.create({
-              message: '✅ Foto removida com sucesso!',
-              duration: 2000,
-              color: 'success',
-              position: 'bottom'
-            })
-            await successToast.present()
-          } catch (error) {
-            await loadingToast.dismiss()
-            console.error('Error removing photo:', error)
-            
-            const errorToast = await toastController.create({
-              message: '❌ Erro ao remover foto',
-              duration: 2000,
-              color: 'danger',
-              position: 'bottom'
-            })
-            await errorToast.present()
-          }
-        }
-      }
-    ]
+  const loadingToast = await toastController.create({
+    message: 'Removendo foto...',
+    duration: 0
   })
+  await loadingToast.present()
 
-  await alert.present()
+  try {
+    // Delete from Storage
+    const photoRef = storageRef(storage, `profilePhotos/${auth.currentUser!.uid}`)
+    await deleteObject(photoRef)
+    
+    // Update Firebase Auth profile
+    await updateProfile(auth.currentUser!, { photoURL: null })
+    
+    // Update Firestore
+    await updateDoc(doc(db, 'users', auth.currentUser!.uid), {
+      avatar: null
+    })
+    
+    // Update local state
+    currentPhotoUrl.value = ''
+    if (authStore.user) {
+      authStore.user.avatar = undefined
+    }
+
+    await loadingToast.dismiss()
+            
+    const successToast = await toastController.create({
+      message: '✅ Foto removida com sucesso!',
+      duration: 2000,
+      color: 'success',
+      position: 'bottom'
+    })
+    await successToast.present()
+  } catch (error) {
+    await loadingToast.dismiss()
+    console.error('Error removing photo:', error)
+    
+    const errorToast = await toastController.create({
+      message: '❌ Erro ao remover foto',
+      duration: 2000,
+      color: 'danger',
+      position: 'bottom'
+    })
+    await errorToast.present()
+  }
 }
 
 const editProfile = () => {
@@ -936,47 +960,33 @@ const showAccountConnections = () => {
 }
 
 const handleUnlinkGoogle = async () => {
-  const alert = await alertController.create({
-    header: 'Desvincular Google',
-    message: 'Tem certeza que deseja desvincular sua conta Google? Você ainda poderá fazer login com email e senha.',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Desvincular',
-        role: 'destructive',
-        handler: async () => {
-          unlinkingGoogle.value = true
-          
-          const success = await authStore.unlinkGoogleAccount()
-          
-          if (success) {
-            const toast = await toastController.create({
-              message: '✅ Conta Google desvinculada com sucesso',
-              duration: 3000,
-              color: 'success',
-              position: 'bottom'
-            })
-            await toast.present()
-          } else {
-            const toast = await toastController.create({
-              message: authStore.error || '❌ Erro ao desvincular conta Google',
-              duration: 3000,
-              color: 'danger',
-              position: 'bottom'
-            })
-            await toast.present()
-          }
-          
-          unlinkingGoogle.value = false
-        }
-      }
-    ]
-  })
+  showUnlinkGoogleModal.value = true
+}
+
+const confirmUnlinkGoogle = async () => {
+  unlinkingGoogle.value = true
   
-  await alert.present()
+  const success = await authStore.unlinkGoogleAccount()
+  
+  if (success) {
+    const toast = await toastController.create({
+      message: '✅ Conta Google desvinculada com sucesso',
+      duration: 3000,
+      color: 'success',
+      position: 'bottom'
+    })
+    await toast.present()
+  } else {
+    const toast = await toastController.create({
+      message: authStore.error || '❌ Erro ao desvincular conta Google',
+      duration: 3000,
+      color: 'danger',
+      position: 'bottom'
+    })
+    await toast.present()
+  }
+  
+  unlinkingGoogle.value = false
 }
 
 const changePassword = () => {
@@ -1114,26 +1124,12 @@ const showAbout = () => {
 }
 
 const handleLogout = async () => {
-  const alert = await alertController.create({
-    header: 'Sair da Conta',
-    message: 'Tem certeza que deseja sair?',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Sair',
-        role: 'destructive',
-        handler: async () => {
-          await authStore.logout()
-          router.push('/login')
-        }
-      }
-    ]
-  })
-  
-  await alert.present()
+  showDeleteAccountModal.value = true
+}
+
+const confirmLogout = async () => {
+  await authStore.logout()
+  router.push('/login')
 }
 
 // Initialize

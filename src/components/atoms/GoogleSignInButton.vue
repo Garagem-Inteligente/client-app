@@ -51,15 +51,49 @@
       @link="handleLinkAccount"
       @forgot-password="handleForgotPassword"
     />
+
+    <!-- Success Modal -->
+    <MConfirmModal
+      v-model:is-open="showSuccessModal"
+      title="Conta Vinculada!"
+      :message="modalMessage"
+      variant="success"
+      confirm-text="Ir para Home"
+      :show-cancel="false"
+      @confirm="handleSuccessClose"
+    />
+
+    <!-- Recover Password Modal -->
+    <MConfirmModal
+      v-model:is-open="showRecoverModal"
+      title="Recuperar Senha"
+      :message="modalMessage"
+      variant="info"
+      confirm-text="Enviar"
+      cancel-text="Cancelar"
+      @confirm="confirmRecoverPassword"
+    />
+
+    <!-- Recover Success Modal -->
+    <MConfirmModal
+      v-model:is-open="showRecoverSuccessModal"
+      title="Email Enviado"
+      :message="modalMessage"
+      variant="success"
+      confirm-text="OK"
+      :show-cancel="false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { alertController, toastController, IonSpinner } from '@ionic/vue'
+import { toastController, IonSpinner } from '@ionic/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import AccountLinkingModal from '../molecules/AccountLinkingModal.vue'
+import MConfirmModal from '../molecules/MConfirmModal.vue'
+
 const showToast = async (message: string, color: string = 'success') => {
   const toast = await toastController.create({
     message,
@@ -81,6 +115,12 @@ const showLinkingModal = ref(false)
 const emailToLink = ref('')
 const googleCredentialToLink = ref<string | null>(null)
 const linkingModalRef = ref<InstanceType<typeof AccountLinkingModal> | null>(null)
+
+// Confirm Modals
+const showSuccessModal = ref(false)
+const showRecoverModal = ref(false)
+const showRecoverSuccessModal = ref(false)
+const modalMessage = ref('')
 
 const handleGoogleSignIn = async () => {
   loading.value = true
@@ -130,6 +170,10 @@ const handleGoogleSignIn = async () => {
   }
 }
 
+const handleSuccessClose = async () => {
+  await router.push('/tabs/home')
+}
+
 const handleLinkAccount = async (password: string) => {
   if (!linkingModalRef.value) return
   
@@ -147,16 +191,8 @@ const handleLinkAccount = async (password: string) => {
     showLinkingModal.value = false
     
     // Mostrar mensagem de sucesso
-    const alert = await alertController.create({
-      header: 'Conta Vinculada!',
-      message: 'Sua conta Google foi vinculada com sucesso. Agora você pode fazer login com email/senha ou Google.',
-      buttons: ['OK']
-    })
-    await alert.present()
-    await alert.onDidDismiss()
-    
-    // Redirecionar para home
-    await router.push('/tabs/home')
+    modalMessage.value = 'Sua conta Google foi vinculada com sucesso. Agora você pode fazer login com email/senha ou Google.'
+    showSuccessModal.value = true
   } else {
     // Mostrar erro no modal
     linkingModalRef.value.setError(result.error || 'Erro ao vincular conta')
@@ -165,32 +201,16 @@ const handleLinkAccount = async (password: string) => {
 
 const handleForgotPassword = async () => {
   showLinkingModal.value = false
-  
-  const alert = await alertController.create({
-    header: 'Recuperar Senha',
-    message: `Deseja receber um email de recuperação de senha para ${emailToLink.value}?`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      },
-      {
-        text: 'Enviar',
-        handler: async () => {
-          const success = await authStore.resetPassword(emailToLink.value)
-          if (success) {
-            const successAlert = await alertController.create({
-              header: 'Email Enviado',
-              message: 'Verifique sua caixa de entrada para redefinir sua senha.',
-              buttons: ['OK']
-            })
-            await successAlert.present()
-          }
-        }
-      }
-    ]
-  })
-  await alert.present()
+  modalMessage.value = `Deseja receber um email de recuperação de senha para ${emailToLink.value}?`
+  showRecoverModal.value = true
+}
+
+const confirmRecoverPassword = async () => {
+  const success = await authStore.resetPassword(emailToLink.value)
+  if (success) {
+    modalMessage.value = 'Verifique sua caixa de entrada para redefinir sua senha.'
+    showRecoverSuccessModal.value = true
+  }
 }
 
 const handleDismissModal = () => {

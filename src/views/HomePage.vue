@@ -918,10 +918,13 @@ const formatCurrency = (value: number) => {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.6s ease-out 0.55s backwards;
+  margin-bottom: 24px;
+
+  
+
 }
 
 .card:hover {

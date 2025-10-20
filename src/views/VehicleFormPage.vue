@@ -476,6 +476,29 @@
         </form>
       </div>
     </ion-content>
+
+    <!-- Confirmation Modals -->
+    <MConfirmModal
+      v-model:is-open="showSubmitModal"
+      :title="isEdit ? 'Confirmar Atualização' : 'Confirmar Adição'"
+      :message="isEdit ? 'Deseja realmente atualizar este veículo?' : 'Deseja realmente adicionar este veículo?'"
+      variant="info"
+      :confirm-text="isEdit ? 'Atualizar' : 'Adicionar'"
+      cancel-text="Cancelar"
+      confirm-color="primary"
+      @confirm="confirmSubmit"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showCancelModal"
+      title="Cancelar Edição"
+      message="Deseja realmente cancelar? Todas as alterações serão perdidas."
+      variant="warning"
+      confirm-text="Sim, Cancelar"
+      cancel-text="Continuar Editando"
+      confirm-color="danger"
+      @confirm="confirmCancel"
+    />
   </ion-page>
 </template>
 
@@ -484,19 +507,23 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   IonPage,
-  IonContent,
-  alertController
+  IonContent
 } from '@ionic/vue'
 import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles'
 import { fipeApi, type FipeVehicleType } from '@/services/fipeApi'
 import MSearchableSelectFipe from '@/components/molecules/MSearchableSelectFipe.vue'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
+import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
 const router = useRouter()
 const route = useRoute()
 const vehiclesStore = useVehiclesStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
+
+// Modal control
+const showSubmitModal = ref(false)
+const showCancelModal = ref(false)
 
 // FIPE State
 const vehicleType = ref<FipeVehicleType>('cars')
@@ -743,26 +770,12 @@ const handlePhotoUpload = (event: Event) => {
 
 const handleSubmit = async () => {
   if (!isFormValid.value) return
+  showSubmitModal.value = true
+}
 
-  // Show confirmation modal
-  const alert = await alertController.create({
-    header: isEdit.value ? 'Confirmar Atualização' : 'Confirmar Adição',
-    message: isEdit.value
-      ? 'Deseja realmente atualizar este veículo?'
-      : 'Deseja realmente adicionar este veículo?',
-    cssClass: 'modern-alert',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel',
-        cssClass: 'alert-button-cancel'
-      },
-      {
-        text: isEdit.value ? 'Atualizar' : 'Adicionar',
-        cssClass: 'alert-button-confirm',
-        handler: async () => {
-          try {
-            const vehicleData = {
+const confirmSubmit = async () => {
+  try {
+    const vehicleData = {
               vehicleType: formData.value.vehicleType,
               make: formData.value.make,
               model: formData.value.model,
@@ -792,37 +805,14 @@ const handleSubmit = async () => {
           } catch (error) {
             console.error('Erro ao salvar veículo:', error)
           }
-        }
-      }
-    ]
-  })
-
-  await alert.present()
 }
 
 const handleCancel = async () => {
-  // Show confirmation modal
-  const alert = await alertController.create({
-    header: 'Cancelar Edição',
-    message: 'Deseja realmente cancelar? Todas as alterações serão perdidas.',
-    cssClass: 'modern-alert',
-    buttons: [
-      {
-        text: 'Continuar Editando',
-        role: 'cancel',
-        cssClass: 'alert-button-cancel'
-      },
-      {
-        text: 'Sim, Cancelar',
-        cssClass: 'alert-button-confirm',
-        handler: () => {
-          router.back()
-        }
-      }
-    ]
-  })
+  showCancelModal.value = true
+}
 
-  await alert.present()
+const confirmCancel = () => {
+  router.back()
 }
 
 onMounted(async () => {
