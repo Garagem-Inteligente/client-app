@@ -5,9 +5,12 @@ export interface VersionInfo {
   version: string
   buildNumber: string
   buildDate: string
-  gitSha: string
-  gitRef: string
-  platform: string
+  gitSha?: string
+  gitRef?: string
+  platform?: string
+  // Aliases para compatibilidade com CI
+  gitCommit?: string
+  gitBranch?: string
 }
 
 const version = ref<VersionInfo>(versionData as VersionInfo)
@@ -19,8 +22,9 @@ export function useVersion() {
   })
 
   const shortSha = computed(() => {
-    // Retorna os primeiros 7 caracteres do SHA
-    return version.value.gitSha.substring(0, 7)
+    // Retorna os primeiros 7 caracteres do SHA (suporta gitSha ou gitCommit)
+    const sha = version.value.gitSha || version.value.gitCommit || ''
+    return sha.substring(0, 7)
   })
 
   const formattedBuildDate = computed(() => {
