@@ -6,6 +6,11 @@ export { default as ACard } from './atoms/ACard.vue';
 export { default as AAlert } from './atoms/AAlert.vue';
 export { default as ASpinner } from './atoms/ASpinner.vue';
 export { default as GoogleSignInButton } from './atoms/GoogleSignInButton.vue';
+export { default as ABadgeStatus } from './atoms/ABadgeStatus.vue';
+export { default as ABadgeMaintenance } from './atoms/ABadgeMaintenance.vue';
+export { default as ABadgeTime } from './atoms/ABadgeTime.vue';
+export { default as ABtnPrimary } from './atoms/ABtnPrimary.vue';
+export { default as ABtnOutline } from './atoms/ABtnOutline.vue';
 
 // Molecules
 export { default as MFileUpload } from './molecules/MFileUpload.vue';
@@ -18,6 +23,9 @@ export { default as MEmptyState } from './molecules/MEmptyState.vue';
 export { default as MInfoItem } from './molecules/MInfoItem.vue';
 export { default as MStatusBadge } from './molecules/MStatusBadge.vue';
 export { default as MCardTitle } from './molecules/MCardTitle.vue';
+export { default as MQuickActionCard } from './molecules/MQuickActionCard.vue';
+export { default as MVehicleCard } from './molecules/MVehicleCard.vue';
+export { default as MMaintenanceCard } from './molecules/MMaintenanceCard.vue';
 
 // Organisms
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';
