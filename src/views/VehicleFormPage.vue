@@ -49,10 +49,21 @@
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span class="text-sm"
-                >Use os campos de busca abaixo para encontrar seu veículo na tabela FIPE</span
-              >
+              <span class="text-sm">
+                {{
+                  useManualInput
+                    ? 'Digite os dados do veículo manualmente'
+                    : 'Use os campos de busca abaixo para encontrar seu veículo na tabela FIPE'
+                }}
+              </span>
             </div>
+            <button
+              type="button"
+              @click="useManualInput = !useManualInput"
+              class="toggle-input-button"
+            >
+              {{ useManualInput ? '🔍 Buscar na FIPE' : '✏️ Digitar manualmente' }}
+            </button>
           </div>
 
           <!-- Main Fields Grid -->
@@ -78,7 +89,7 @@
             </div>
 
             <!-- Brand (FIPE) -->
-            <div v-if="!isEdit">
+            <div v-if="!isEdit && !useManualInput">
               <MSearchableSelectFipe
                 :key="`brand-${fipeComponentKey}`"
                 v-model="formData.brandCode"
@@ -93,7 +104,7 @@
             </div>
 
             <!-- Brand (Manual) -->
-            <div v-else>
+            <div v-if="isEdit || useManualInput">
               <label for="make" class="field-label"> Marca * </label>
               <input
                 id="make"
@@ -107,7 +118,7 @@
             </div>
 
             <!-- Model (FIPE) -->
-            <div v-if="!isEdit">
+            <div v-if="!isEdit && !useManualInput">
               <MSearchableSelectFipe
                 :key="`model-${fipeComponentKey}`"
                 v-model="formData.modelCode"
@@ -122,7 +133,7 @@
             </div>
 
             <!-- Model (Manual) -->
-            <div v-else>
+            <div v-if="isEdit || useManualInput">
               <label for="model" class="field-label"> Modelo * </label>
               <input
                 id="model"
@@ -136,7 +147,7 @@
             </div>
 
             <!-- Year (FIPE) -->
-            <div v-if="!isEdit">
+            <div v-if="!isEdit && !useManualInput">
               <MSearchableSelectFipe
                 :key="`year-${fipeComponentKey}`"
                 v-model="formData.yearCode"
@@ -151,7 +162,7 @@
             </div>
 
             <!-- Year (Manual) -->
-            <div v-else>
+            <div v-if="isEdit || useManualInput">
               <label for="year" class="field-label"> Ano * </label>
               <input
                 id="year"
@@ -600,6 +611,25 @@
   // Key to force re-render of FIPE components
   const fipeComponentKey = ref(0);
 
+  // Manual input mode (when user can't find vehicle in FIPE)
+  const useManualInput = ref(false);
+
+  // Map vehicle types to FIPE API types
+  const mapVehicleTypeToFipe = (type: VehicleType): FipeVehicleType => {
+    switch (type) {
+      case 'motorcycle':
+        return 'motorcycles';
+      case 'truck':
+      case 'bus':
+        return 'trucks';
+      case 'car':
+      case 'van':
+      case 'pickup':
+      default:
+        return 'cars';
+    }
+  };
+
   // Form Data
   const formData = ref({
     vehicleType: 'car' as VehicleType,
@@ -757,6 +787,47 @@
       loadingBrands.value = false;
     }
   };
+
+  // Watch vehicle type changes to update FIPE type and reload brands
+  watch(
+    () => formData.value.vehicleType,
+    async (newVehicleType) => {
+      if (!newVehicleType || isEdit.value) return;
+
+      // Update FIPE type based on vehicle type
+      vehicleType.value = mapVehicleTypeToFipe(newVehicleType);
+
+      // Reset FIPE selections and reload brands for new type
+      formData.value.brandCode = '';
+      formData.value.modelCode = '';
+      formData.value.yearCode = '';
+      brands.value = [];
+      models.value = [];
+      years.value = [];
+
+      // Load brands for the new vehicle type
+      await loadBrands();
+    },
+  );
+
+  // Watch manual input toggle
+  watch(useManualInput, (isManual) => {
+    if (isManual) {
+      // Switching to manual: clear FIPE codes but keep text values
+      formData.value.brandCode = '';
+      formData.value.modelCode = '';
+      formData.value.yearCode = '';
+    } else {
+      // Switching to FIPE: clear text values and reload brands
+      formData.value.make = '';
+      formData.value.model = '';
+      formData.value.year = new Date().getFullYear();
+      brands.value = [];
+      models.value = [];
+      years.value = [];
+      loadBrands();
+    }
+  });
 
   // Watch brand selection
   watch(
@@ -1030,6 +1101,12 @@
     displayPurchaseValue.value = '';
     displayMileage.value = '';
 
+    // Reset FIPE type to cars (default)
+    vehicleType.value = 'cars';
+
+    // Reset to FIPE mode (not manual)
+    useManualInput.value = false;
+
     // Reset FIPE lists
     brands.value = [];
     models.value = [];
@@ -1150,6 +1227,26 @@
     background: rgba(37, 99, 235, 0.1); /* bg-blue-900/10 */
     border: 1px solid rgba(59, 130, 246, 0.3); /* border-blue-500/30 */
     color: #93c5fd; /* text-blue-300 */
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .toggle-input-button {
+    align-self: flex-start;
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    border-radius: 0.375rem;
+    color: #93c5fd;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-input-button:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.6);
   }
 
   .alert-small {
