@@ -80,6 +80,7 @@
             <!-- Brand (FIPE) -->
             <div v-if="!isEdit">
               <MSearchableSelectFipe
+                :key="`brand-${fipeComponentKey}`"
                 v-model="formData.brandCode"
                 :options="brands"
                 label="Marca"
@@ -108,6 +109,7 @@
             <!-- Model (FIPE) -->
             <div v-if="!isEdit">
               <MSearchableSelectFipe
+                :key="`model-${fipeComponentKey}`"
                 v-model="formData.modelCode"
                 :options="models"
                 label="Modelo"
@@ -136,6 +138,7 @@
             <!-- Year (FIPE) -->
             <div v-if="!isEdit">
               <MSearchableSelectFipe
+                :key="`year-${fipeComponentKey}`"
                 v-model="formData.yearCode"
                 :options="years"
                 label="Ano"
@@ -593,6 +596,9 @@
   const loadingModels = ref(false);
   const loadingYears = ref(false);
   const uploadError = ref('');
+  
+  // Key to force re-render of FIPE components
+  const fipeComponentKey = ref(0);
 
   // Form Data
   const formData = ref({
@@ -993,6 +999,64 @@
     router.back();
   };
 
+  // Reset form to initial state
+  const resetForm = () => {
+    formData.value = {
+      vehicleType: 'car' as VehicleType,
+      make: '',
+      model: '',
+      year: new Date().getFullYear(),
+      plate: '',
+      color: '',
+      mileage: 0,
+      fuelType: 'flex' as FuelType,
+      imageUrl: '',
+      brandCode: '',
+      modelCode: '',
+      yearCode: '',
+      insuranceCompany: '',
+      insurancePhone: '',
+      insurancePolicyNumber: '',
+      insuranceExpiryDate: '',
+      insuranceValue: 0,
+      brokerContact: '',
+      fipeValue: 0,
+      fipeCode: '',
+      purchaseValue: 0,
+    };
+
+    // Reset display values
+    displayInsuranceValue.value = '';
+    displayPurchaseValue.value = '';
+    displayMileage.value = '';
+
+    // Reset FIPE lists
+    brands.value = [];
+    models.value = [];
+    years.value = [];
+
+    // Force re-render of FIPE components by changing key
+    fipeComponentKey.value++;
+
+    // Clear errors
+    vehiclesStore.clearError();
+    uploadError.value = '';
+  };
+
+  // Watch route changes to reset form when navigating to /new
+  // Use query timestamp to detect when user clicks "add" button again
+  watch(
+    () => [route.path, route.query.t],
+    async ([newPath]) => {
+      // Always reset form when on /new route
+      if (newPath === '/tabs/vehicle/new') {
+        resetForm();
+        await loadBrands();
+      }
+    },
+    { immediate: true } // Run immediately on mount
+  );
+
   onMounted(async () => {
     if (isEdit.value) {
       const vehicle = vehiclesStore.getVehicleById(route.params.id as string);
@@ -1052,10 +1116,8 @@
           displayMileage.value = new Intl.NumberFormat('pt-BR').format(vehicle.mileage);
         }
       }
-    } else {
-      // Load brands for new vehicle
-      await loadBrands();
     }
+    // Note: For new vehicles, resetForm() is called by the watch with immediate: true
   });
 </script>
 

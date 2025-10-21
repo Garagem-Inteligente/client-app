@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage,
@@ -733,6 +733,48 @@ const handleCancel = () => {
   router.back()
 }
 
+// Reset form to initial state
+const resetForm = () => {
+  formData.value = {
+    vehicleId: '',
+    type: 'oil_change' as MaintenanceType,
+    description: '',
+    partsCost: 0 as string | number,
+    laborCost: 0 as string | number,
+    mileage: 0 as string | number,
+    date: new Date().toISOString().split('T')[0],
+    nextDueDate: '',
+    nextDueMileage: 0 as string | number,
+    serviceProvider: '',
+    notes: '',
+    beforePhoto: '',
+    afterPhoto: ''
+  }
+
+  // Reset display values
+  displayPartsCost.value = ''
+  displayLaborCost.value = ''
+  displayMileage.value = ''
+  displayNextMileage.value = ''
+
+  // Clear errors
+  vehiclesStore.clearError()
+  successMessage.value = ''
+}
+
+// Watch route params to reset form when navigating to new maintenance
+// Use query timestamp to detect when user clicks "add" button again
+watch(
+  () => [route.path, route.query.t],
+  ([newPath]) => {
+    // Always reset form when on /new route
+    if (newPath === '/tabs/maintenance/new') {
+      resetForm()
+    }
+  },
+  { immediate: true } // Run immediately on mount
+)
+
 onMounted(async () => {
   await vehiclesStore.fetchVehicles()
 
@@ -741,6 +783,7 @@ onMounted(async () => {
     isEdit.value = true
     recordId.value = route.params.id as string
   }
+  // Note: For new maintenance, resetForm() is called by the watch with immediate: true
 
   // Pre-fill vehicle if provided
   const vehicleId = route.query.vehicleId as string

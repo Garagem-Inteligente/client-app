@@ -3,7 +3,7 @@
     <ModernHeader 
       title="Manutenções"
       :secondary-actions="[
-        { icon: add, handler: () => $router.push('/tabs/maintenance/new') }
+        { icon: add, handler: navigateToNew }
       ]"
     />
 
@@ -30,7 +30,7 @@
           <p>
             Comece registrando a primeira manutenção do seu veículo e mantenha um histórico completo
           </p>
-          <ion-button @click="$router.push('/tabs/maintenance/new')" color="primary">
+          <ion-button @click="navigateToNew" color="primary">
             <template v-slot:start>
 <ion-icon  :icon="add"></ion-icon>
 </template>
@@ -303,7 +303,7 @@
 
       <!-- Floating Action Button -->
       <ion-fab vertical="bottom" horizontal="end">
-        <ion-fab-button @click="$router.push('/tabs/maintenance/new')">
+        <ion-fab-button @click="navigateToNew">
           <ion-icon :icon="add"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -358,6 +358,12 @@ import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
 
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
+
+// Navigate to new maintenance form with timestamp to force reset
+const navigateToNew = () => {
+  router.push(`/tabs/maintenance/new?t=${Date.now()}`)
+}
+
 const selectedFilter = ref<'all' | 'upcoming' | 'overdue'>('all')
 const selectedVehicleId = ref<string>('all')
 const showDeleteModal = ref(false)

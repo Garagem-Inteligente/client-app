@@ -3,7 +3,7 @@
     <ModernHeader 
       title="Meus Veículos"
       :secondary-actions="[
-        { icon: add, handler: () => $router.push('/tabs/vehicle/new') }
+        { icon: add, handler: navigateToNew }
       ]"
     />
 
@@ -41,7 +41,7 @@
           <p>
             Comece adicionando seu primeiro veículo e mantenha um histórico completo de manutenções
           </p>
-          <ion-button @click="$router.push('/tabs/vehicle/new')" color="primary">
+          <ion-button @click="navigateToNew" color="primary">
             <template v-slot:start>
 <ion-icon  :icon="add"></ion-icon>
 </template>
@@ -112,7 +112,7 @@
             v-if="filteredVehicles.length === 0"
             class="empty-category-card"
             button
-            @click="$router.push('/tabs/vehicle/new')"
+            @click="navigateToNew"
           >
             <ion-card-content>
               <div class="empty-category-content">
@@ -216,7 +216,7 @@
 
       <!-- Floating Action Button -->
       <ion-fab vertical="bottom" horizontal="end">
-        <ion-fab-button @click="$router.push('/tabs/vehicle/new')">
+        <ion-fab-button @click="navigateToNew">
           <ion-icon :icon="add"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -267,6 +267,11 @@ import ModernHeader from '@/components/organisms/ModernHeader.vue'
 
 const router = useRouter()
 const vehiclesStore = useVehiclesStore()
+
+// Navigate to new vehicle form with timestamp to force reset
+const navigateToNew = () => {
+  router.push(`/tabs/vehicle/new?t=${Date.now()}`)
+}
 
 const selectedFilter = ref<string>('all')
 const showDeleteModal = ref(false)
