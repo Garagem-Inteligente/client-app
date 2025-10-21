@@ -27,7 +27,7 @@
     </div>
 
     <!-- Dropdown -->
-    <div v-if="showDropdown && searchQuery && filteredOptions.length > 0" class="dropdown">
+    <div v-if="showDropdown && filteredOptions.length > 0" class="dropdown">
       <div
         v-for="option in filteredOptions"
         :key="option.value"
@@ -117,10 +117,8 @@
   };
 
   const handleFocus = () => {
-    // Dropdown só abre quando houver busca
-    if (searchQuery.value) {
-      showDropdown.value = true;
-    }
+    // Sempre abre o dropdown ao focar no input
+    showDropdown.value = true;
   };
 
   const handleBlur = () => {

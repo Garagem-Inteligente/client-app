@@ -399,6 +399,47 @@
                   </div>
                 </div>
 
+                <!-- Fotos das Peças/Recibos -->
+                <div
+                  class="md:col-span-2 bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border border-cyan-500/30 rounded-lg p-4"
+                >
+                  <div class="flex items-center space-x-2 mb-4">
+                    <svg
+                      class="w-5 h-5 text-cyan-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span class="text-sm font-medium text-cyan-300"
+                      >🔧 Fotos de Peças e Recibos</span
+                    >
+                  </div>
+                  <p class="text-xs text-gray-400 mb-3">
+                    📸 Adicione fotos das peças trocadas, etiquetas, números de série, recibos ou
+                    notas fiscais. Útil para registrar informações importantes e facilitar futuras
+                    referências.
+                    <span class="block mt-1 text-cyan-400">
+                      💡 Dica: Tire fotos das etiquetas das peças para guardar referências e números
+                      de série.
+                    </span>
+                  </p>
+                  <MFileUpload
+                    ref="partsPhotosRef"
+                    :max-files="10"
+                    :max-size="10"
+                    accept="image/*"
+                    @files-selected="handlePartsPhotosSelected"
+                    @files-changed="handlePartsPhotosChanged"
+                  />
+                </div>
+
                 <!-- Anexos -->
                 <div
                   class="md:col-span-2 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-lg p-4"
@@ -489,7 +530,9 @@
   const loading = ref(false);
   const successMessage = ref('');
   const uploadedFiles = ref<FileUploadItem[]>([]);
+  const partsPhotos = ref<FileUploadItem[]>([]);
   const fileUploadRef = ref<InstanceType<typeof MFileUpload>>();
+  const partsPhotosRef = ref<InstanceType<typeof MFileUpload>>();
 
   const maxDate = new Date().toISOString();
 
@@ -693,6 +736,14 @@
     uploadedFiles.value = files;
   };
 
+  const handlePartsPhotosSelected = (files: FileUploadItem[]) => {
+    partsPhotos.value = files;
+  };
+
+  const handlePartsPhotosChanged = (files: FileUploadItem[]) => {
+    partsPhotos.value = files;
+  };
+
   const handleSubmit = async () => {
     if (!isFormValid.value || loading.value) {
       logger.warn('⚠️ Form validation failed or already loading');
@@ -704,7 +755,7 @@
     vehiclesStore.clearError();
 
     try {
-      // Process attachments
+      // Process attachments (documents/PDFs)
       logger.info('📎 Processing attachments...', uploadedFiles.value.length);
       const attachments: MaintenanceAttachment[] = [];
       if (uploadedFiles.value.length > 0) {
@@ -722,6 +773,27 @@
         logger.info('✅ Attachments processed:', attachments.length);
       }
 
+      // Process parts photos
+      logger.info('📸 Processing parts photos...', partsPhotos.value.length);
+      const partsPhotosAttachments: MaintenanceAttachment[] = [];
+      if (partsPhotos.value.length > 0) {
+        for (const item of partsPhotos.value) {
+          if (item.base64 && !item.error) {
+            partsPhotosAttachments.push({
+              name: item.file.name,
+              data: item.base64,
+              uploadedAt: new Date(),
+              type: item.file.type,
+              size: item.file.size,
+            });
+          }
+        }
+        logger.info('✅ Parts photos processed:', partsPhotosAttachments.length);
+      }
+
+      // Merge all attachments
+      const allAttachments = [...attachments, ...partsPhotosAttachments];
+
       const recordData = {
         vehicleId: formData.value.vehicleId,
         types: formData.value.types.length > 0 ? formData.value.types : undefined,
@@ -738,7 +810,7 @@
         notes: formData.value.notes || undefined,
         beforePhoto: formData.value.beforePhoto || undefined,
         afterPhoto: formData.value.afterPhoto || undefined,
-        attachments: attachments.length > 0 ? attachments : undefined,
+        attachments: allAttachments.length > 0 ? allAttachments : undefined,
       };
 
       logger.info('📝 Maintenance data prepared:', {
@@ -747,6 +819,9 @@
         cost: recordData.cost,
         mileage: recordData.mileage,
         hasAttachments: !!recordData.attachments,
+        totalAttachments: allAttachments.length,
+        partsPhotosCount: partsPhotosAttachments.length,
+        documentsCount: attachments.length,
         hasBeforePhoto: !!recordData.beforePhoto,
         hasAfterPhoto: !!recordData.afterPhoto,
       });
@@ -833,6 +908,16 @@
     displayLaborCost.value = '';
     displayMileage.value = '';
     displayNextMileage.value = '';
+
+    // Clear uploaded files
+    uploadedFiles.value = [];
+    partsPhotos.value = [];
+    if (fileUploadRef.value) {
+      fileUploadRef.value.clear?.();
+    }
+    if (partsPhotosRef.value) {
+      partsPhotosRef.value.clear?.();
+    }
 
     // Clear errors
     vehiclesStore.clearError();
