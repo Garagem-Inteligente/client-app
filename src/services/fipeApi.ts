@@ -58,25 +58,54 @@ class FipeApiService {
   }
 
   /**
-   * Faz uma requisição GET para a API
+   * Faz uma requisição GET para a API com tratamento de erros melhorado
    */
   private async fetch<T>(endpoint: string): Promise<T> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 segundos timeout
+
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
+
       if (!response.ok) {
-        throw new Error(`Erro na API FIPE: ${response.status} ${response.statusText}`)
+        const errorData: Record<string, unknown> = { status: response.status }
+        throw errorData
       }
 
-      return await response.json()
+      const data = await response.json()
+      return data
     } catch (error) {
-      console.error('Erro ao buscar dados da FIPE:', error)
+      clearTimeout(timeoutId)
+      
+      // Erro de timeout
+      if (error instanceof Error && error.name === 'AbortError') {
+        const timeoutError: Record<string, unknown> = { 
+          message: 'timeout_error',
+          status: 408
+        }
+        throw timeoutError
+      }
+
+      // Erro de rede
+      if (error instanceof TypeError) {
+        const networkError: Record<string, unknown> = { 
+          message: 'network_error',
+          status: 0
+        }
+        throw networkError
+      }
+
+      // Outros erros
+      console.error('❌ Erro ao buscar dados da FIPE:', error)
       throw error
     }
   }

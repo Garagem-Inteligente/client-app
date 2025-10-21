@@ -543,6 +543,7 @@ import {
 } from '@ionic/vue'
 import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles'
 import { fipeApi, type FipeVehicleType } from '@/services/fipeApi'
+import { translateFirebaseError } from '@/utils/errorMessages'
 import MSearchableSelectFipe from '@/components/molecules/MSearchableSelectFipe.vue'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
@@ -712,8 +713,11 @@ const loadBrands = async () => {
   try {
     loadingBrands.value = true
     brands.value = await fipeApi.getBrandsByType(vehicleType.value)
+    vehiclesStore.clearError()
   } catch (error) {
-    console.error('Erro ao carregar marcas:', error)
+    console.error('❌ Erro ao carregar marcas FIPE:', error)
+    const errorMessage = translateFirebaseError(error, 'Não foi possível carregar as marcas. Verifique sua conexão com a internet.')
+    vehiclesStore.error = errorMessage
     brands.value = []
   } finally {
     loadingBrands.value = false
