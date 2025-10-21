@@ -1,0 +1,72 @@
+/* ===========================================
+   RESPONSIVE UTILITY CLASSES
+   =========================================== */
+
+/* Mobile-first: Hide desktop elements by default */
+.desktop-only {
+  display: none !important;
+}
+
+.mobile-only {
+  display: block !important;
+}
+
+/* Desktop breakpoint (1024px+) */
+@media (min-width: 1024px) {
+  /* Show desktop elements, hide mobile elements */
+  .desktop-only {
+    display: block !important;
+  }
+
+  .mobile-only {
+    display: none !important;
+  }
+
+  /* Adjust main content padding for desktop sidebar */
+  ion-tabs ion-router-outlet {
+    margin-left: 280px;
+  }
+
+  /* Ensure proper spacing for desktop content */
+  ion-content {
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --padding-top: 24px;
+    --padding-bottom: 24px;
+  }
+
+  /* Full height for desktop pages */
+  ion-page {
+    min-height: 100vh;
+  }
+}
+
+/* Tablet breakpoint (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet-specific adjustments */
+  ion-content {
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
+}
+
+/* Large desktop breakpoint (1440px+) */
+@media (min-width: 1440px) {
+  ion-content {
+    --padding-start: 32px;
+    --padding-end: 32px;
+    --padding-top: 32px;
+  }
+}
+
+/* Print optimizations */
+@media print {
+  .desktop-only,
+  .mobile-only {
+    display: block !important;
+  }
+
+  ion-tabs ion-router-outlet {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,273 @@
+/* Global Web Improvements */
+
+/* Container responsivo para todas as páginas */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container {
+    padding: 40px 80px;
+  }
+}
+
+/* Grid responsivo para cards */
+.grid-responsive {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+}
+
+/* Layout de 2 colunas para desktop */
+.layout-two-columns {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .layout-two-columns {
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+  }
+}
+
+/* Sidebar para desktop */
+.sidebar-desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-desktop {
+    display: block;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+}
+
+/* Cards maiores em desktop */
+@media (min-width: 1024px) {
+  .card {
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .card-header {
+    padding: 20px 24px;
+  }
+
+  .card-content {
+    padding: 24px;
+  }
+}
+
+/* Tipografia responsiva */
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  .text-lg {
+    font-size: 1.25rem;
+  }
+}
+
+/* Espaçamentos maiores em desktop */
+@media (min-width: 1024px) {
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    margin-bottom: 24px;
+  }
+}
+
+/* Esconde tab bar no desktop */
+@media (min-width: 1024px) {
+  ion-tab-bar {
+    display: none;
+  }
+
+  /* Adiciona navegação lateral no desktop */
+  .desktop-navigation {
+    display: flex;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 240px;
+    background: var(--ion-background-color);
+    border-right: 1px solid var(--ion-border-color);
+    flex-direction: column;
+    padding: 20px;
+    z-index: 999;
+  }
+
+  ion-content {
+    --padding-start: 260px;
+  }
+}
+
+/* Melhora hover states no desktop */
+@media (hover: hover) {
+  .clickable:hover,
+  .card-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  button:hover,
+  .button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Transições suaves */
+* {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Scrollbar customizada para web */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--ion-background-color);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Modais em tela cheia no mobile, centralizados no desktop */
+@media (min-width: 768px) {
+  ion-modal {
+    --width: 600px;
+    --height: auto;
+    --border-radius: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  ion-modal {
+    --width: 800px;
+    --max-height: 90vh;
+  }
+}
+
+/* Formulários mais largos em desktop */
+@media (min-width: 768px) {
+  .form-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .form-grid .full-width {
+    grid-column: span 2;
+  }
+}
+
+/* Imagens responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Charts maiores em desktop */
+@media (min-width: 1024px) {
+  .chart-container {
+    min-height: 400px;
+  }
+}
+
+/* Tables responsivas */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* Melhora performance de animações */
+.animated {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+}
