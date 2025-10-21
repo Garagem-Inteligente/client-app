@@ -44,6 +44,7 @@ export interface Vehicle {
   imageUrl?: string // Base64 da imagem do veículo
   fipeValue?: number // Valor atual do veículo na tabela FIPE
   fipeCode?: string // Código FIPE para consultas futuras
+  purchaseValue?: number // Valor de compra do veículo
   // Dados do Seguro
   insuranceCompany?: string
   insurancePhone?: string

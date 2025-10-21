@@ -199,26 +199,16 @@
               </label>
               <input
                 id="mileage"
-                v-model="formData.mileage"
+                v-model="displayMileage"
                 type="text"
                 inputmode="numeric"
                 placeholder="0"
                 required
                 :disabled="vehiclesStore.loading"
                 class="field-input"
-                @input="(e) => {
-                  const target = e.target as HTMLInputElement
-                  const value = target.value.replace(/\\D/g, '')
-                  if (value) {
-                    const num = Number.parseInt(value)
-                    target.value = new Intl.NumberFormat('pt-BR').format(num)
-                    formData.mileage = num
-                  } else {
-                    target.value = ''
-                    formData.mileage = 0
-                  }
-                }"
+                @input="handleMileageInput"
               />
+              <p class="field-hint">Máximo: 999.999 km</p>
             </div>
 
             <!-- Fuel Type (Auto-inferred from FIPE) -->
@@ -245,6 +235,25 @@
               </select>
             </div>
 
+            <!-- Purchase Value -->
+            <div>
+              <label for="purchaseValue" class="field-label">
+                Valor de Compra (R$)
+              </label>
+              <input
+                id="purchaseValue"
+                v-model="displayPurchaseValue"
+                type="text"
+                inputmode="numeric"
+                placeholder="0,00"
+                :disabled="vehiclesStore.loading"
+                class="field-input"
+                @input="handlePurchaseValueInput"
+                @blur="formatPurchaseValue"
+              />
+              <p class="field-hint">💡 Opcional: Valor que você pagou pelo veículo</p>
+            </div>
+
             <!-- FIPE Value Display (if available) -->
             <div v-if="formData.fipeValue > 0" class="full-width">
               <div class="fipe-value-card">
@@ -253,6 +262,29 @@
                   <div class="fipe-label">Valor FIPE</div>
                   <div class="fipe-price">{{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(formData.fipeValue) }}</div>
                   <div class="fipe-hint">Valor atualizado da tabela FIPE</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Value Variation Display -->
+            <div v-if="valueVariation" class="full-width">
+              <div class="value-variation-card" :class="{ 
+                'appreciation': valueVariation.isAppreciation, 
+                'depreciation': valueVariation.isDepreciation 
+              }">
+                <div class="variation-icon">
+                  {{ valueVariation.isAppreciation ? '📈' : '📉' }}
+                </div>
+                <div class="variation-content">
+                  <div class="variation-label">
+                    {{ valueVariation.isAppreciation ? 'Valorização' : 'Desvalorização' }}
+                  </div>
+                  <div class="variation-amount">
+                    {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(valueVariation.difference)) }}
+                  </div>
+                  <div class="variation-percentage">
+                    {{ valueVariation.isAppreciation ? '+' : '' }}{{ valueVariation.percentage.toFixed(2) }}% em relação ao valor de compra
+                  </div>
                 </div>
               </div>
             </div>
@@ -557,11 +589,14 @@ const formData = ref({
   insuranceValue: 0,
   brokerContact: '',
   fipeValue: 0,
-  fipeCode: ''
+  fipeCode: '',
+  purchaseValue: 0
 })
 
-// Display value for insurance value with mask
+// Display values with masks
 const displayInsuranceValue = ref('')
+const displayPurchaseValue = ref('')
+const displayMileage = ref('')
 
 // Handler for insurance value input with currency mask
 const handleInsuranceValueInput = (event: Event) => {
@@ -585,6 +620,28 @@ const handleInsuranceValueInput = (event: Event) => {
   formData.value.insuranceValue = reais
 }
 
+// Handler for purchase value input with currency mask
+const handlePurchaseValueInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value.replace(/\D/g, '')
+  
+  if (!value) {
+    displayPurchaseValue.value = ''
+    formData.value.purchaseValue = 0
+    return
+  }
+  
+  const cents = Number.parseInt(value)
+  const reais = cents / 100
+  
+  displayPurchaseValue.value = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(reais)
+  
+  formData.value.purchaseValue = reais
+}
+
 const formatInsuranceValue = () => {
   if (formData.value.insuranceValue > 0) {
     displayInsuranceValue.value = new Intl.NumberFormat('pt-BR', {
@@ -594,8 +651,60 @@ const formatInsuranceValue = () => {
   }
 }
 
+const formatPurchaseValue = () => {
+  if (formData.value.purchaseValue && formData.value.purchaseValue > 0) {
+    displayPurchaseValue.value = new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(formData.value.purchaseValue)
+  }
+}
+
+// Handler for mileage input with numeric mask and limit
+const handleMileageInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value.replace(/\D/g, '')
+  
+  if (!value) {
+    displayMileage.value = ''
+    formData.value.mileage = 0
+    return
+  }
+  
+  let num = Number.parseInt(value)
+  
+  // Limit to 999999
+  if (num > 999999) {
+    num = 999999
+  }
+  
+  displayMileage.value = new Intl.NumberFormat('pt-BR').format(num)
+  formData.value.mileage = num
+}
+
 const isFormValid = computed(() => {
   return formData.value.make && formData.value.model && formData.value.plate
+})
+
+// Computed para valorização/desvalorização
+const valueVariation = computed(() => {
+  if (!formData.value.purchaseValue || formData.value.purchaseValue === 0) {
+    return null
+  }
+  
+  if (!formData.value.fipeValue || formData.value.fipeValue === 0) {
+    return null
+  }
+  
+  const difference = formData.value.fipeValue - formData.value.purchaseValue
+  const percentage = (difference / formData.value.purchaseValue) * 100
+  
+  return {
+    difference,
+    percentage,
+    isAppreciation: difference > 0,
+    isDepreciation: difference < 0
+  }
 })
 
 // Load brands
@@ -849,7 +958,8 @@ onMounted(async () => {
         insuranceValue: vehicle.insuranceValue || 0,
         brokerContact: vehicle.brokerContact || '',
         fipeValue: vehicle.fipeValue || 0,
-        fipeCode: vehicle.fipeCode || ''
+        fipeCode: vehicle.fipeCode || '',
+        purchaseValue: vehicle.purchaseValue || 0
       }
       
       // Format insurance value for display
@@ -858,6 +968,19 @@ onMounted(async () => {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }).format(vehicle.insuranceValue)
+      }
+      
+      // Format purchase value for display
+      if (vehicle.purchaseValue && vehicle.purchaseValue > 0) {
+        displayPurchaseValue.value = new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(vehicle.purchaseValue)
+      }
+      
+      // Format mileage for display
+      if (vehicle.mileage > 0) {
+        displayMileage.value = new Intl.NumberFormat('pt-BR').format(vehicle.mileage)
       }
     }
   } else {
@@ -1238,6 +1361,72 @@ onMounted(async () => {
 .fipe-hint {
   font-size: 0.75rem;
   color: #6b7280; /* text-gray-500 */
+}
+
+/* Value Variation Card */
+.value-variation-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.value-variation-card.appreciation {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.15) 100%);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.value-variation-card.depreciation {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.15) 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.variation-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.variation-content {
+  flex: 1;
+}
+
+.variation-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.value-variation-card.appreciation .variation-label {
+  color: #86efac; /* text-green-300 */
+}
+
+.value-variation-card.depreciation .variation-label {
+  color: #fca5a5; /* text-red-300 */
+}
+
+.variation-amount {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.value-variation-card.appreciation .variation-amount {
+  color: #22c55e; /* text-green-500 */
+}
+
+.value-variation-card.depreciation .variation-amount {
+  color: #ef4444; /* text-red-500 */
+}
+
+.variation-percentage {
+  font-size: 0.75rem;
+  color: #9ca3af; /* text-gray-400 */
 }
 
 /* Modern Alert Styles (Global) */

@@ -259,15 +259,21 @@ export const useAuthStore = defineStore('auth', () => {
         }, { merge: true })
       } else {
         // Novo usuário - criar documento no Firestore
-        await setDoc(userDocRef, {
+        const newUserData: Record<string, unknown> = {
           email: firebaseUser.email,
           name: firebaseUser.displayName || firebaseUser.email.split('@')[0] || 'Usuário',
-          avatar: firebaseUser.photoURL || undefined,
           userType: 'user',
           providers: ['google'],
           createdAt: new Date(),
           updatedAt: new Date()
-        })
+        }
+        
+        // Só adiciona avatar se existir
+        if (firebaseUser.photoURL) {
+          newUserData.avatar = firebaseUser.photoURL
+        }
+        
+        await setDoc(userDocRef, newUserData)
       }
       
       user.value = {
@@ -284,14 +290,15 @@ export const useAuthStore = defineStore('auth', () => {
       
       // Log detalhado do erro para diagnóstico
       if (err && typeof err === 'object') {
+        const errObj = err as Record<string, unknown>
         console.error('🔍 Detalhes completos do erro:', {
-          name: (err as any).name,
-          message: (err as any).message,
-          code: (err as any).code,
-          errorCode: (err as any).errorCode,
-          serverResponse: (err as any).serverResponse,
-          customData: (err as any).customData,
-          stack: (err as any).stack
+          name: errObj.name,
+          message: errObj.message,
+          code: errObj.code,
+          errorCode: errObj.errorCode,
+          serverResponse: errObj.serverResponse,
+          customData: errObj.customData,
+          stack: errObj.stack
         })
       }
       
@@ -301,7 +308,8 @@ export const useAuthStore = defineStore('auth', () => {
         
         if (err instanceof Error) {
           const message = err.message
-          const errorCode = (err as any).code || (err as any).errorCode
+          const errObj = err as unknown as Record<string, unknown>
+          const errorCode = errObj.code || errObj.errorCode
           
           console.error('📝 Código do erro:', errorCode)
           console.error('📝 Mensagem de erro detalhada:', message)
