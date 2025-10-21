@@ -16,10 +16,13 @@
               <div class="avatar-wrapper" @click="showPhotoOptions">
                 <div class="avatar-container">
                   <img
-                    v-if="currentPhotoUrl"
+                    v-if="currentPhotoUrl && !photoLoadError"
                     :src="currentPhotoUrl"
                     alt="Foto do perfil"
                     class="avatar-image"
+                    @error="handlePhotoError"
+                    @load="handlePhotoLoad"
+                    crossorigin="anonymous"
                   />
                   <div v-else class="avatar-placeholder">
                     <ion-icon
@@ -820,10 +823,21 @@ const showConnectionsModal = ref(false);
 const showAboutModal = ref(false);
 const showPasswordModal = ref(false);
 const currentPhotoUrl = ref<string>("");
+const photoLoadError = ref(false);
 const savingProfile = ref(false);
 const unlinkingGoogle = ref(false);
 const changingPassword = ref(false);
 const passwordError = ref("");
+
+// Handlers para carregamento de foto
+const handlePhotoError = () => {
+  console.error('Erro ao carregar foto do perfil');
+  photoLoadError.value = true;
+};
+
+const handlePhotoLoad = () => {
+  photoLoadError.value = false;
+};
 
 // Edit form
 const editForm = ref({
@@ -1352,10 +1366,10 @@ onMounted(() => {
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 24px 16px 100px 16px; /* Aumentei o padding bottom para dar espaço */
   position: relative;
   z-index: 1;
-  height: 91vh;
+  min-height: 100%; /* Mudei de height fixo para min-height */
 }
 
 /* Profile Header Card */
