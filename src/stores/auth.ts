@@ -52,7 +52,10 @@ export const useAuthStore = defineStore('auth', () => {
             userType = userDoc.data()?.userType || 'user';
           }
         } catch (error) {
-          console.warn('⚠️ Erro ao buscar userType do Firestore, usando padrão "user":', translateFirebaseError(error));
+          console.warn(
+            '⚠️ Erro ao buscar userType do Firestore, usando padrão "user":',
+            translateFirebaseError(error),
+          );
         }
 
         user.value = {
