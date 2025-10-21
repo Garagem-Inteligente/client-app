@@ -596,7 +596,7 @@
   const loadingModels = ref(false);
   const loadingYears = ref(false);
   const uploadError = ref('');
-  
+
   // Key to force re-render of FIPE components
   const fipeComponentKey = ref(0);
 
@@ -1054,7 +1054,7 @@
         await loadBrands();
       }
     },
-    { immediate: true } // Run immediately on mount
+    { immediate: true }, // Run immediately on mount
   );
 
   onMounted(async () => {
