@@ -50,6 +50,7 @@ export interface Vehicle {
   color?: string;
   mileage: number;
   fuelType: FuelType;
+  averageFuelConsumption?: number; // Consumo médio em km/l
   imageUrl?: string; // Base64 da imagem do veículo
   fipeValue?: number; // Valor atual do veículo na tabela FIPE
   fipeCode?: string; // Código FIPE para consultas futuras

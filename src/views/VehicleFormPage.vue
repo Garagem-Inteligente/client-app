@@ -253,6 +253,25 @@
               </select>
             </div>
 
+            <!-- Average Fuel Consumption -->
+            <div>
+              <label for="averageFuelConsumption" class="field-label">
+                Consumo Médio (km/l)
+                <span class="text-xs text-gray-400">(Opcional)</span>
+              </label>
+              <input
+                id="averageFuelConsumption"
+                v-model.number="formData.averageFuelConsumption"
+                type="number"
+                inputmode="decimal"
+                step="0.1"
+                min="0"
+                placeholder="Ex: 12.5"
+                :disabled="vehiclesStore.loading"
+                class="field-input"
+              />
+            </div>
+
             <!-- Purchase Value -->
             <div>
               <label for="purchaseValue" class="field-label"> Valor de Compra (R$) </label>
@@ -641,6 +660,7 @@
     color: '',
     mileage: 0,
     fuelType: 'flex' as FuelType,
+    averageFuelConsumption: 0,
     imageUrl: '',
     brandCode: '',
     modelCode: '',
@@ -1029,6 +1049,9 @@
         color: formData.value.color,
         mileage: formData.value.mileage,
         fuelType: formData.value.fuelType,
+        ...(formData.value.averageFuelConsumption && {
+          averageFuelConsumption: formData.value.averageFuelConsumption,
+        }),
         ...(formData.value.imageUrl && { imageUrl: formData.value.imageUrl }),
         ...(formData.value.fipeValue && { fipeValue: formData.value.fipeValue }),
         ...(formData.value.fipeCode && { fipeCode: formData.value.fipeCode }),
@@ -1082,6 +1105,7 @@
       color: '',
       mileage: 0,
       fuelType: 'flex' as FuelType,
+      averageFuelConsumption: 0,
       imageUrl: '',
       brandCode: '',
       modelCode: '',
@@ -1158,6 +1182,7 @@
           color: vehicle.color || '',
           mileage: vehicle.mileage,
           fuelType: vehicle.fuelType,
+          averageFuelConsumption: vehicle.averageFuelConsumption || 0,
           imageUrl: vehicle.imageUrl || '',
           brandCode: '',
           modelCode: '',
