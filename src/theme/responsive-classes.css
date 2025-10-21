@@ -11,6 +11,11 @@
   display: block !important;
 }
 
+/* Ensure ion-tab-bar with mobile-only uses flex */
+ion-tab-bar.mobile-only {
+  display: flex !important;
+}
+
 /* Desktop breakpoint (1024px+) */
 @media (min-width: 1024px) {
   /* Show desktop elements, hide mobile elements */
