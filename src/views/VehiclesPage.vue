@@ -334,6 +334,7 @@
       gasoline: 'primary',
       ethanol: 'success',
       diesel: 'warning',
+      'diesel-s10': 'warning',
       electric: 'success',
       'hybrid-plugin': 'success',
       'hybrid-mild': 'success',

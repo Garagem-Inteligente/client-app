@@ -214,43 +214,68 @@
         <!-- Fuel Costs Summary (if available) -->
         <div v-if="hasFuelData" class="fuel-summary-card">
           <div class="fuel-summary-header">
-            <h2 class="section-title">
-              ⛽ Gastos com Combustível
-            </h2>
+            <h2 class="section-title">⛽ Gastos com Combustível</h2>
             <p class="section-subtitle">Total estimado de todos os veículos</p>
           </div>
           <div class="fuel-summary-grid">
             <div class="fuel-stat-item">
               <div class="fuel-stat-icon purple">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
                 </svg>
               </div>
               <div class="fuel-stat-content">
                 <p class="fuel-stat-label">Distância Total</p>
-                <p class="fuel-stat-value">{{ totalFuelCosts.totalDistance.toLocaleString('pt-BR') }} km</p>
+                <p class="fuel-stat-value">
+                  {{ totalFuelCosts.totalDistance.toLocaleString('pt-BR') }} km
+                </p>
               </div>
             </div>
             <div class="fuel-stat-item">
               <div class="fuel-stat-icon green">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                  />
                 </svg>
               </div>
               <div class="fuel-stat-content">
                 <p class="fuel-stat-label">Litros Consumidos</p>
-                <p class="fuel-stat-value">{{ totalFuelCosts.totalLiters.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} L</p>
+                <p class="fuel-stat-value">
+                  {{
+                    totalFuelCosts.totalLiters.toLocaleString('pt-BR', {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })
+                  }}
+                  L
+                </p>
               </div>
             </div>
             <div class="fuel-stat-item highlight">
               <div class="fuel-stat-icon gold">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div class="fuel-stat-content">
                 <p class="fuel-stat-label">Custo Total Estimado</p>
-                <p class="fuel-stat-value primary">{{ formatCurrency(totalFuelCosts.totalCost) }}</p>
+                <p class="fuel-stat-value primary">
+                  {{ formatCurrency(totalFuelCosts.totalCost) }}
+                </p>
               </div>
             </div>
           </div>
@@ -513,7 +538,7 @@
       if (!vehicle.averageFuelConsumption) return;
 
       const maintenanceRecords = vehiclesStore.maintenanceRecords.filter(
-        (r) => r.vehicleId === vehicle.id
+        (r) => r.vehicleId === vehicle.id,
       );
 
       if (maintenanceRecords.length < 2) return;

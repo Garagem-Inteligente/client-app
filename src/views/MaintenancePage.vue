@@ -283,15 +283,17 @@
                       <span class="info-value">{{ formatCurrency(record.cost) }}</span>
                     </div>
                   </div>
-                  <div 
-                    v-if="getFuelConsumption(record)" 
+                  <div
+                    v-if="getFuelConsumption(record)"
                     class="info-item fuel-item"
                     :title="`${getFuelConsumption(record)?.liters.toFixed(1)}L de combustível`"
                   >
                     <ion-icon icon="⛽" class="info-icon fuel-icon"></ion-icon>
                     <div class="info-content">
                       <span class="info-label">Combustível</span>
-                      <span class="info-value">{{ formatCurrency(getFuelConsumption(record)?.cost || 0) }}</span>
+                      <span class="info-value">{{
+                        formatCurrency(getFuelConsumption(record)?.cost || 0)
+                      }}</span>
                     </div>
                   </div>
                 </div>
@@ -376,7 +378,10 @@
   import { useVehiclesStore } from '../stores/vehicles';
   import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles';
   import type { MaintenanceRecord } from '../stores/vehicles';
-  import { calculateFuelBetweenMaintenances, getEstimatedFuelPrice } from '@/utils/fuelCalculations';
+  import {
+    calculateFuelBetweenMaintenances,
+    getEstimatedFuelPrice,
+  } from '@/utils/fuelCalculations';
   import ModernHeader from '@/components/organisms/ModernHeader.vue';
   import MConfirmModal from '@/components/molecules/MConfirmModal.vue';
 
