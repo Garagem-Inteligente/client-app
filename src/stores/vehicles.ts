@@ -129,7 +129,7 @@ export interface MaintenanceRecord {
 
   // Multiple types support
   types: MaintenanceType[]; // Múltiplos tipos de manutenção
-  
+
   // Legacy field for backward compatibility (single item)
   type: MaintenanceType;
   description: string;

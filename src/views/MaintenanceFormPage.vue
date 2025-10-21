@@ -52,6 +52,21 @@
                   </select>
                 </div>
 
+                <!-- Prestador de Serviço -->
+                <div>
+                  <label for="serviceProvider" class="block text-sm font-medium text-gray-300 mb-2">
+                    Prestador de Serviço
+                  </label>
+                  <input
+                    id="serviceProvider"
+                    v-model="formData.serviceProvider"
+                    type="text"
+                    placeholder="Nome da oficina ou mecânico"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    :disabled="loading"
+                  />
+                </div>
+
                 <!-- Tipos de Manutenção (Multi-Select) -->
                 <div class="md:col-span-2">
                   <label class="block text-sm font-medium text-gray-300 mb-2">
@@ -200,21 +215,6 @@
                     @input="handleNextMileageInput"
                     @blur="formatNextMileage"
                     class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <!-- Prestador de Serviço -->
-                <div>
-                  <label for="serviceProvider" class="block text-sm font-medium text-gray-300 mb-2">
-                    Prestador de Serviço
-                  </label>
-                  <input
-                    id="serviceProvider"
-                    v-model="formData.serviceProvider"
-                    type="text"
-                    placeholder="Nome da oficina ou mecânico"
-                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    :disabled="loading"
                   />
                 </div>
 

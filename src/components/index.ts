@@ -17,15 +17,15 @@ export { default as MFilterPills } from './molecules/MFilterPills.vue';
 export { default as MEmptyState } from './molecules/MEmptyState.vue';
 export { default as MInfoItem } from './molecules/MInfoItem.vue';
 export { default as MStatusBadge } from './molecules/MStatusBadge.vue';
-export { default as MCardTitle } from './molecules/MCardTitle.vue'
-export { default as MFuelCostDisplay } from './molecules/MFuelCostDisplay.vue'
-export { default as MMultiSelect } from './molecules/MMultiSelect.vue'
+export { default as MCardTitle } from './molecules/MCardTitle.vue';
+export { default as MFuelCostDisplay } from './molecules/MFuelCostDisplay.vue';
+export { default as MMultiSelect } from './molecules/MMultiSelect.vue';
 
 // Organisms
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';
 export { default as MServiceItemsManager } from './organisms/MServiceItemsManager.vue';
 
 // Types
-export type { FileUploadItem } from './molecules/MFileUpload.vue'
-export type { SelectOption } from './molecules/MSearchableSelect.vue'
-export type { MultiSelectOption } from './molecules/MMultiSelect.vue'
+export type { FileUploadItem } from './molecules/MFileUpload.vue';
+export type { SelectOption } from './molecules/MSearchableSelect.vue';
+export type { MultiSelectOption } from './molecules/MMultiSelect.vue';
