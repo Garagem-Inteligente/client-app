@@ -215,13 +215,13 @@ jobs:
       - name: 🔐 Setup Keystore
         run: |
           echo "Configurando keystore..."
-          echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 -d > android/app/upload-keystore.jks
+          echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 --decode > android/app/upload-keystore.jks
 
           cat > android/key.properties << EOF
           storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
           keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          storeFile=app/upload-keystore.jks
+          storeFile=upload-keystore.jks
           EOF
 
       - name: 📝 Update Version in build.gradle
