@@ -42,11 +42,7 @@
     <!-- Empty State with Add Custom Option -->
     <div v-if="showDropdown && filteredOptions.length === 0 && searchQuery" class="empty-state">
       <p class="empty-text">Nenhum resultado encontrado</p>
-      <button
-        type="button"
-        class="add-custom-btn"
-        @mousedown.prevent="addCustomOption"
-      >
+      <button type="button" class="add-custom-btn" @mousedown.prevent="addCustomOption">
         <span class="add-icon">➕</span>
         Adicionar "{{ searchQuery }}" como customizado
       </button>
@@ -88,11 +84,11 @@
       .map((value) => {
         // Verificar se é uma opção da lista
         const option = props.options.find((opt) => opt.value === value);
-        
+
         if (option) {
           return option;
         }
-        
+
         // Se não encontrou e começa com 'custom_', é uma opção customizada
         if (value.startsWith('custom_')) {
           // Extrair o nome da opção customizada do valor
@@ -100,13 +96,13 @@
           parts.shift(); // Remove 'custom'
           parts.shift(); // Remove timestamp
           const customLabel = parts.join(' ').replace(/_/g, ' ');
-          
+
           return {
             value: value,
-            label: `🔧 ${customLabel.charAt(0).toUpperCase() + customLabel.slice(1)}`
+            label: `🔧 ${customLabel.charAt(0).toUpperCase() + customLabel.slice(1)}`,
           };
         }
-        
+
         return null;
       })
       .filter(Boolean) as MultiSelectOption[];
@@ -167,15 +163,17 @@
   const addCustomOption = () => {
     if (searchQuery.value.trim()) {
       // Criar um valor único para a opção customizada
-      const customValue = `custom_${Date.now()}_${searchQuery.value.toLowerCase().replace(/\s+/g, '_')}`;
-      
+      const customValue = `custom_${Date.now()}_${searchQuery.value
+        .toLowerCase()
+        .replace(/\s+/g, '_')}`;
+
       // Adicionar ao modelo
       emit('update:modelValue', [...props.modelValue, customValue]);
-      
+
       // Limpar busca e fechar dropdown
       searchQuery.value = '';
       showDropdown.value = false;
-      
+
       // Manter foco
       setTimeout(() => {
         searchInput.value?.focus();
