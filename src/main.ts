@@ -1,7 +1,7 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 import router from './router';
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
 
 import { IonicVue } from '@ionic/vue';
 
@@ -38,19 +38,20 @@ import './theme/variables.css';
 /* Global background styles */
 import './theme/backgrounds.css';
 
+/* Responsive web improvements */
+import './theme/responsive.css';
+import './theme/responsive-classes.css';
+
 /* Tailwind CSS */
 import './style.css';
 
 /* Performance optimization */
-import { applyPerformanceMode } from './utils/performance'
+import { applyPerformanceMode } from './utils/performance';
 
-const app = createApp(App)
-  .use(IonicVue)
-  .use(router)
-  .use(createPinia());
+const app = createApp(App).use(IonicVue).use(router).use(createPinia());
 
 // Apply performance optimizations
-applyPerformanceMode()
+applyPerformanceMode();
 
 router.isReady().then(() => {
   app.mount('#app');

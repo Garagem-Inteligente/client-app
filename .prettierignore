@@ -1,0 +1,14 @@
+node_modules
+android
+ios
+dist
+build
+public
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.webp
+*.ico
+*.aab
+*.apk
