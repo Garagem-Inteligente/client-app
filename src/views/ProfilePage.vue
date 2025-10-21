@@ -22,7 +22,6 @@
                     class="avatar-image"
                     @error="handlePhotoError"
                     @load="handlePhotoLoad"
-                    crossorigin="anonymous"
                   />
                   <div v-else class="avatar-placeholder">
                     <ion-icon
