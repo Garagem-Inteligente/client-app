@@ -244,7 +244,8 @@
                 <option value="flex">⛽ Flex (Gasolina/Etanol)</option>
                 <option value="gasoline">⛽ Gasolina</option>
                 <option value="ethanol">🌱 Álcool (Etanol)</option>
-                <option value="diesel">🛢️ Diesel</option>
+                <option value="diesel">🛢️ Diesel Comum</option>
+                <option value="diesel-s10">🛢️ Diesel S10</option>
                 <option value="electric">🔋 Elétrico</option>
                 <option value="hybrid-plugin">🔌 Híbrido Plugin</option>
                 <option value="hybrid-mild">🔋 Híbrido Leve</option>

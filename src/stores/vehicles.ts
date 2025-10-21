@@ -33,6 +33,7 @@ export type FuelType =
   | 'gasoline'
   | 'ethanol'
   | 'diesel'
+  | 'diesel-s10'
   | 'electric'
   | 'hybrid-plugin'
   | 'hybrid-mild'

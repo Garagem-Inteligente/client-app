@@ -561,9 +561,12 @@
   };
 
   onMounted(async () => {
+    // Fetch vehicles if not loaded yet
     if (vehiclesStore.vehicles.length === 0) {
       await vehiclesStore.fetchVehicles();
     }
+    // Always fetch maintenance records
+    await vehiclesStore.fetchMaintenanceRecords();
   });
 </script>
 
