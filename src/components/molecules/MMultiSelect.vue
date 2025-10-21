@@ -39,9 +39,18 @@
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- Empty State with Add Custom Option -->
     <div v-if="showDropdown && filteredOptions.length === 0 && searchQuery" class="empty-state">
-      Nenhum resultado encontrado
+      <p class="empty-text">Nenhum resultado encontrado</p>
+      <button
+        type="button"
+        class="add-custom-btn"
+        @mousedown.prevent="addCustomOption"
+      >
+        <span class="add-icon">➕</span>
+        Adicionar "{{ searchQuery }}" como customizado
+      </button>
+      <p class="empty-hint">ou pressione Enter</p>
     </div>
   </div>
 </template>
@@ -76,7 +85,30 @@
 
   const selectedOptions = computed(() => {
     return props.modelValue
-      .map((value) => props.options.find((opt) => opt.value === value))
+      .map((value) => {
+        // Verificar se é uma opção da lista
+        const option = props.options.find((opt) => opt.value === value);
+        
+        if (option) {
+          return option;
+        }
+        
+        // Se não encontrou e começa com 'custom_', é uma opção customizada
+        if (value.startsWith('custom_')) {
+          // Extrair o nome da opção customizada do valor
+          const parts = value.split('_');
+          parts.shift(); // Remove 'custom'
+          parts.shift(); // Remove timestamp
+          const customLabel = parts.join(' ').replace(/_/g, ' ');
+          
+          return {
+            value: value,
+            label: `🔧 ${customLabel.charAt(0).toUpperCase() + customLabel.slice(1)}`
+          };
+        }
+        
+        return null;
+      })
       .filter(Boolean) as MultiSelectOption[];
   });
 
@@ -132,9 +164,31 @@
     searchInput.value?.focus();
   };
 
+  const addCustomOption = () => {
+    if (searchQuery.value.trim()) {
+      // Criar um valor único para a opção customizada
+      const customValue = `custom_${Date.now()}_${searchQuery.value.toLowerCase().replace(/\s+/g, '_')}`;
+      
+      // Adicionar ao modelo
+      emit('update:modelValue', [...props.modelValue, customValue]);
+      
+      // Limpar busca e fechar dropdown
+      searchQuery.value = '';
+      showDropdown.value = false;
+      
+      // Manter foco
+      setTimeout(() => {
+        searchInput.value?.focus();
+      }, 100);
+    }
+  };
+
   const selectFirstMatch = () => {
     if (filteredOptions.value.length > 0) {
       selectOption(filteredOptions.value[0]);
+    } else if (searchQuery.value.trim()) {
+      // Se não há matches, adicionar como customizado
+      addCustomOption();
     }
   };
 
@@ -341,10 +395,53 @@
     background: #1f2937;
     border: 1px solid #374151;
     border-radius: 8px;
+    z-index: 1000;
+  }
+
+  .empty-text {
     text-align: center;
     color: #6b7280;
     font-size: 0.875rem;
-    z-index: 1000;
+    margin: 0 0 12px 0;
+  }
+
+  .add-custom-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .add-custom-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  }
+
+  .add-custom-btn:active {
+    transform: translateY(0);
+  }
+
+  .add-icon {
+    font-size: 1rem;
+  }
+
+  .empty-hint {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    margin: 8px 0 0 0;
+    font-style: italic;
   }
 
   /* Scrollbar */

@@ -79,9 +79,7 @@
               color="danger"
               @click="removeFile(index)"
             >
-              <template v-slot:icon-only>
-<ion-icon  :icon="trashOutline"></ion-icon>
-</template>
+              <ion-icon slot="icon-only" :icon="trashOutline"></ion-icon>
             </ion-button>
           </div>
         </div>
@@ -439,6 +437,15 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.action-buttons ion-button {
+  --color: #ef4444; /* red-500 */
+}
+
+.action-buttons ion-button ion-icon {
+  color: #ef4444; /* red-500 */
+  font-size: 1.25rem;
 }
 
 .success-icon {
