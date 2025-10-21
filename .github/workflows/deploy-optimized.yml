@@ -280,7 +280,6 @@ jobs:
           track: ${{ github.event.inputs.android_track || 'internal' }}
           status: completed
           inAppUpdatePriority: 3
-          whatsNewDirectory: android/whatsnew
 
       - name: ✅ Deploy Summary
         run: |
