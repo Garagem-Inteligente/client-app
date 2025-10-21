@@ -109,9 +109,28 @@ export interface WarrantyInfo {
   expiryDate: Date; // Data de expiração calculada
 }
 
+export interface MaintenanceServiceItem {
+  id: string; // Unique ID for this service item
+  type: MaintenanceType;
+  description: string;
+  cost?: number; // Cost for this specific item
+  partsCost?: number;
+  laborCost?: number;
+  warrantyParts?: WarrantyInfo;
+  warrantyLabor?: WarrantyInfo;
+  notes?: string; // Observações específicas deste item
+  beforePhoto?: string; // Base64 encoded image
+  afterPhoto?: string; // Base64 encoded image
+}
+
 export interface MaintenanceRecord {
   id: string;
   vehicleId: string;
+
+  // Multiple types support
+  types: MaintenanceType[]; // Múltiplos tipos de manutenção
+  
+  // Legacy field for backward compatibility (single item)
   type: MaintenanceType;
   description: string;
   cost: number; // Total cost (kept for backward compatibility)
@@ -119,6 +138,12 @@ export interface MaintenanceRecord {
   laborCost?: number; // Cost of labor/service
   warrantyParts?: WarrantyInfo; // Garantia das peças
   warrantyLabor?: WarrantyInfo; // Garantia da mão de obra
+  beforePhoto?: string; // Base64 encoded image of part before maintenance
+  afterPhoto?: string; // Base64 encoded image of part after maintenance
+
+  // New multi-item support
+  serviceItems?: MaintenanceServiceItem[]; // Multiple service items
+
   mileage: number;
   date: Date;
   nextDueDate?: Date;
@@ -126,8 +151,6 @@ export interface MaintenanceRecord {
   serviceProvider?: string;
   notes?: string;
   attachments?: MaintenanceAttachment[];
-  beforePhoto?: string; // Base64 encoded image of part before maintenance
-  afterPhoto?: string; // Base64 encoded image of part after maintenance
   createdAt: Date;
 }
 
@@ -484,7 +507,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         fetchedRecords.push({
           id: doc.id,
           vehicleId: data.vehicleId,
-          type: data.type,
+          types: data.types || (data.type ? [data.type] : []), // Support both new and legacy format
+          type: data.type, // Keep for backward compatibility
           description: data.description,
           cost: data.cost,
           partsCost: data.partsCost,
@@ -557,8 +581,8 @@ export const useVehiclesStore = defineStore('vehicles', () => {
         return false;
       }
 
-      if (!maintenanceData.type) {
-        logger.error('❌ Missing type');
+      if (!maintenanceData.type && (!maintenanceData.types || maintenanceData.types.length === 0)) {
+        logger.error('❌ Missing type or types');
         error.value = 'Tipo de manutenção é obrigatório';
         loading.value = false;
         return false;
@@ -574,7 +598,10 @@ export const useVehiclesStore = defineStore('vehicles', () => {
       // Primeiro, criar o documento sem as imagens para obter o ID
       const tempRecord = {
         vehicleId: maintenanceData.vehicleId,
-        type: maintenanceData.type,
+        // Suporte para múltiplos tipos
+        types: maintenanceData.types || (maintenanceData.type ? [maintenanceData.type] : []),
+        // Manter type para retrocompatibilidade
+        type: maintenanceData.types?.[0] || maintenanceData.type,
         description: maintenanceData.description,
         cost: maintenanceData.cost || 0,
         partsCost: maintenanceData.partsCost || 0,

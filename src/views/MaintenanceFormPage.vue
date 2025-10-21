@@ -52,32 +52,20 @@
                   </select>
                 </div>
 
-                <!-- Tipo de Manutenção -->
-                <div>
-                  <label for="type" class="block text-sm font-medium text-gray-300 mb-2">
-                    Tipo de Manutenção *
+                <!-- Tipos de Manutenção (Multi-Select) -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Tipos de Manutenção *
                   </label>
-                  <select
-                    id="type"
-                    v-model="formData.type"
-                    class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                  <MMultiSelect
+                    v-model="formData.types"
+                    :options="maintenanceTypeOptions"
+                    placeholder="Buscar tipos de manutenção..."
                     :disabled="loading"
-                  >
-                    <optgroup
-                      v-for="group in MAINTENANCE_TYPE_OPTIONS"
-                      :key="group.category"
-                      :label="group.category"
-                    >
-                      <option
-                        v-for="option in group.options"
-                        :key="option.value"
-                        :value="option.value"
-                      >
-                        {{ option.emoji }} {{ option.label }}
-                      </option>
-                    </optgroup>
-                  </select>
+                  />
+                  <p class="mt-1 text-sm text-gray-400">
+                    Selecione um ou mais tipos de manutenção realizados
+                  </p>
                 </div>
 
                 <!-- Descrição -->
@@ -474,7 +462,11 @@
   import { IonPage, IonContent, IonButton, IonSpinner, toastController } from '@ionic/vue';
   import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
   import { useVehiclesStore } from '@/stores/vehicles';
-  import type { MaintenanceType, MaintenanceAttachment } from '@/stores/vehicles';
+  import type {
+    MaintenanceType,
+    MaintenanceAttachment,
+    MaintenanceServiceItem,
+  } from '@/stores/vehicles';
   import { MAINTENANCE_TYPE_OPTIONS } from '@/constants/vehicles';
   import {
     applyCurrencyMask,
@@ -483,7 +475,8 @@
     unmaskMileage,
   } from '@/utils/masks';
   import ModernHeader from '@/components/organisms/ModernHeader.vue';
-  import { AAlert } from '@/components';
+  import { AAlert, MMultiSelect } from '@/components';
+  import type { MultiSelectOption } from '@/components';
   import MFileUpload, { type FileUploadItem } from '@/components/molecules/MFileUpload.vue';
   import { logger } from '@/utils/logger';
 
@@ -502,7 +495,8 @@
 
   const formData = ref({
     vehicleId: '',
-    type: 'oil_change' as MaintenanceType,
+    types: [] as MaintenanceType[], // Múltiplos tipos de manutenção
+    type: 'oil_change' as MaintenanceType, // Mantido para retrocompatibilidade
     description: '',
     partsCost: 0 as string | number,
     laborCost: 0 as string | number,
@@ -514,6 +508,7 @@
     notes: '',
     beforePhoto: '',
     afterPhoto: '',
+    serviceItems: [] as MaintenanceServiceItem[],
   });
 
   // Display values for masked inputs
@@ -526,6 +521,20 @@
     if (typeof val === 'string') return Number.parseFloat(val) || 0;
     return val || 0;
   };
+
+  // Criar opções para o multi-select de tipos de manutenção
+  const maintenanceTypeOptions = computed<MultiSelectOption[]>(() => {
+    const options: MultiSelectOption[] = [];
+    MAINTENANCE_TYPE_OPTIONS.forEach((group) => {
+      group.options.forEach((option) => {
+        options.push({
+          value: option.value,
+          label: `${option.emoji} ${option.label}`,
+        });
+      });
+    });
+    return options;
+  });
 
   // Handlers para máscaras de moeda
   const handlePartsCostInput = (event: Event) => {
@@ -594,7 +603,7 @@
   const isFormValid = computed(() => {
     return (
       formData.value.vehicleId &&
-      formData.value.type &&
+      formData.value.types.length > 0 && // Deve ter pelo menos um tipo selecionado
       formData.value.description &&
       formData.value.date &&
       toNumber(formData.value.mileage) > 0
@@ -715,7 +724,8 @@
 
       const recordData = {
         vehicleId: formData.value.vehicleId,
-        type: formData.value.type,
+        types: formData.value.types.length > 0 ? formData.value.types : undefined,
+        type: formData.value.types[0] || formData.value.type, // Primeiro tipo ou fallback
         description: formData.value.description,
         cost: totalCost.value,
         partsCost: toNumber(formData.value.partsCost) || undefined,
@@ -802,6 +812,7 @@
   const resetForm = () => {
     formData.value = {
       vehicleId: '',
+      types: [] as MaintenanceType[],
       type: 'oil_change' as MaintenanceType,
       description: '',
       partsCost: 0 as string | number,
@@ -814,6 +825,7 @@
       notes: '',
       beforePhoto: '',
       afterPhoto: '',
+      serviceItems: [] as MaintenanceServiceItem[],
     };
 
     // Reset display values
