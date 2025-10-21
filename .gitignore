@@ -29,10 +29,23 @@ dist-ssr
 .env.*.local
 
 # Capacitor
-android/
+# android/ - REMOVIDO: necessário para CI/CD
 ios/
 *.apk
 *.aab
+
+# Android build outputs (manter apenas builds ignorados)
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/google-services.json
+android/app/upload-keystore.jks
+android/key.properties
+
+# Android secrets (NUNCA commitar)
+android/app/*-service-account.json
+android/app/client-auth.json
 
 # Build
 build/

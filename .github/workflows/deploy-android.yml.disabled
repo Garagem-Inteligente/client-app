@@ -85,14 +85,6 @@ jobs:
           }
           EOF
 
-      - name: 🔧 Configure Firebase
-        run: |
-          echo "Configurando Firebase..."
-          # O google-services.json deve estar no repositório ou ser criado via secrets
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
-          fi
-
       - name: 🏗️ Build Web Assets
         run: pnpm build
         env:
@@ -104,13 +96,38 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
 
+      - name: 📲 Add Android Platform
+        run: npx cap add android
+
       - name: 📲 Sync Capacitor
         run: npx cap sync android
+
+      - name: 🔧 Configure Firebase
+        run: |
+          echo "Configurando Firebase..."
+          # Verifica se o arquivo já existe no repositório
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "Criando google-services.json a partir do secret..."
+            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+          else
+            echo "google-services.json já existe no repositório"
+          fi
 
       - name: 🔐 Setup Keystore
         run: |
           echo "Configurando keystore..."
-          echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 -d > android/app/upload-keystore.jks
+
+          # Decode base64 do keystore (usando -w 0 para evitar quebras de linha)
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+          # Valida que o arquivo foi criado corretamente
+          if [ ! -f "android/app/upload-keystore.jks" ]; then
+            echo "❌ Erro: Keystore não foi criado!"
+            exit 1
+          fi
+
+          KEYSTORE_SIZE=$(stat -c%s android/app/upload-keystore.jks)
+          echo "✅ Keystore criado: $KEYSTORE_SIZE bytes"
 
           # Cria key.properties
           cat > android/key.properties << EOF
