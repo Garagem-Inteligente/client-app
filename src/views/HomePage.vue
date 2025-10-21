@@ -211,6 +211,54 @@
           </div>
         </div>
 
+        <!-- Fuel Costs Summary (if available) -->
+        <div v-if="hasFuelData" class="fuel-summary-card">
+          <div class="fuel-summary-header">
+            <h2 class="section-title">
+              ⛽ Gastos com Combustível
+            </h2>
+            <p class="section-subtitle">Total estimado de todos os veículos</p>
+          </div>
+          <div class="fuel-summary-grid">
+            <div class="fuel-stat-item">
+              <div class="fuel-stat-icon purple">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div class="fuel-stat-content">
+                <p class="fuel-stat-label">Distância Total</p>
+                <p class="fuel-stat-value">{{ totalFuelCosts.totalDistance.toLocaleString('pt-BR') }} km</p>
+              </div>
+            </div>
+            <div class="fuel-stat-item">
+              <div class="fuel-stat-icon green">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+              </div>
+              <div class="fuel-stat-content">
+                <p class="fuel-stat-label">Litros Consumidos</p>
+                <p class="fuel-stat-value">{{ totalFuelCosts.totalLiters.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} L</p>
+              </div>
+            </div>
+            <div class="fuel-stat-item highlight">
+              <div class="fuel-stat-icon gold">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="fuel-stat-content">
+                <p class="fuel-stat-label">Custo Total Estimado</p>
+                <p class="fuel-stat-value primary">{{ formatCurrency(totalFuelCosts.totalCost) }}</p>
+              </div>
+            </div>
+          </div>
+          <p class="fuel-summary-note">
+            💡 Estimativas baseadas no consumo médio configurado em cada veículo
+          </p>
+        </div>
+
         <!-- Meus Veículos -->
         <div class="card">
           <h3 class="card-title">Meus Veículos</h3>
@@ -425,6 +473,7 @@
   import { useAuthStore } from '@/stores/auth';
   import { useVehiclesStore } from '@/stores/vehicles';
   import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles';
+  import { calculateTotalFuelCost, getEstimatedFuelPrice } from '@/utils/fuelCalculations';
   import ModernHeader from '@/components/organisms/ModernHeader.vue';
 
   const router = useRouter();
@@ -453,6 +502,38 @@
   // Computed properties
   const totalCost = computed(() => vehiclesStore.totalMaintenanceCost);
   const overdueCount = computed(() => vehiclesStore.overdueMaintenance.length);
+
+  // Calculate total fuel costs across all vehicles
+  const totalFuelCosts = computed(() => {
+    let totalLiters = 0;
+    let totalCost = 0;
+    let totalDistance = 0;
+
+    vehiclesStore.vehicles.forEach((vehicle) => {
+      if (!vehicle.averageFuelConsumption) return;
+
+      const maintenanceRecords = vehiclesStore.maintenanceRecords.filter(
+        (r) => r.vehicleId === vehicle.id
+      );
+
+      if (maintenanceRecords.length < 2) return;
+
+      const fuelPrice = getEstimatedFuelPrice(vehicle.fuelType);
+      const fuelData = calculateTotalFuelCost(maintenanceRecords, vehicle, fuelPrice);
+
+      if (fuelData) {
+        totalLiters += fuelData.totalLiters;
+        totalCost += fuelData.totalCost;
+        totalDistance += fuelData.totalDistance;
+      }
+    });
+
+    return { totalLiters, totalCost, totalDistance };
+  });
+
+  const hasFuelData = computed(() => {
+    return totalFuelCosts.value.totalCost > 0;
+  });
 
   // Helper functions
   const daysUntilNext = (date: Date) => {
@@ -1326,6 +1407,157 @@
     font-weight: 600;
     color: #10b981;
     margin: 0.25rem 0;
+  }
+
+  .mileage-text,
+  .days-text {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  /* Fuel Summary Card */
+  .fuel-summary-card {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .fuel-summary-header {
+    margin-bottom: 20px;
+  }
+
+  .fuel-summary-header .section-title {
+    margin-bottom: 4px;
+    font-size: 1.25rem;
+  }
+
+  .section-subtitle {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .fuel-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .fuel-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .fuel-stat-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .fuel-stat-item.highlight {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+
+  .fuel-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .fuel-stat-icon.purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  .fuel-stat-icon.green {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .fuel-stat-icon.gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
+  }
+
+  .fuel-stat-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+  }
+
+  .fuel-stat-content {
+    flex: 1;
+  }
+
+  .fuel-stat-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+
+  .fuel-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+  }
+
+  .fuel-stat-value.primary {
+    font-size: 1.5rem;
+    color: #ffd700;
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  }
+
+  .fuel-summary-note {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    color: #c4b5fd;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .fuel-summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fuel-stat-value {
+      font-size: 1.125rem;
+    }
+
+    .fuel-stat-value.primary {
+      font-size: 1.375rem;
+    }
   }
 
   .mileage-text,

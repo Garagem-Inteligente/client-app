@@ -107,6 +107,20 @@
           </div>
         </div>
 
+        <!-- Fuel Consumption Card (if available) -->
+        <div v-if="fuelConsumptionData" class="fuel-consumption-section">
+          <MFuelCostDisplay
+            title="Combustível Desde a Última Manutenção"
+            subtitle="Estimativa baseada no consumo médio do veículo"
+            :distance="fuelConsumptionData.distance"
+            :liters="fuelConsumptionData.liters"
+            :cost="fuelConsumptionData.cost"
+            :show-distance="true"
+            :show-average="false"
+            :show-note="true"
+          />
+        </div>
+
         <!-- Vehicle Info Card -->
         <ACard class="vehicle-card" v-if="vehicle">
           <div class="vehicle-card-header">
@@ -451,10 +465,12 @@ import {
 import { useVehiclesStore } from '@/stores/vehicles'
 import type { MaintenanceType } from '@/stores/vehicles'
 import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles'
+import { calculateFuelBetweenMaintenances, getEstimatedFuelPrice } from '@/utils/fuelCalculations'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import ABadge from '@/components/atoms/ABadge.vue'
 import ACard from '@/components/atoms/ACard.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
+import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -470,6 +486,34 @@ const maintenanceRecord = computed(() => {
 const vehicle = computed(() => {
   if (!maintenanceRecord.value) return null
   return vehiclesStore.getVehicleById(maintenanceRecord.value.vehicleId)
+})
+
+// Fuel consumption between maintenances
+const fuelConsumptionData = computed(() => {
+  if (!maintenanceRecord.value || !vehicle.value || !vehicle.value.averageFuelConsumption) {
+    return null
+  }
+
+  // Get all maintenance records for this vehicle
+  const allMaintenanceRecords = vehiclesStore.maintenanceRecords
+    .filter(r => r.vehicleId === maintenanceRecord.value!.vehicleId)
+    .sort((a, b) => a.mileage - b.mileage)
+
+  // Find the previous maintenance
+  const currentIndex = allMaintenanceRecords.findIndex(r => r.id === maintenanceRecord.value!.id)
+  if (currentIndex <= 0) {
+    return null // No previous maintenance
+  }
+
+  const previousMaintenance = allMaintenanceRecords[currentIndex - 1]
+  const fuelPrice = getEstimatedFuelPrice(vehicle.value.fuelType)
+  
+  return calculateFuelBetweenMaintenances(
+    previousMaintenance,
+    maintenanceRecord.value,
+    vehicle.value,
+    fuelPrice
+  )
 })
 
 const formatCurrency = (value: number) => {
@@ -1562,6 +1606,23 @@ onMounted(async () => {
   color: #9ca3af;
   font-size: 0.875rem;
   margin: 0;
+}
+
+/* Fuel Consumption Section */
+.fuel-consumption-section {
+  margin-top: 24px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive */

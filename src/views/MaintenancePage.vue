@@ -283,6 +283,17 @@
                       <span class="info-value">{{ formatCurrency(record.cost) }}</span>
                     </div>
                   </div>
+                  <div 
+                    v-if="getFuelConsumption(record)" 
+                    class="info-item fuel-item"
+                    :title="`${getFuelConsumption(record)?.liters.toFixed(1)}L de combustível`"
+                  >
+                    <ion-icon icon="⛽" class="info-icon fuel-icon"></ion-icon>
+                    <div class="info-content">
+                      <span class="info-label">Combustível</span>
+                      <span class="info-value">{{ formatCurrency(getFuelConsumption(record)?.cost || 0) }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Description with Gradient Border -->
@@ -365,6 +376,7 @@
   import { useVehiclesStore } from '../stores/vehicles';
   import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles';
   import type { MaintenanceRecord } from '../stores/vehicles';
+  import { calculateFuelBetweenMaintenances, getEstimatedFuelPrice } from '@/utils/fuelCalculations';
   import ModernHeader from '@/components/organisms/ModernHeader.vue';
   import MConfirmModal from '@/components/molecules/MConfirmModal.vue';
 
@@ -506,6 +518,30 @@
 
   const formatCurrency = (value: number): string => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  // Calculate fuel consumption for a specific maintenance record
+  const getFuelConsumption = (record: MaintenanceRecord) => {
+    const vehicle = vehiclesStore.vehicles.find((v) => v.id === record.vehicleId);
+    if (!vehicle || !vehicle.averageFuelConsumption) {
+      return null;
+    }
+
+    // Get all maintenance records for this vehicle sorted by mileage
+    const allMaintenanceRecords = vehiclesStore.maintenanceRecords
+      .filter((r) => r.vehicleId === record.vehicleId)
+      .sort((a, b) => a.mileage - b.mileage);
+
+    // Find the index of the current record
+    const currentIndex = allMaintenanceRecords.findIndex((r) => r.id === record.id);
+    if (currentIndex <= 0) {
+      return null; // No previous maintenance
+    }
+
+    const previousMaintenance = allMaintenanceRecords[currentIndex - 1];
+    const fuelPrice = getEstimatedFuelPrice(vehicle.fuelType);
+
+    return calculateFuelBetweenMaintenances(previousMaintenance, record, vehicle, fuelPrice);
   };
 
   const getStatusLabel = (record: MaintenanceRecord): string => {
@@ -1282,6 +1318,21 @@
     font-size: 0.938rem;
     color: #fff;
     font-weight: 600;
+  }
+
+  /* Fuel consumption item styling */
+  .info-item.fuel-item {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  .fuel-icon {
+    color: #8b5cf6 !important;
+    font-size: 1.5rem;
+  }
+
+  .info-item.fuel-item .info-value {
+    color: #c4b5fd;
   }
 
   .description-box {

@@ -340,6 +340,42 @@
                   </ACard>
                 </div>
               </div>
+
+              <!-- Fuel Consumption Section -->
+              <div v-if="hasFuelConsumptionData && fuelConsumptionData" class="fuel-section">
+                <MFuelCostDisplay
+                  title="Gastos Totais com Combustível"
+                  subtitle="Estimativa baseada no histórico de manutenções"
+                  :distance="fuelConsumptionData.totalDistance"
+                  :liters="fuelConsumptionData.totalLiters"
+                  :cost="fuelConsumptionData.totalCost"
+                  :average-liters-per-km="fuelConsumptionData.averageLitersPerKm"
+                  :show-distance="true"
+                  :show-average="true"
+                  :show-note="true"
+                />
+              </div>
+
+              <!-- Empty state for fuel consumption -->
+              <div v-else-if="!vehicle.averageFuelConsumption" class="fuel-empty-state">
+                <ACard class="info-card">
+                  <div class="info-card-content">
+                    <div class="info-icon">⛽</div>
+                    <h3 class="info-title">Configure o Consumo Médio</h3>
+                    <p class="info-text">
+                      Adicione o consumo médio do veículo (km/l) para visualizar
+                      estimativas de gastos com combustível entre manutenções.
+                    </p>
+                    <AButton 
+                      variant="outline" 
+                      size="small"
+                      @click="handleEdit"
+                    >
+                      Editar Veículo
+                    </AButton>
+                  </div>
+                </ACard>
+              </div>
             </div>
 
             <!-- TAB: Manutenções -->
@@ -449,6 +485,19 @@
                   </div>
                   <div class="chart-card-modern">
                     <PreventiveVsCorrectiveChart :maintenance-history="maintenanceHistory" />
+                  </div>
+                </div>
+
+                <!-- Fuel Consumption Chart Section -->
+                <div v-if="vehicle.averageFuelConsumption && maintenanceHistory.length >= 2" class="chart-section">
+                  <div class="section-header-simple">
+                    <h3 class="section-title-simple">
+                      ⛽ Gastos com Combustível
+                    </h3>
+                    <p class="section-subtitle-simple">Evolução dos gastos de combustível entre manutenções</p>
+                  </div>
+                  <div class="chart-card-modern">
+                    <FuelConsumptionChart :maintenance-history="maintenanceHistory" :vehicle="vehicle" />
                   </div>
                 </div>
               </div>
@@ -828,6 +877,7 @@ import {
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useAuthStore } from '@/stores/auth'
 import { FUEL_TYPE_LABELS, MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
+import { calculateTotalFuelCost, getEstimatedFuelPrice } from '@/utils/fuelCalculations'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { generateMaintenancePDF, downloadPDF } from '@/services/pdfService'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
@@ -837,7 +887,9 @@ import ACard from '@/components/atoms/ACard.vue'
 import MFilterPills from '@/components/molecules/MFilterPills.vue'
 import MInfoItem from '@/components/molecules/MInfoItem.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
+import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue'
 import PreventiveVsCorrectiveChart from '@/components/charts/PreventiveVsCorrectiveChart.vue'
+import FuelConsumptionChart from '@/components/charts/FuelConsumptionChart.vue'
 import MaintenanceSection from '@/components/organisms/MaintenanceSection.vue'
 
 const route = useRoute()
@@ -895,6 +947,20 @@ const lastMaintenanceDate = computed(() => {
 const nextMaintenanceDate = computed(() => {
   if (upcomingMaintenance.value.length === 0) return null
   return upcomingMaintenance.value[0].nextDueDate
+})
+
+// Fuel consumption calculations
+const fuelConsumptionData = computed(() => {
+  if (!vehicle.value || !vehicle.value.averageFuelConsumption) {
+    return null
+  }
+
+  const fuelPrice = getEstimatedFuelPrice(vehicle.value.fuelType)
+  return calculateTotalFuelCost(maintenanceHistory.value, vehicle.value, fuelPrice)
+})
+
+const hasFuelConsumptionData = computed(() => {
+  return vehicle.value?.averageFuelConsumption && maintenanceHistory.value.length > 0
 })
 
 // Tabs configuration
@@ -3335,6 +3401,67 @@ onMounted(async () => {
 
 .clickable:active {
   transform: scale(0.98) translateX(4px);
+}
+
+/* Fuel Consumption Section */
+.fuel-section {
+  margin-top: 24px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fuel-empty-state {
+  margin-top: 24px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fuel-empty-state .info-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: none;
+}
+
+.info-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.info-icon {
+  font-size: 56px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.info-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.info-text {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .fuel-section,
+  .fuel-empty-state {
+    margin-top: 16px;
+  }
+  
+  .info-icon {
+    font-size: 48px;
+  }
+  
+  .info-title {
+    font-size: 18px;
+  }
 }
 
 /* Custom Alert Styles */

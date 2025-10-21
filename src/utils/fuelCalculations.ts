@@ -16,14 +16,14 @@ export function calculateFuelConsumption(
   startMileage: number,
   endMileage: number,
   averageFuelConsumption: number,
-  fuelPricePerLiter?: number
+  fuelPricePerLiter?: number,
 ) {
   if (averageFuelConsumption <= 0) {
     return { liters: 0, cost: 0, distance: 0 };
   }
 
   const distance = endMileage - startMileage;
-  
+
   if (distance <= 0) {
     return { liters: 0, cost: 0, distance: 0 };
   }
@@ -49,7 +49,7 @@ export function calculateFuelBetweenMaintenances(
   prevMaintenance: MaintenanceRecord,
   currentMaintenance: MaintenanceRecord,
   vehicle: Vehicle,
-  fuelPricePerLiter?: number
+  fuelPricePerLiter?: number,
 ) {
   if (!vehicle.averageFuelConsumption || vehicle.averageFuelConsumption <= 0) {
     return null;
@@ -62,7 +62,7 @@ export function calculateFuelBetweenMaintenances(
     startMileage,
     endMileage,
     vehicle.averageFuelConsumption,
-    fuelPricePerLiter
+    fuelPricePerLiter,
   );
 }
 
@@ -75,7 +75,7 @@ export function calculateFuelBetweenMaintenances(
 export function calculateTotalFuelCost(
   maintenanceRecords: MaintenanceRecord[],
   vehicle: Vehicle,
-  fuelPricePerLiter?: number
+  fuelPricePerLiter?: number,
 ) {
   if (!vehicle.averageFuelConsumption || vehicle.averageFuelConsumption <= 0) {
     return null;
@@ -97,7 +97,7 @@ export function calculateTotalFuelCost(
       sorted[i - 1].mileage,
       sorted[i].mileage,
       vehicle.averageFuelConsumption,
-      fuelPricePerLiter
+      fuelPricePerLiter,
     );
 
     totalLiters += result.liters;
