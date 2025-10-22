@@ -74,6 +74,7 @@ const handleClose = () => {
 
 <style scoped>
 .alert {
+  border: 1px solid red;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
