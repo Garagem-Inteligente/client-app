@@ -3,13 +3,8 @@
     <PageLayout>
       <ion-content :fullscreen="true" class="auth-content">
         <div class="page-content-wrapper login-container">
-          <!-- Logo Section -->
           <LogoSection />
-
-          <!-- Login Card -->
           <AuthCard @register-click="handleRegisterClick" />
-
-          <!-- Footer -->
           <AuthFooter />
         </div>
       </ion-content>
@@ -33,11 +28,6 @@ const handleRegisterClick = async () => {
 </script>
 
 <style scoped lang="scss">
-/* ====================================
-   MODERN LOGIN PAGE - RSCSS Structure
-   ==================================== */
-
-/* Base Component */
 .login-container {
   display: flex;
   flex-direction: column;
@@ -47,7 +37,6 @@ const handleRegisterClick = async () => {
   max-width: 480px;
   margin: 0 auto;
 
-  /* Responsive */
   @media (max-width: 640px) {
     padding: var(--space-xl) var(--space-md);
   }
@@ -58,7 +47,6 @@ const handleRegisterClick = async () => {
   }
 }
 
-/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
