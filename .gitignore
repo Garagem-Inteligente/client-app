@@ -50,3 +50,6 @@ android/app/client-auth.json
 # Build
 build/
 .output/
+
+# Coverage reports
+coverage/
