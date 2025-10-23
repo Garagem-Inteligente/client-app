@@ -628,7 +628,7 @@
   };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   /* ====================================
    MODERN DASHBOARD - 2025 DESIGN
    ==================================== */
@@ -649,9 +649,9 @@
   }
 
   .welcome-text {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
     font-weight: 600;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     letter-spacing: 0.01em;
@@ -676,9 +676,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 0.875rem 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -686,7 +686,7 @@
   .section-title .icon {
     width: 1.125rem;
     height: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
   }
 
   /* ====================================
@@ -713,10 +713,10 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(31, 41, 55, 0.75);
+    background: var(--bg-card);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-card);
     border-radius: 16px;
     padding: 0.875rem;
     cursor: pointer;
@@ -750,7 +750,7 @@
   }
 
   .quick-action-btn:hover {
-    background: rgba(31, 41, 55, 0.9);
+    background: var(--gray-800);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
@@ -775,23 +775,23 @@
   }
 
   .action-icon.blue {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.1));
-    color: #93c5fd;
+    background: linear-gradient(135deg, rgba(var(--ion-color-primary-rgb), 0.2), rgba(var(--blue-400), 0.1));
+    color: var(--blue-400);
   }
 
   .action-icon.green {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(74, 222, 128, 0.1));
-    color: #86efac;
+    background: linear-gradient(135deg, rgba(var(--ion-color-success-rgb), 0.2), rgba(var(--green-400), 0.1));
+    color: var(--green-400);
   }
 
   .action-icon.purple {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(167, 139, 250, 0.1));
-    color: #c4b5fd;
+    background: linear-gradient(135deg, rgba(var(--ion-color-secondary-rgb), 0.2), rgba(var(--purple-500), 0.1));
+    color: var(--purple-500);
   }
 
   .action-icon.orange {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(251, 146, 60, 0.1));
-    color: #fdba74;
+    background: linear-gradient(135deg, rgba(var(--ion-color-warning-rgb), 0.2), rgba(var(--orange-400), 0.1));
+    color: var(--orange-400);
   }
 
   .quick-action-btn:hover .action-icon {
@@ -810,18 +810,18 @@
   .action-title {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 0.125rem 0;
     letter-spacing: 0.01em;
   }
 
   .quick-action-btn:hover .action-title {
-    color: #60a5fa;
+    color: var(--blue-400);
   }
 
   .action-subtitle {
     font-size: 0.6875rem;
-    color: rgba(255, 255, 255, 0.65);
+    color: var(--text-secondary);
     margin: 0;
     letter-spacing: 0.01em;
   }
@@ -831,10 +831,10 @@
    ==================================== */
 
   .alert-danger {
-    background: rgba(31, 41, 55, 0.75);
+    background: var(--bg-card);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(239, 68, 68, 0.4);
+    border: 1px solid rgba(var(--ion-color-danger-rgb), 0.4);
     border-radius: 16px;
     padding: 1rem;
     margin-bottom: 1.5rem;
@@ -861,23 +861,23 @@
   .alert-icon {
     width: 1.25rem;
     height: 1.25rem;
-    color: #fca5a5;
+    color: var(--red-400);
     flex-shrink: 0;
   }
 
   .alert-text {
     font-weight: 500;
-    color: white;
+    color: var(--ion-text-color);
     font-size: 0.8125rem;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .alert-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--bg-input);
+    border: 1px solid var(--border-input);
     border-radius: 8px;
     padding: 0.5rem 1rem;
-    color: white;
+    color: var(--ion-text-color);
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
@@ -908,10 +908,10 @@
   }
 
   .stat-card {
-    background: rgba(31, 41, 55, 0.75);
+    background: var(--bg-card);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-card);
     border-radius: 16px;
     padding: 1rem;
     cursor: pointer;
@@ -934,7 +934,7 @@
   }
 
   .stat-card:hover {
-    background: rgba(31, 41, 55, 0.9);
+    background: var(--gray-800);
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   }
@@ -968,22 +968,22 @@
 
   .stat-label {
     font-size: 0.6875rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     margin: 0 0 0.375rem 0;
     font-weight: 500;
     letter-spacing: 0.01em;
   }
 
   .stat-value {
-    font-size: 1.625rem;
+    font-size: var(--font-size-2xl);
     font-weight: 700;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .stat-value.currency {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
   }
 
   .stat-icon {
@@ -1003,18 +1003,18 @@
   }
 
   .stat-icon.blue {
-    background: linear-gradient(135deg, rgba(147, 197, 253, 0.25), rgba(96, 165, 250, 0.15));
-    color: #93c5fd;
+    background: linear-gradient(135deg, rgba(var(--blue-400), 0.25), rgba(var(--blue-500), 0.15));
+    color: var(--blue-400);
   }
 
   .stat-icon.green {
-    background: linear-gradient(135deg, rgba(134, 239, 172, 0.25), rgba(74, 222, 128, 0.15));
-    color: #86efac;
+    background: linear-gradient(135deg, rgba(var(--green-400), 0.25), rgba(var(--green-500), 0.15));
+    color: var(--green-400);
   }
 
   .stat-icon.purple {
-    background: linear-gradient(135deg, rgba(196, 181, 253, 0.25), rgba(167, 139, 250, 0.15));
-    color: #c4b5fd;
+    background: linear-gradient(135deg, rgba(var(--purple-500), 0.25), rgba(var(--purple-600), 0.15));
+    color: var(--purple-500);
   }
 
   .stat-icon.yellow {
@@ -1024,7 +1024,7 @@
 
   .stat-description {
     font-size: 0.6875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     margin: 0;
     letter-spacing: 0.01em;
   }
@@ -1043,9 +1043,9 @@
     border-radius: 0.375rem;
     font-size: 0.625rem;
     font-weight: 600;
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--bg-error);
+    color: var(--ion-color-danger);
+    border: 1px solid rgba(var(--ion-color-danger-rgb), 0.3);
   }
 
   .badge-success {
@@ -1054,9 +1054,9 @@
     border-radius: 0.375rem;
     font-size: 0.625rem;
     font-weight: 600;
-    background: rgba(34, 197, 94, 0.1);
-    color: #4ade80;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    color: var(--green-400);
+    border: 1px solid rgba(var(--ion-color-success-rgb), 0.3);
   }
 
   .badge-warning {
@@ -1065,9 +1065,9 @@
     border-radius: 0.375rem;
     font-size: 0.625rem;
     font-weight: 600;
-    background: rgba(234, 179, 8, 0.1);
-    color: #facc15;
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    background: rgba(var(--ion-color-warning-rgb), 0.1);
+    color: var(--orange-400);
+    border: 1px solid rgba(var(--ion-color-warning-rgb), 0.3);
   }
 
   .badge-default {
@@ -1077,7 +1077,7 @@
     font-size: 0.625rem;
     font-weight: 600;
     background: rgba(107, 114, 128, 0.1);
-    color: #9ca3af;
+    color: var(--gray-400);
     border: 1px solid rgba(107, 114, 128, 0.3);
   }
 
@@ -1094,10 +1094,10 @@
    ==================================== */
 
   .card {
-    background: rgba(31, 41, 55, 0.75);
+    background: var(--bg-card);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-card);
     border-radius: 16px;
     padding: 1.25rem;
     transition: all 0.3s ease;
@@ -1107,19 +1107,19 @@
   }
 
   .card:hover {
-    background: rgba(31, 41, 55, 0.9);
+    background: var(--gray-800);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   }
 
   .card-danger {
-    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    border: 1.5px solid rgba(var(--ion-color-danger-rgb), 0.4);
   }
 
   .card-title {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 1rem 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     letter-spacing: 0.01em;
@@ -1134,12 +1134,12 @@
   .empty-icon {
     width: 3rem;
     height: 3rem;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0 auto 1rem;
   }
 
   .empty-text {
-    color: #9ca3af;
+    color: var(--gray-400);
     margin: 0 0 1rem 0;
   }
 
@@ -1151,7 +1151,7 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    color: white;
+    color: var(--ion-text-color);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
@@ -1175,7 +1175,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     padding: 0.625rem 1.25rem;
-    color: white;
+    color: var(--ion-text-color);
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
@@ -1214,29 +1214,29 @@
   }
 
   .vehicle-item:hover {
-    background: rgba(55, 65, 81, 0.7);
-    border-color: rgba(59, 130, 246, 0.5);
+    background: var(--gray-700);
+    border-color: rgba(var(--ion-color-primary-rgb), 0.5);
     transform: translateY(-2px);
   }
 
   .vehicle-icon-wrapper {
     padding: 0.625rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--ion-color-primary-rgb), 0.3);
     border-radius: 0.5rem;
     transition: all 0.2s;
     flex-shrink: 0;
   }
 
   .vehicle-item:hover .vehicle-icon-wrapper {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(var(--ion-color-primary-rgb), 0.2);
+    border-color: rgba(var(--ion-color-primary-rgb), 0.5);
   }
 
   .vehicle-icon {
     width: 1.25rem;
     height: 1.25rem;
-    color: #60a5fa;
+    color: var(--blue-400);
   }
 
   .vehicle-info {
@@ -1247,7 +1247,7 @@
 
   .vehicle-name {
     font-weight: 500;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 0.25rem 0;
     transition: color 0.2s;
     font-size: 0.9375rem;
@@ -1257,12 +1257,12 @@
   }
 
   .vehicle-item:hover .vehicle-name {
-    color: #60a5fa;
+    color: var(--blue-400);
   }
 
   .vehicle-details {
     font-size: 0.8125rem;
-    color: #9ca3af;
+    color: var(--gray-400);
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1281,7 +1281,7 @@
   .vehicle-mileage {
     font-size: 0.8125rem;
     font-weight: 500;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 0.25rem 0;
     white-space: nowrap;
   }
@@ -1289,14 +1289,14 @@
   .chevron-icon {
     width: 1.125rem;
     height: 1.125rem;
-    color: #6b7280;
+    color: var(--gray-500);
     flex-shrink: 0;
     transition: color 0.2s;
     margin-left: auto;
   }
 
   .vehicle-item:hover .chevron-icon {
-    color: #60a5fa;
+    color: var(--blue-400);
   }
 
   /* Mobile responsive adjustments */
@@ -1358,19 +1358,19 @@
   }
 
   .maintenance-item:hover {
-    background: rgba(55, 65, 81, 0.7);
-    border-color: rgba(59, 130, 246, 0.3);
+    background: var(--gray-700);
+    border-color: rgba(var(--ion-color-primary-rgb), 0.3);
     transform: translateY(-2px);
   }
 
   .maintenance-item.danger {
     background: rgba(153, 27, 27, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(var(--ion-color-danger-rgb), 0.3);
   }
 
   .maintenance-item.urgent {
     background: rgba(154, 52, 18, 0.2);
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    border: 1px solid rgba(var(--ion-color-warning-rgb), 0.3);
   }
 
   .maintenance-item.soon {
@@ -1393,20 +1393,20 @@
 
   .maintenance-name {
     font-weight: 500;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0;
     font-size: 0.9375rem;
   }
 
   .maintenance-vehicle {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: var(--gray-400);
     margin: 0.25rem 0;
   }
 
   .maintenance-description {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--gray-500);
     margin: 0.25rem 0 0 0;
   }
 
@@ -1419,32 +1419,32 @@
   .date-text {
     font-size: 0.875rem;
     font-weight: 500;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0 0 0.25rem 0;
   }
 
   .date-text.danger {
-    color: #ef4444;
+    color: var(--ion-color-danger);
   }
 
   .cost-text {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #10b981;
+    color: var(--ion-color-success);
     margin: 0.25rem 0;
   }
 
   .mileage-text,
   .days-text {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--gray-400);
     margin: 0;
   }
 
   /* Fuel Summary Card */
   .fuel-summary-card {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: linear-gradient(135deg, rgba(var(--ion-color-secondary-rgb), 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+    border: 1px solid rgba(var(--ion-color-secondary-rgb), 0.2);
     border-radius: 20px;
     padding: 24px;
     margin-bottom: 24px;
@@ -1461,7 +1461,7 @@
   }
 
   .section-subtitle {
-    color: #9ca3af;
+    color: var(--gray-400);
     font-size: 0.875rem;
     margin: 0;
   }
@@ -1506,11 +1506,11 @@
   }
 
   .fuel-stat-icon.purple {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, var(--ion-color-secondary) 0%, #7c3aed 100%);
   }
 
   .fuel-stat-icon.green {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, var(--ion-color-success) 0%, #059669 100%);
   }
 
   .fuel-stat-icon.gold {
@@ -1520,7 +1520,7 @@
   .fuel-stat-icon svg {
     width: 24px;
     height: 24px;
-    color: white;
+    color: var(--ion-text-color);
   }
 
   .fuel-stat-content {
@@ -1529,7 +1529,7 @@
 
   .fuel-stat-label {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--gray-400);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
@@ -1539,7 +1539,7 @@
   .fuel-stat-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--ion-text-color);
     margin: 0;
   }
 
@@ -1550,12 +1550,12 @@
   }
 
   .fuel-summary-note {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: rgba(var(--ion-color-secondary-rgb), 0.1);
+    border: 1px solid rgba(var(--ion-color-secondary-rgb), 0.2);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 0.875rem;
-    color: #c4b5fd;
+    color: var(--purple-500);
     margin: 0;
     line-height: 1.5;
   }
@@ -1608,7 +1608,7 @@
   /* Hover States para Web/Desktop */
   @media (hover: hover) {
     .quick-action-btn:hover {
-      background: rgba(31, 41, 55, 0.8);
+      background: var(--gray-800);
       transform: translateY(-2px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     }
@@ -1619,51 +1619,51 @@
     }
 
     .stat-card.blue:hover {
-      border-color: rgba(59, 130, 246, 0.6);
-      box-shadow: 0 4px 12px -1px rgba(59, 130, 246, 0.2);
+      border-color: rgba(var(--ion-color-primary-rgb), 0.6);
+      box-shadow: 0 4px 12px -1px rgba(var(--ion-color-primary-rgb), 0.2);
     }
 
     .stat-card.green:hover {
-      border-color: rgba(34, 197, 94, 0.6);
-      box-shadow: 0 4px 12px -1px rgba(34, 197, 94, 0.2);
+      border-color: rgba(var(--ion-color-success-rgb), 0.6);
+      box-shadow: 0 4px 12px -1px rgba(var(--ion-color-success-rgb), 0.2);
     }
 
     .stat-card.purple:hover {
-      border-color: rgba(168, 85, 247, 0.6);
-      box-shadow: 0 4px 12px -1px rgba(168, 85, 247, 0.2);
+      border-color: rgba(var(--ion-color-secondary-rgb), 0.6);
+      box-shadow: 0 4px 12px -1px rgba(var(--ion-color-secondary-rgb), 0.2);
     }
 
     .stat-card.yellow:hover {
-      border-color: rgba(234, 179, 8, 0.6);
-      box-shadow: 0 4px 12px -1px rgba(234, 179, 8, 0.2);
+      border-color: rgba(var(--ion-color-warning-rgb), 0.6);
+      box-shadow: 0 4px 12px -1px rgba(var(--ion-color-warning-rgb), 0.2);
     }
 
     .vehicle-item:hover {
-      background: rgba(55, 65, 81, 0.7);
-      border-color: rgba(59, 130, 246, 0.5);
+      background: var(--gray-700);
+      border-color: rgba(var(--ion-color-primary-rgb), 0.5);
       transform: translateX(4px);
     }
 
     .maintenance-item:hover {
-      background: rgba(55, 65, 81, 0.7);
-      border-color: rgba(59, 130, 246, 0.5);
+      background: var(--gray-700);
+      border-color: rgba(var(--ion-color-primary-rgb), 0.5);
     }
 
     .btn-primary:hover {
-      background: #2563eb;
+      background: var(--blue-600);
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px -1px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 4px 8px -1px rgba(var(--ion-color-primary-rgb), 0.4);
     }
 
     .btn-outline:hover {
-      background: rgba(59, 130, 246, 0.1);
-      border-color: rgba(59, 130, 246, 0.6);
-      color: #60a5fa;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      border-color: rgba(var(--ion-color-primary-rgb), 0.6);
+      color: var(--blue-400);
     }
 
     .alert-btn:hover {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.7);
+      background: rgba(var(--ion-color-danger-rgb), 0.1);
+      border-color: rgba(var(--ion-color-danger-rgb), 0.7);
     }
   }
 </style>
