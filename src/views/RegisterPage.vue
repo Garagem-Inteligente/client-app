@@ -42,9 +42,9 @@ import {
   PageLayout,
   RegisterCard,
   RegisterLogoSection,
-  RegisterAuthFooter,
-  GoogleSignInButton
+  RegisterAuthFooter
 } from '@/components'
+import GoogleSignInButton from '@/components/atoms/GoogleSignInButton.vue'
 
 // Composables
 const {

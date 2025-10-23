@@ -180,6 +180,48 @@ vue<style scoped lang="scss">
   // Use existing variables or create new ones in variables.scss
 }
 </style>
+
+## 🎨 CSS Architecture & Advanced Selector Nesting
+
+MANDATORY: Use advanced SCSS nesting with parent selectors (&) and direct child combinators (>) for better performance and maintainability:
+
+### ✅ CORRECT: Advanced Nesting Pattern
+```scss
+.component {
+  // Base styles
+  
+  &:hover {
+    // Hover states using parent selector
+  }
+  
+  > .child-element {
+    // Direct child targeting
+    
+    &:hover {
+      // Nested hover states
+    }
+  }
+  
+  &-modifier {
+    // BEM-style modifiers
+  }
+}
+```
+
+### ❌ WRONG: Traditional CSS Approach
+```scss
+.component:hover { /* Avoid separate hover rules */ }
+.component .child-element:hover { /* Avoid descendant selectors */ }
+.component-modifier { /* Avoid separate modifier classes */ }
+```
+
+### Key Principles:
+- **Parent Selectors (`&`)**: Use `&:hover`, `&:focus`, `&:active` for state management
+- **Direct Children (`>`)**: Use `> .child` for precise targeting and better performance
+- **BEM Modifiers (`&-modifier`)**: Use `&-success`, `&-error` for component variants
+- **Hierarchical Nesting**: Maximum 4 levels deep to maintain readability
+- **Avoid Descendant Selectors**: Never use `.parent .child` - use direct targeting instead
+
 Responsive Design Priority
 Mobile-First Approach: Every UI element must be:
 
@@ -340,7 +382,7 @@ Never assume - clarity prevents rework.
 Before marking any task as complete, verify:
 
  Follows Atomic Design structure
- Uses SCSS scoped styles with CSS variables
+ Uses SCSS scoped styles with CSS variables and advanced selector nesting (&:hover, >.-modifier)
  Fully typed with TypeScript
  Mobile-first responsive design
  Reuses existing components when possible
