@@ -90,7 +90,7 @@ const displayedVehicles = computed(() => props.vehicles.slice(0, 3))
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.6s ease-out 0.55s backwards;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 
   &:hover {
     background: var(--gray-800);

@@ -1,15 +1,12 @@
 <template>
   <ion-page>
-    <ModernHeader title="Dashboard" />
+    <ModernHeader :title="`Bem-vindo, ${authStore.userName}`" />
 
     <ion-content :fullscreen="true" class="app-content">
       <div class="background-gradient"></div>
       <div class="background-pattern"></div>
 
       <div class="container page-content-wrapper dashboard-container">
-          <div class="compact-header">
-            <h1 class="welcome-text">Bem-vindo, {{ authStore.userName }}</h1>
-          </div>
 
           <div v-if="overdueCount > 0" class="alert-danger">
             <div class="alert-content">
@@ -48,8 +45,6 @@
             :get-vehicle-name="getVehicleName"
             @navigate="handleNavigation"
           />
-
-          <div style="height: 80px"></div>
         </div>
       </ion-content>
   </ion-page>
@@ -144,37 +139,7 @@ const getVehicleName = (vehicleId: string) => {
 
 /* Container com padding */
 .dashboard-container {
-  padding: 1rem 1rem 2rem;
-}
-
-/* ====================================
- COMPACT HEADER
- ==================================== */
-
-.compact-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  animation: fadeInDown 0.6s ease-out;
-}
-
-.welcome-text {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--ion-text-color);
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  letter-spacing: 0.01em;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  padding: 1rem 1rem 1rem;
 }
 
 /* ====================================

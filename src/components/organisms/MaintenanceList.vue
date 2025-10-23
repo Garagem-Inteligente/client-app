@@ -180,7 +180,7 @@ const displayedUpcomingMaintenances = computed(() => props.upcomingMaintenances.
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.6s ease-out 0.55s backwards;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 
   &:hover {
     background: var(--gray-800);
@@ -190,6 +190,20 @@ const displayedUpcomingMaintenances = computed(() => props.upcomingMaintenances.
 
   &-danger {
     border: 1.5px solid rgba(var(--ion-color-danger-rgb), 0.4);
+  }
+
+  
+  + .card {
+    margin-top: -16px;
+    margin-bottom: 42px;
+  }
+
+  @media (min-width: 600px) {
+    margin-bottom: 24px;
+
+    + .card {
+      margin-top: 0;
+   }
   }
 }
 
@@ -322,7 +336,7 @@ const displayedUpcomingMaintenances = computed(() => props.upcomingMaintenances.
 .maintenance-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.75rem;   
 }
 
 .maintenance-item {

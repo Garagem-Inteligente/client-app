@@ -54,7 +54,8 @@ vi.mock('@/stores/vehicles', () => ({
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({
-    user: { name: 'João Silva' }
+    user: { name: 'João Silva' },
+    userName: 'João Silva'
   })
 }))
 
@@ -121,13 +122,7 @@ describe('HomePage.vue', () => {
     it('deve conter o ModernHeader', () => {
       const header = wrapper.findComponent({ name: 'ModernHeader' })
       expect(header.exists()).toBe(true)
-      expect(header.props('title')).toBe('Dashboard')
-    })
-
-    it('deve exibir o nome do usuário', () => {
-      const welcomeText = wrapper.find('.welcome-text')
-      expect(welcomeText.exists()).toBe(true)
-      expect(welcomeText.text()).toContain('Bem-vindo')
+      expect(header.props('title')).toBe('Bem-vindo, João Silva')
     })
 
     it('deve conter todas as seções principais', () => {

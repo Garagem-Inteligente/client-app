@@ -672,7 +672,7 @@
 
   /* Container */
   .maintenance-container {
-    padding: 20px 16px 100px;
+    padding: 20px 16px 32px;
     max-width: 1200px;
     margin: 0 auto;
   }

@@ -1,5 +1,5 @@
 <template>
-  <ion-header :translucent="true" class="modern-app-header ion-no-border">
+  <ion-header class="modern-app-header ion-no-border">
     <ion-toolbar class="modern-toolbar">
       <!-- Back Button -->
       <ion-buttons slot="start">
@@ -130,22 +130,22 @@ const handleBack = () => {
 
 .modern-app-header {
   --background: transparent;
-  padding-top: env(safe-area-inset-top);
-}
-
-.modern-toolbar {
-  --background: linear-gradient(135deg, 
+  background: linear-gradient(135deg, 
     rgba(31, 41, 55, 0.98) 0%, 
     rgba(17, 24, 39, 0.98) 100%
   );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 1000;
+}
+
+.modern-toolbar {
+  --background: transparent;
   --border-width: 0;
   --min-height: 56px;
   padding: 4px 8px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ====================================
@@ -330,7 +330,7 @@ const handleBack = () => {
 
 @media (min-width: 768px) {
   .modern-app-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .modern-toolbar {
