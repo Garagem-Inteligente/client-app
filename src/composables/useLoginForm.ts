@@ -117,7 +117,6 @@ export function useLoginForm() {
         return false
       }
     } catch (err) {
-      console.error('Login error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao fazer login'
       errors.email = errorMessage
       return false
@@ -147,7 +146,6 @@ export function useLoginForm() {
         return false
       }
     } catch (err) {
-      console.error('Register error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao registrar'
       errors.email = errorMessage
       return false
@@ -173,7 +171,6 @@ export function useLoginForm() {
         return false
       }
     } catch (err) {
-      console.error('Password reset error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erro inesperado'
       errors.email = errorMessage
       return false

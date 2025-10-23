@@ -1,6 +1,6 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useAuthNavigation } from '@/composables/useAuthNavigation'
+import { useAuthNavigation } from '../../src/composables/useAuthNavigation'
 
 // Mock do Vue Router
 const mockRouter = {
