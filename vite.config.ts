@@ -18,6 +18,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Configurações para usar a nova API do Sass
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {

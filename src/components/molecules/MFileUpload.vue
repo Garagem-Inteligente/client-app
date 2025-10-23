@@ -179,7 +179,7 @@
       item.progress = 100;
       item.uploading = false;
     } catch (err) {
-      item.error = 'Erro ao processar arquivo';
+      item.error = 'Erro ao processar arquivo', err;
       item.uploading = false;
     }
 
