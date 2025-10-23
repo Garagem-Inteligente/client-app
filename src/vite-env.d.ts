@@ -12,3 +12,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+// Extend Firebase User type to include custom properties
+declare module 'firebase/auth' {
+  interface User {
+    avatar?: string
+    name?: string
+  }
+}

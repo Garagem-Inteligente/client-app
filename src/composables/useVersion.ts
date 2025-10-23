@@ -12,9 +12,17 @@ export const useVersion = () => {
   const version = computed(() => versionData)
   const shortSha = computed(() => versionData.sha.substring(0, 7))
 
+  // Additional computed properties for compatibility
+  const fullVersionString = computed(() => `${versionData.version} (${versionData.buildNumber})`)
+  const formattedBuildDate = computed(() => new Date().toLocaleDateString('pt-BR'))
+  const isProduction = computed(() => import.meta.env.PROD)
+
   return {
     shortVersion,
     version,
-    shortSha
+    shortSha,
+    fullVersionString,
+    formattedBuildDate,
+    isProduction
   }
 }

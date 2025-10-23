@@ -962,7 +962,7 @@
           // Parse and store FIPE value
           // Format: "R$ 50.000,00" -> 50000
           if (fipeInfo.price) {
-            const valueStr = fipeInfo.price.replaceAll(/[^\d,]/g, '').replaceAll(',', '.');
+            const valueStr = fipeInfo.price.replace(/[^\d,]/g, '').replace(/,/g, '.');
             formData.value.fipeValue = Number.parseFloat(valueStr) || 0;
           }
 
