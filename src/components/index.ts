@@ -25,6 +25,9 @@ export { default as MMultiSelect } from './molecules/MMultiSelect.vue';
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';
 export { default as MServiceItemsManager } from './organisms/MServiceItemsManager.vue';
 export { default as PageLayout } from './organisms/PageLayout.vue';
+export { default as RegisterCard } from './organisms/RegisterCard.vue';
+export { default as RegisterLogoSection } from './organisms/RegisterLogoSection.vue';
+export { default as RegisterAuthFooter } from './organisms/RegisterAuthFooter.vue';
 
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue';
