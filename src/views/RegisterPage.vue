@@ -174,7 +174,7 @@ import {
   logInOutline
 } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
-import { GoogleSignInButton } from '@/components'
+import GoogleSignInButton from '@/components/atoms/GoogleSignInButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

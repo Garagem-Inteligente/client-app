@@ -24,6 +24,7 @@ export { default as MMultiSelect } from './molecules/MMultiSelect.vue';
 // Organisms
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';
 export { default as MServiceItemsManager } from './organisms/MServiceItemsManager.vue';
+export { default as PageLayout } from './organisms/PageLayout.vue';
 
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue';

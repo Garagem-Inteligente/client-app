@@ -122,7 +122,13 @@ const showRecoverModal = ref(false)
 const showRecoverSuccessModal = ref(false)
 const modalMessage = ref('')
 
-const handleGoogleSignIn = async () => {
+const handleGoogleSignIn = async (event: Event) => {
+  // Blur the button to prevent aria-hidden focus issues during navigation
+  const target = event.target as HTMLElement
+  if (target && target.blur) {
+    target.blur()
+  }
+  
   loading.value = true
   try {   
     const success = await authStore.signInWithGoogle()

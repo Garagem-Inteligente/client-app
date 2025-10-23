@@ -16,6 +16,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import type { TooltipItem } from 'chart.js'
 import type { MaintenanceRecord } from '@/stores/vehicles'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -107,9 +108,9 @@ const chartOptions = computed(() => ({
       borderWidth: 1,
       padding: 12,
       callbacks: {
-        label: (context: any) => {
+        label: (context: TooltipItem<'bar'>) => {
           const label = context.dataset.label || ''
-          const value = context.parsed.y
+          const value = context.parsed.y ?? 0
           if (label === 'Custo Total (R$)') {
             return `${label}: R$ ${value.toFixed(2)}`
           }

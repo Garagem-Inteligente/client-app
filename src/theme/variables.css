@@ -180,6 +180,56 @@ body {
   --red-500: #ef4444;
 }
 
+/* Additional Design Tokens for LoginPage and Components */
+:root {
+  /* Text Colors */
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-placeholder: rgba(255, 255, 255, 0.3);
+  --text-border: rgba(255, 255, 255, 0.1);
+
+  /* Background Colors */
+  --bg-card: rgba(30, 41, 59, 0.8);
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-input-focus: rgba(15, 23, 42, 0.8);
+  --bg-error: rgba(239, 68, 68, 0.1);
+
+  /* Border Colors */
+  --border-card: rgba(255, 255, 255, 0.1);
+  --border-input: rgba(255, 255, 255, 0.1);
+  --border-error: rgba(239, 68, 68, 0.3);
+
+  /* Additional Font Sizes */
+  --font-size-input: 0.938rem;    /* 16.884px */
+  --font-size-4xl: 4rem;          /* 72px */
+
+  /* Spacing Scale */
+  --space-xs: 0.5rem;     /* 9px */
+  --space-sm: 0.75rem;    /* 13.5px */
+  --space-md: 1rem;       /* 18px */
+  --space-lg: 1.25rem;    /* 22.5px */
+  --space-xl: 1.5rem;     /* 27px */
+  --space-2xl: 2rem;      /* 36px */
+  --space-3xl: 3rem;      /* 54px */
+
+  /* Border Radius */
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+
+  /* Shadows */
+  --shadow-button: 0 4px 12px rgba(99, 102, 241, 0.3);
+  --shadow-button-hover: 0 8px 20px rgba(99, 102, 241, 0.4);
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
+  /* Blur */
+  --blur-card: blur(20px);
+}
+
 /* Input styling to match web version */
 ion-input,
 ion-textarea,

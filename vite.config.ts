@@ -18,6 +18,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Configurações para usar a nova API do Sass
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -52,7 +60,6 @@ export default defineConfig({
     // Increase chunk size warning limit to 1000 kB (only for large dependencies)
     chunkSizeWarningLimit: 1000,
     // Enable code splitting
-    target: 'esnext',
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -63,7 +70,30 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom'
+    environment: 'jsdom',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/main.ts',
+        'src/router/index.ts',
+        'src/firebase/config.ts',
+        'tests/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        'src/views/Tab1Page.vue', // exemplo de arquivo não testado
+      ],
+      // @ts-ignore - thresholds não está no tipo mas funciona
+      thresholds: {
+        global: {
+          branches: 70,
+          functions: 70,
+          lines: 70,
+          statements: 70,
+        },
+      },
+    },
   }
 })
 
