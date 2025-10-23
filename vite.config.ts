@@ -52,7 +52,6 @@ export default defineConfig({
     // Increase chunk size warning limit to 1000 kB (only for large dependencies)
     chunkSizeWarningLimit: 1000,
     // Enable code splitting
-    target: 'esnext',
     minify: 'terser',
     terserOptions: {
       compress: {
