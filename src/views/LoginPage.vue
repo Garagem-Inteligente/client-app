@@ -1,11 +1,3 @@
-/* Versão do app no rodapé */
-.version-text {
-  font-size: 0.75rem;
-  color: #a3e635;
-  margin-top: 0.5rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
 <template>
   <ion-page>
     <ion-content :fullscreen="true" class="auth-content">
@@ -194,56 +186,15 @@ const handleForgotPassword = async () => {
 }
 </script>
 
-<style scoped>
-/* ====================================
-   MODERN LOGIN PAGE - 2025 DESIGN
-   ==================================== */
+<style scoped lang="scss">
+// ====================================
+// MODERN LOGIN PAGE - 2025 DESIGN
+// ====================================
 
-/* Container */
-.login-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1.5rem;
-  max-width: 480px;
-  margin: 0 auto;
-}
+// Import global variables and mixins using modern @use syntax
+@use '@/theme/variables.scss' as vars;
 
-/* Logo Section */
-.logo-section {
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: fadeInDown 0.6s ease-out;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.logo-wrapper {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1.5rem;
-}
-
-.logo-glow {
-  position: absolute;
-  inset: -20px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-radius: 50%;
-  filter: blur(30px);
-  opacity: 0.4;
-  animation: logoGlow 3s ease-in-out infinite;
-}
-
+// Animations (component-specific)
 @keyframes logoGlow {
   0%, 100% {
     opacity: 0.3;
@@ -253,166 +204,6 @@ const handleForgotPassword = async () => {
     opacity: 0.6;
     transform: scale(1.1);
   }
-}
-
-.logo-icon {
-  font-size: 4rem;
-  color: #6366f1;
-  position: relative;
-  z-index: 2;
-  filter: drop-shadow(0 8px 16px rgba(99, 102, 241, 0.4));
-}
-
-.brand-title {
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.5px;
-}
-
-.brand-subtitle {
-  font-size: 0.938rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0;
-  font-weight: 400;
-}
-
-/* Auth Card */
-.auth-card {
-  width: 100%;
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: fadeInUp 0.6s ease-out 0.2s backwards;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.card-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.card-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 0.5rem 0;
-}
-
-.card-subtitle {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
-}
-
-/* Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.3px;
-}
-
-.label-icon {
-  font-size: 1rem;
-  color: #6366f1;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: white;
-  font-size: 0.938rem;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-.form-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.form-input:focus {
-  border-color: #6366f1;
-  background: rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -0.5rem;
-}
-
-.text-link {
-  background: none;
-  border: none;
-  color: #6366f1;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-}
-
-.text-link:hover {
-  color: #8b5cf6;
-  text-decoration: underline;
-}
-
-/* Error Message */
-.error-message {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 12px;
-  color: #fca5a5;
-  font-size: 0.875rem;
-  animation: shake 0.4s ease-in-out;
 }
 
 @keyframes shake {
@@ -427,155 +218,330 @@ const handleForgotPassword = async () => {
   }
 }
 
-.error-icon {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-/* Buttons */
-.submit-button {
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+// Layout
+.login-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.submit-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-}
-
-.submit-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.submit-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.button-spinner {
-  font-size: 1.25rem;
-}
-
-.secondary-button {
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: white;
-  font-size: 0.938rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
+  padding: 2rem 1.5rem;
+  max-width: 480px;
+  margin: 0 auto;
 
-.secondary-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.button-icon {
-  font-size: 1.125rem;
-}
-
-/* Divider */
-.divider {
-  position: relative;
-  text-align: center;
-  margin: 1.5rem 0;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.divider-text {
-  position: relative;
-  display: inline-block;
-  padding: 0 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-/* Footer */
-.auth-footer {
-  margin-top: 2rem;
-  text-align: center;
-  animation: fadeInUp 0.6s ease-out 0.4s backwards;
-}
-
-.footer-text {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.footer-link {
-  color: #6366f1;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-link:hover {
-  color: #8b5cf6;
-  text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .login-container {
+  @media (max-width: 640px) {
     padding: 1.5rem 1rem;
   }
 
-  .auth-card {
-    padding: 1.5rem;
-  }
-
-  .brand-title {
-    font-size: 1.75rem;
-  }
-
-  .card-title {
-    font-size: 1.25rem;
-  }
-}
-
-@media (min-height: 800px) {
-  .login-container {
+  @media (min-height: 800px) {
     justify-content: flex-start;
     padding-top: 4rem;
   }
 }
 
-/* Accessibility */
+// Logo Section
+// POTENCIAL COMPONENTE: LogoSection.vue - Seção do logo reutilizável
+.logo-section {
+  text-align: center;
+  margin-bottom: 3rem;
+  @include vars.fade-in-down;
+
+  .logo-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+
+    .logo-glow {
+      position: absolute;
+      inset: -20px;
+      background: linear-gradient(135deg, vars.$primary-color 0%, vars.$secondary-color 100%);
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.4;
+      animation: logoGlow 3s ease-in-out infinite;
+    }
+
+    .logo-icon {
+      font-size: 4rem;
+      color: vars.$primary-color;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 8px 16px rgba(vars.$primary-color, 0.4));
+    }
+  }
+
+  .brand-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, vars.$primary-color 0%, vars.$secondary-color 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+
+    @media (max-width: 640px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  .brand-subtitle {
+    font-size: 0.938rem;
+    color: vars.$text-muted;
+    margin: 0;
+    font-weight: 400;
+  }
+}
+
+// Auth Card
+// POTENCIAL COMPONENTE: AuthCard.vue - Card de autenticação reutilizável
+.auth-card {
+  width: 100%;
+  @include vars.glass-effect;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  @include vars.fade-in-up(0.2s);
+
+  @media (max-width: 640px) {
+    padding: 1.5rem;
+  }
+
+  .card-header {
+    margin-bottom: 2rem;
+    text-align: center;
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: vars.$text-primary;
+      margin: 0 0 0.5rem 0;
+
+      @media (max-width: 640px) {
+        font-size: 1.25rem;
+      }
+    }
+
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 0;
+    }
+  }
+
+  // Form
+  // POTENCIAL COMPONENTE: AuthForm.vue - Formulário de login reutilizável
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: vars.$text-secondary;
+        letter-spacing: 0.3px;
+
+        .label-icon {
+          font-size: 1rem;
+          color: vars.$primary-color;
+        }
+      }
+
+      .input-wrapper {
+        position: relative;
+
+        .form-input {
+          width: 100%;
+          padding: 0.875rem 1rem;
+          background: vars.$background-darker;
+          border: 1.5px solid vars.$border-color;
+          border-radius: 12px;
+          color: vars.$text-primary;
+          font-size: 0.938rem;
+          transition: all 0.3s ease;
+          outline: none;
+
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+          }
+
+          &:focus {
+            border-color: vars.$primary-color;
+            background: vars.$background-darkest;
+            box-shadow: 0 0 0 3px rgba(vars.$primary-color, 0.1);
+          }
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -0.5rem;
+
+      .text-link {
+        background: none;
+        border: none;
+        color: vars.$primary-color;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: vars.$secondary-color;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    // Error Message
+    // POTENCIAL COMPONENTE: ErrorMessage.vue - Componente de erro reutilizável
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      background: rgba(vars.$error-color, 0.1);
+      border: 1px solid rgba(vars.$error-color, 0.3);
+      border-radius: 12px;
+      color: vars.$error-light;
+      font-size: 0.875rem;
+      animation: shake 0.4s ease-in-out;
+
+      .error-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+    }
+
+    // Submit Button
+    // POTENCIAL COMPONENTE: PrimaryButton.vue - Botão primário reutilizável
+    .submit-button {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      background: linear-gradient(135deg, vars.$primary-color 0%, vars.$secondary-color 100%);
+      @include vars.button-base;
+      color: vars.$text-primary;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(vars.$primary-color, 0.3);
+      margin-top: 0.5rem;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(vars.$primary-color, 0.4);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .button-spinner {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  // Divider
+  .divider {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: vars.$border-color;
+    }
+
+    .divider-text {
+      position: relative;
+      display: inline-block;
+      padding: 0 1rem;
+      background: vars.$background-dark;
+      color: vars.$text-light;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  }
+
+  // Secondary Button
+  // POTENCIAL COMPONENTE: SecondaryButton.vue - Botão secundário reutilizável
+  .secondary-button {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid vars.$border-color;
+    @include vars.button-base;
+    color: vars.$text-primary;
+    font-size: 0.938rem;
+    font-weight: 500;
+    margin-top: 16px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: vars.$border-hover;
+      transform: translateY(-1px);
+    }
+
+    .button-icon {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// Footer
+// POTENCIAL COMPONENTE: AuthFooter.vue - Footer de autenticação reutilizável
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+  @include vars.fade-in-up(0.4s);
+
+  .footer-text {
+    font-size: 0.75rem;
+    color: vars.$text-light;
+    line-height: 1.6;
+    margin: 0;
+
+    &.version-text {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .footer-link {
+    color: vars.$primary-color;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: vars.$secondary-color;
+      text-decoration: underline;
+    }
+  }
+}
+
+// Accessibility
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -586,7 +552,5 @@ const handleForgotPassword = async () => {
   }
 }
 </style>
-
-
 
 
