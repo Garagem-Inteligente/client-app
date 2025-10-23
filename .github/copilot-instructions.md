@@ -365,6 +365,7 @@ as alterações no firebase NUNCA devem impactar dados reais dos usuários sem u
   - após chegado até aqui, vamos rodar os testes unitários existentes para aquela página garantindo que nada foi quebrado
   - caso não exista testes para aquela página / componente, me pergunte se deve criar novos testes unitaários.
   - rode os testes unitarios garantindo que todos passem sem erros, warnings ou avisos.
+  - sempre que rodar um teste coloque um fallback para rodar em modo watch, assim caso haja necessidade de rodar novamente, o ambiente já estará pronto.
   - por fim, rode a aplicação localmente usando 'pnpm dev' e verifique manualmente se tudo está funcionando conforme esperado naquela página / componente modificado ou criado.
   - sempre que possível, escreva testes unitários para qualquer nova funcionalidade ou correção de bug.
   - faça o commit em portugues e em topicos que identifiquem o que foi alterado para ser utilizado na geração do changelog automaticamente.
