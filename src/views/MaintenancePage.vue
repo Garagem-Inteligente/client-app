@@ -1447,7 +1447,7 @@
   /* Floating Action Button - Always visible above tab bar */
   ion-fab {
     position: fixed;
-    bottom: 80px; /* Above tab bar */
+    bottom: calc(80px + env(safe-area-inset-bottom)); /* Above tab bar + safe area */
     right: 16px;
     z-index: 999;
   }
