@@ -8,10 +8,11 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress run",
-    "test:unit": "vitest",
+    "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "type-check:test": "tsc --noEmit --skipLibCheck --project tsconfig.test.json"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
