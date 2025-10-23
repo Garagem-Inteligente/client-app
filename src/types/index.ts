@@ -53,7 +53,7 @@ export type MaintenanceType =
   | 'other'
 
 // API Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: string
@@ -76,7 +76,7 @@ export interface Notification {
   message: string
   read: boolean
   createdAt: Date
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 }
 
 // Transfer Types
@@ -189,7 +189,7 @@ export interface SortOption {
 // Search Types
 export interface SearchParams {
   query?: string
-  filters?: Record<string, any>
+  filters?: Record<string, unknown>
   sort?: SortOption
   page?: number
   pageSize?: number
@@ -256,7 +256,7 @@ export enum StorageKeys {
 }
 
 // Event Types
-export interface CustomEvent<T = any> {
+export interface CustomEvent<T = unknown> {
   type: string
   data: T
   timestamp: Date

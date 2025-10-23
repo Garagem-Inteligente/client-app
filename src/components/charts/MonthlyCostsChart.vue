@@ -16,7 +16,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  type TooltipItem
 } from 'chart.js'
 import type { MaintenanceRecord } from '@/stores/vehicles'
 
@@ -108,8 +109,9 @@ const chartOptions = computed(() => ({
       padding: 12,
       displayColors: false,
       callbacks: {
-        label: (context: any) => {
-          return `R$ ${context.parsed.y.toFixed(2)}`
+        label: (context: TooltipItem<'line'>) => {
+          const value = context.parsed.y ?? 0
+          return `R$ ${value.toFixed(2)}`
         }
       }
     }
@@ -132,7 +134,7 @@ const chartOptions = computed(() => ({
       },
       ticks: {
         color: '#9ca3af',
-        callback: (value: any) => `R$ ${value}`
+        callback: (value: string | number) => `R$ ${value}`
       }
     }
   }

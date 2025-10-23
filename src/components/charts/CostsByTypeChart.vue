@@ -11,7 +11,8 @@ import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
-  Legend
+  Legend,
+  type TooltipItem
 } from 'chart.js'
 import { MAINTENANCE_TYPE_LABELS } from '@/constants/vehicles'
 import type { MaintenanceRecord } from '@/stores/vehicles'
@@ -90,7 +91,7 @@ const chartOptions = computed(() => ({
       borderWidth: 1,
       padding: 12,
       callbacks: {
-        label: (context: any) => {
+        label: (context: TooltipItem<'doughnut'>) => {
           const label = context.label || ''
           const value = context.parsed || 0
           const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0)
