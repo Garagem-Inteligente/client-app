@@ -1,8 +1,14 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 export interface LoginForm {
+  email: string
+  password: string
+  name?: string
+}
+
+export interface FormErrors {
   email: string
   password: string
 }
@@ -12,59 +18,94 @@ export function useLoginForm() {
   const authStore = useAuthStore()
 
   // Form state
-  const form = ref<LoginForm>({
+  const formData = reactive<LoginForm>({
+    email: '',
+    password: '',
+    name: ''
+  })
+
+  const isLoading = ref(false)
+  const errors = reactive<FormErrors>({
     email: '',
     password: ''
   })
 
-  const loading = ref(false)
-  const error = ref('')
-
   // Computed
   const isFormValid = computed(() => {
-    return form.value.email.trim() !== '' && form.value.password.trim() !== ''
+    return formData.email.trim() !== '' && formData.password.trim() !== ''
   })
 
   const isEmailValid = computed(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(form.value.email)
+    return emailRegex.test(formData.email)
   })
 
   // Methods
-  const validateForm = (): boolean => {
-    if (!form.value.email.trim()) {
-      error.value = 'Email é obrigatório'
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) {
+      errors.email = 'E-mail é obrigatório'
       return false
     }
 
-    if (!isEmailValid.value) {
-      error.value = 'Email inválido'
+    if (email.includes(' ')) {
+      errors.email = 'E-mail não deve conter espaços'
       return false
     }
 
-    if (!form.value.password.trim()) {
-      error.value = 'Senha é obrigatória'
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      errors.email = 'E-mail deve ter um formato válido'
       return false
     }
 
-    if (form.value.password.length < 6) {
-      error.value = 'Senha deve ter pelo menos 6 caracteres'
-      return false
-    }
-
+    errors.email = ''
     return true
   }
 
-  const handleLogin = async (): Promise<boolean> => {
+  const validatePassword = (password: string): boolean => {
+    if (!password.trim()) {
+      errors.password = 'Senha é obrigatória'
+      return false
+    }
+
+    if (password.length < 6) {
+      errors.password = 'Senha deve ter pelo menos 6 caracteres'
+      return false
+    }
+
+    errors.password = ''
+    return true
+  }
+
+  const validateForm = (): boolean => {
+    const emailValid = validateEmail(formData.email)
+    const passwordValid = validatePassword(formData.password)
+    return emailValid && passwordValid
+  }
+
+  const clearEmailError = () => {
+    errors.email = ''
+  }
+
+  const clearPasswordError = () => {
+    errors.password = ''
+  }
+
+  const clearErrors = () => {
+    errors.email = ''
+    errors.password = ''
+  }
+
+  const login = async (): Promise<boolean> => {
     if (!validateForm()) {
       return false
     }
 
-    loading.value = true
-    error.value = ''
+    isLoading.value = true
+    clearErrors()
 
     try {
-      const success = await authStore.login(form.value.email, form.value.password)
+      const success = await authStore.login(formData.email, formData.password)
 
       if (success) {
         // Redirect to intended page or home
@@ -72,75 +113,94 @@ export function useLoginForm() {
         await router.push(redirect || '/tabs/home')
         return true
       } else {
-        error.value = authStore.error || 'Erro ao fazer login'
+        errors.email = authStore.error || 'Erro ao fazer login'
         return false
       }
     } catch (err) {
       console.error('Login error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao fazer login'
-      error.value = errorMessage
+      errors.email = errorMessage
       return false
     } finally {
-      loading.value = false
+      isLoading.value = false
     }
   }
 
-  const handleForgotPassword = async (): Promise<boolean> => {
-    if (!form.value.email.trim()) {
-      error.value = 'Digite seu email primeiro'
+  const register = async (): Promise<boolean> => {
+    if (!validateForm()) {
       return false
     }
 
-    if (!isEmailValid.value) {
-      error.value = 'Digite um email válido primeiro'
-      return false
-    }
+    isLoading.value = true
+    clearErrors()
 
     try {
-      const success = await authStore.resetPassword(form.value.email)
+      const success = await authStore.register(formData.email, formData.password, formData.name || '')
+
       if (success) {
-        error.value = ''
+        // Redirect to intended page or home
+        const redirect = router.currentRoute.value.query.redirect as string
+        await router.push(redirect || '/tabs/home')
         return true
       } else {
-        error.value = authStore.error || 'Erro ao enviar email de recuperação'
+        errors.email = authStore.error || 'Erro ao registrar usuário'
+        return false
+      }
+    } catch (err) {
+      console.error('Register error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Erro inesperado ao registrar'
+      errors.email = errorMessage
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const resetPassword = async (): Promise<boolean> => {
+    if (!validateEmail(formData.email)) {
+      return false
+    }
+
+    isLoading.value = true
+
+    try {
+      const success = await authStore.resetPassword(formData.email)
+      if (success) {
+        clearErrors()
+        return true
+      } else {
+        errors.email = authStore.error || 'Erro ao enviar email de recuperação'
         return false
       }
     } catch (err) {
       console.error('Password reset error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erro inesperado'
-      error.value = errorMessage
+      errors.email = errorMessage
       return false
+    } finally {
+      isLoading.value = false
     }
-  }
-
-  const resetForm = () => {
-    form.value = {
-      email: '',
-      password: ''
-    }
-    error.value = ''
-    loading.value = false
-  }
-
-  const setError = (message: string) => {
-    error.value = message
   }
 
   return {
     // State
-    form,
-    loading,
-    error,
+    formData,
+    errors,
+    isLoading: isLoading.value,
 
     // Computed
     isFormValid,
     isEmailValid,
 
     // Methods
-    handleLogin,
-    handleForgotPassword,
-    resetForm,
-    setError,
-    validateForm
+    validateEmail,
+    validatePassword,
+    validateForm,
+    clearEmailError,
+    clearPasswordError,
+    clearErrors,
+    login,
+    register,
+    resetPassword
   }
 }

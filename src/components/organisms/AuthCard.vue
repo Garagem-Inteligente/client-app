@@ -5,7 +5,7 @@
       <p class="card-subtitle">Entre com suas credenciais</p>
     </div>
 
-    <form @submit.prevent="handleLogin" class="auth-form">
+    <form @submit.prevent="login" class="auth-form">
       <!-- Email Input -->
       <div class="form-group">
         <label for="login-email" class="form-label">
@@ -15,7 +15,7 @@
         <div class="input-wrapper">
           <input
             id="login-email"
-            v-model="form.email"
+            v-model="formData.email"
             type="email"
             class="form-input"
             placeholder="seu@email.com"
@@ -34,7 +34,7 @@
         <div class="input-wrapper">
           <input
             id="login-password"
-            v-model="form.password"
+            v-model="formData.password"
             type="password"
             class="form-input"
             placeholder="••••••••"
@@ -46,20 +46,20 @@
 
       <!-- Forgot Password Link -->
       <div class="form-actions">
-        <button type="button" @click="handleForgotPassword" class="text-link">
+        <button type="button" @click="resetPassword" class="text-link">
           Esqueceu a senha?
         </button>
       </div>
 
       <!-- Error Message -->
-      <div v-if="error" class="error-message">
+      <div v-if="errors.email || errors.password" class="error-message">
         <ion-icon :icon="alertCircle" class="error-icon"></ion-icon>
-        <span>{{ error }}</span>
+        <span>{{ errors.email || errors.password }}</span>
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" :disabled="loading" class="submit-button">
-        <ion-spinner v-if="loading" name="crescent" class="button-spinner"></ion-spinner>
+      <button type="submit" :disabled="isLoading" class="submit-button">
+        <ion-spinner v-if="isLoading" name="crescent" class="button-spinner"></ion-spinner>
         <span v-else>Entrar</span>
       </button>
     </form>
@@ -92,11 +92,11 @@ import GoogleSignInButton from '@/components/atoms/GoogleSignInButton.vue'
 import { useLoginForm } from '@/composables/useLoginForm'
 
 const {
-  form,
-  loading,
-  error,
-  handleLogin,
-  handleForgotPassword
+  formData,
+  errors,
+  isLoading,
+  login,
+  resetPassword
 } = useLoginForm()
 
 // Events
