@@ -60,11 +60,12 @@ LoginPage.vue continha:
 
 ```
 src/components/organisms/
-├── LoginHeader.vue        (~80 linhas totais)
-├── LoginCard.vue          (~300 linhas totais)
-├── LoginFooter.vue        (~100 linhas totais)
+├── AuthCard.vue           (~200 linhas - componente moderno)
+├── AuthFooter.vue         (~50 linhas - componente moderno)
+├── LogoSection.vue        (~30 linhas - seção reutilizável)
+├── PageLayout.vue         (~40 linhas - layout com background)
 └── src/views/
-    └── LoginPage.vue      (~150 linhas totais - reduzido de 746!)
+    └── LoginPage.vue      (~80 linhas totais - reduzido de 746!)
 ```
 
 ### Benefícios:
@@ -81,41 +82,58 @@ src/components/organisms/
 
 ## 📁 Estrutura Refatorada
 
-### **LoginPage.vue** (~150 linhas)
+### **LoginPage.vue** (~80 linhas)
 
 ```vue
 <template>
-  <ion-page class="c-login-page">
-    <main class="c-login-page__main">
-      <LoginHeader />
-      <LoginCard v-model="form" @submit="handleLogin" />
-      <LoginFooter />
-    </main>
+  <ion-page>
+    <PageLayout>
+      <ion-content :fullscreen="true" class="auth-content">
+        <div class="page-content-wrapper login-container">
+          <LogoSection />
+          <AuthCard @register-click="handleRegisterClick" />
+          <AuthFooter />
+        </div>
+      </ion-content>
+    </PageLayout>
   </ion-page>
 </template>
-<!-- Apenas lógica + containers!
-     CSS reduzido: apenas layout da página (~80 linhas) -->
+<!-- Componentes modernos + PageLayout!
+     CSS reduzido: apenas estilos específicos (~40 linhas) -->
 ```
 
-### **LoginHeader.vue** (~80 linhas)
+### **PageLayout.vue** (~40 linhas)
 
 ```vue
-<!-- Componente reutilizável
-     CSS: Logo + animação glow + responsividade -->
+<template>
+  <div class="page-layout">
+    <!-- Page Content -->
+    <slot />
+  </div>
+</template>
+<!-- Background consistente via pseudo-elementos
+     CSS: ::before e ::after para gradient + pattern -->
 ```
 
-### **LoginCard.vue** (~300 linhas)
+### **AuthCard.vue** (~200 linhas)
 
 ```vue
-<!-- Componente reutilizável
-     CSS: Formulário completo + validação + estilos -->
+<!-- Componente moderno com Composition API
+     CSS: Formulário + validação + responsividade -->
 ```
 
-### **LoginFooter.vue** (~100 linhas)
+### **AuthFooter.vue** (~50 linhas)
 
 ```vue
-<!-- Componente reutilizável
-     CSS: Footer versão e links -->
+<!-- Footer moderno e limpo
+     CSS: Links + política de privacidade -->
+```
+
+### **LogoSection.vue** (~30 linhas)
+
+```vue
+<!-- Logo reutilizável
+     CSS: Logo + glow + animação -->
 ```
 
 ---
@@ -134,10 +152,12 @@ src/components/organisms/
 // Agora podemos usar em outras páginas!
 <LoginHeader />
 // Em qualquer página
-<LoginCard />
-// Em modais, etc
-<LoginFooter />
+<AuthCard @register-click="handleRegisterClick" />
+// Em LoginPage e RegisterPage
+<AuthFooter />
 // Em qualquer página auth
+<PageLayout>
+// Background consistente em todas as páginas
 ```
 
 ### 3. **Performance**
@@ -148,16 +168,17 @@ src/components/organisms/
 
 ### 4. **Manutenção**
 
-- Mudança no footer? Edita apenas `LoginFooter.vue`
-- Mudança no formulário? Edita apenas `LoginCard.vue`
+- Mudança no footer? Edita apenas `AuthFooter.vue`
+- Mudança no formulário? Edita apenas `AuthCard.vue`
 - Sem risco de quebrar outras partes
 
 ### 5. **Escalabilidade**
 
 ```
 Adicionar nova página de auth?
-✅ Reutiliza LoginCard, LoginHeader, LoginFooter
+✅ Reutiliza AuthCard, AuthFooter, PageLayout
 ✅ Sem duplicação de CSS
+✅ Background consistente automaticamente
 ```
 
 ---
@@ -180,28 +201,33 @@ LoginPage.vue
     └── Estados (:hover, :focus, etc)
 ```
 
-### ✅ Depois (Componentizado)
+### ✅ Depois (Componentizado + Modernizado)
 
 ```
-LoginPage.vue (~150 linhas)
+LoginPage.vue (~80 linhas)
+├── HTML (~25 linhas)
+├── JS (~25 linhas)
+└── CSS (~30 linhas) ← Apenas layout específico!
+
+AuthCard.vue (~200 linhas) - Reutilizável
 ├── HTML (~40 linhas)
-├── JS (~50 linhas)
-└── CSS (~60 linhas) ← Apenas layout!
+├── JS (~20 linhas)
+└── CSS (~140 linhas) ← Componente moderno
 
-LoginHeader.vue (~80 linhas)
-├── HTML (~10 linhas)
-├── JS (~5 linhas)
-└── CSS (~65 linhas) ← Isolado
-
-LoginCard.vue (~300 linhas)
-├── HTML (~60 linhas)
-├── JS (~30 linhas)
-└── CSS (~210 linhas) ← Isolado
-
-LoginFooter.vue (~100 linhas)
+AuthFooter.vue (~50 linhas) - Reutilizável
 ├── HTML (~15 linhas)
-├── JS (~10 linhas)
-└── CSS (~75 linhas) ← Isolado
+├── JS (~5 linhas)
+└── CSS (~30 linhas) ← Footer limpo
+
+PageLayout.vue (~40 linhas) - Background consistente
+├── HTML (~5 linhas)
+├── JS (~0 linhas)
+└── CSS (~35 linhas) ← Pseudo-elementos eficientes
+
+LogoSection.vue (~30 linhas) - Logo reutilizável
+├── HTML (~10 linhas)
+├── JS (~0 linhas)
+└── CSS (~20 linhas) ← Logo + animação
 ```
 
 ---
@@ -209,23 +235,18 @@ LoginFooter.vue (~100 linhas)
 ## 🚀 Como Usar
 
 ```vue
-// Na LoginPage refatorada:
+// Na LoginPage moderna:
 <template>
-  <ion-page class="c-login-page">
-    <main class="c-login-page__main">
-      <LoginHeader />
-      <LoginCard
-        v-model="form"
-        :error="error"
-        :loading="loading"
-        @submit="handleLogin"
-      >
-        <template #oauth>
-          <GoogleSignInButton />
-        </template>
-      </LoginCard>
-      <LoginFooter />
-    </main>
+  <ion-page>
+    <PageLayout>
+      <ion-content :fullscreen="true" class="auth-content">
+        <div class="page-content-wrapper login-container">
+          <LogoSection />
+          <AuthCard @register-click="handleRegisterClick" />
+          <AuthFooter />
+        </div>
+      </ion-content>
+    </PageLayout>
   </ion-page>
 </template>
 ```
