@@ -1,5 +1,11 @@
 name: 🚀 Deploy Completo (Otimizado)
 
+# Comportamento do Workflow:
+# - Pull Requests: Roda jobs de build (build, build-android) para validação, MAS NÃO faz deploy
+# - Push para master: Roda build + deploy web (Firebase Hosting)
+# - Push para release/android: Roda build + build-android + deploy-android (Play Store)
+# - Manual (workflow_dispatch): Permite escolher quais deploys executar
+
 on:
   push:
     branches:
@@ -7,6 +13,10 @@ on:
       - release/android
     tags:
       - "v*.*.*"
+  pull_request:
+    branches:
+      - master
+      - release/android
   workflow_dispatch:
     inputs:
       deploy_web:
@@ -164,6 +174,7 @@ jobs:
     needs: build
     if: |
       (github.event_name == 'push') ||
+      (github.event_name == 'pull_request') ||
       (github.event_name == 'workflow_dispatch' && inputs.deploy_android == true)
 
     steps:
@@ -238,6 +249,9 @@ jobs:
       - name: 🔨 Build AAB
         run: |
           cd android
+          # Remove configurações locais do gradle que podem ter caminhos do Windows
+          rm -f ~/.gradle/gradle.properties
+          rm -f gradle.properties.user
           chmod +x ./gradlew
           ./gradlew bundleRelease --no-daemon --stacktrace
 
@@ -256,13 +270,13 @@ jobs:
           echo "- **Version Name:** ${{ needs.build.outputs.version_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** ${GITHUB_SHA::7}" >> $GITHUB_STEP_SUMMARY
 
-  # Job 4: Deploy Android (depende do build-android)
+  # Job 4: Deploy Android (depende do build-android) - NÃO roda em PRs
   deploy-android:
     name: 🚀 Deploy to Play Store
     runs-on: ubuntu-latest
     needs: [build, build-android]
     if: |
-      (github.event_name == 'push') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/release/android') ||
       (github.event_name == 'workflow_dispatch' && inputs.deploy_android == true)
 
     steps:
