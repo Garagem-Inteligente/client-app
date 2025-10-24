@@ -6,6 +6,16 @@
       back-path="/tabs/vehicles"
     />
 
+    <!-- Fullscreen loading para inicialização do cache -->
+    <MFullscreenLoading
+      :show="isInitializingCache"
+      :title="cacheLoadingTitle"
+      :description="cacheLoadingDescription"
+      :icon="cacheLoadingIcon"
+      :show-progress="false"
+      hint="Isso acontece apenas uma vez. Da próxima será instantâneo!"
+    />
+
     <ion-content class="app-content">
       <!-- Background layers -->
       <div class="background-gradient"></div>
@@ -602,8 +612,10 @@
   import { IonPage, IonContent } from '@ionic/vue';
   import { useVehiclesStore, type VehicleType, type FuelType } from '@/stores/vehicles';
   import { fipeApi, type FipeVehicleType } from '@/services/fipeApi';
+  import { fipeCache } from '@/services/fipeCache';
   import { translateFirebaseError } from '@/utils/errorMessages';
   import MSearchableSelectFipe from '@/components/molecules/MSearchableSelectFipe.vue';
+  import MFullscreenLoading from '@/components/molecules/MFullscreenLoading.vue';
   import ModernHeader from '@/components/organisms/ModernHeader.vue';
   import MConfirmModal from '@/components/molecules/MConfirmModal.vue';
 
@@ -633,6 +645,12 @@
 
   // Manual input mode (when user can't find vehicle in FIPE)
   const useManualInput = ref(false);
+
+  // Cache initialization state
+  const isInitializingCache = ref(false);
+  const cacheLoadingTitle = ref('Atualizando base de dados...');
+  const cacheLoadingDescription = ref('Aguarde enquanto preparamos os dados dos veículos');
+  const cacheLoadingIcon = ref('🚗');
 
   // Map vehicle types to FIPE API types
   const mapVehicleTypeToFipe = (type: VehicleType): FipeVehicleType => {
@@ -790,11 +808,25 @@
     };
   });
 
-  // Load brands
+  // Load brands com cache
   const loadBrands = async () => {
     try {
-      loadingBrands.value = true;
-      brands.value = await fipeApi.getBrandsByType(vehicleType.value);
+      // Verifica se já existe cache
+      const hasCache = await fipeCache.hasBrandsCache(vehicleType.value);
+
+      if (!hasCache) {
+        // Primeira vez: mostra loading de tela cheia
+        isInitializingCache.value = true;
+        cacheLoadingTitle.value = 'Atualizando base de dados de veículos...';
+        cacheLoadingDescription.value = 'Preparando lista de marcas disponíveis';
+        cacheLoadingIcon.value = '🚗';
+      } else {
+        // Já tem cache: loading normal
+        loadingBrands.value = true;
+      }
+
+      // Busca com cache (automático)
+      brands.value = await fipeCache.getBrands(vehicleType.value);
       vehiclesStore.clearError();
     } catch (error) {
       console.error('❌ Erro ao carregar marcas FIPE:', error);
@@ -805,6 +837,7 @@
       vehiclesStore.error = errorMessage;
       brands.value = [];
     } finally {
+      isInitializingCache.value = false;
       loadingBrands.value = false;
     }
   };
@@ -816,7 +849,8 @@
       if (!newVehicleType || isEdit.value) return;
 
       // Update FIPE type based on vehicle type
-      vehicleType.value = mapVehicleTypeToFipe(newVehicleType);
+      const newFipeType = mapVehicleTypeToFipe(newVehicleType);
+      vehicleType.value = newFipeType;
 
       // Reset FIPE selections and reload brands for new type
       formData.value.brandCode = '';
@@ -825,6 +859,27 @@
       brands.value = [];
       models.value = [];
       years.value = [];
+
+      // Atualiza o ícone do loading conforme o tipo
+      switch (newVehicleType) {
+        case 'motorcycle':
+          cacheLoadingIcon.value = '🏍️';
+          break;
+        case 'truck':
+          cacheLoadingIcon.value = '🚚';
+          break;
+        case 'bus':
+          cacheLoadingIcon.value = '🚌';
+          break;
+        case 'van':
+          cacheLoadingIcon.value = '🚐';
+          break;
+        case 'pickup':
+          cacheLoadingIcon.value = '🛻';
+          break;
+        default:
+          cacheLoadingIcon.value = '🚗';
+      }
 
       // Load brands for the new vehicle type
       await loadBrands();
@@ -850,7 +905,7 @@
     }
   });
 
-  // Watch brand selection
+  // Watch brand selection com cache
   watch(
     () => formData.value.brandCode,
     async (newBrandCode) => {
@@ -863,8 +918,22 @@
       }
 
       try {
-        loadingModels.value = true;
-        models.value = await fipeApi.getModelsByBrand(vehicleType.value, newBrandCode);
+        // Verifica se já existe cache para os modelos
+        const hasCache = await fipeCache.hasModelsCache(vehicleType.value, newBrandCode);
+
+        if (!hasCache) {
+          // Primeira vez: mostra loading de tela cheia
+          isInitializingCache.value = true;
+          cacheLoadingTitle.value = 'Consultando modelos disponíveis...';
+          cacheLoadingDescription.value = 'Buscando todos os modelos desta marca';
+          cacheLoadingIcon.value = '🔍';
+        } else {
+          // Já tem cache: loading normal
+          loadingModels.value = true;
+        }
+
+        // Busca com cache (automático)
+        models.value = await fipeCache.getModels(vehicleType.value, newBrandCode);
         years.value = [];
         formData.value.yearCode = '';
       } catch (error) {
@@ -876,6 +945,7 @@
         vehiclesStore.error = errorMessage;
         models.value = [];
       } finally {
+        isInitializingCache.value = false;
         loadingModels.value = false;
       }
     },

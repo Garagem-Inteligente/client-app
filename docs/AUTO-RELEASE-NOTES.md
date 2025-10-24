@@ -134,7 +134,7 @@ chmod +x scripts/generate-play-store-notes.sh
 ./scripts/generate-play-store-notes.sh "2024.10.24"
 
 # Ver resultado
-cat android/whatsnew/whatsnew-pt-BR.txt
+cat android/whatsnew/pt-BR.txt
 ```
 
 ### Saída do Script
@@ -143,7 +143,7 @@ cat android/whatsnew/whatsnew-pt-BR.txt
 📱 Gerando Release Notes para Play Store...
 
 Version: 2024.10.24
-Output: android/whatsnew/whatsnew-pt-BR.txt
+Output: android/whatsnew/pt-BR.txt
 
 📋 Commits desde: v2024.10.20
 
@@ -165,7 +165,7 @@ Output: android/whatsnew/whatsnew-pt-BR.txt
 ...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ Arquivo salvo em: android/whatsnew/whatsnew-pt-BR.txt
+✅ Arquivo salvo em: android/whatsnew/pt-BR.txt
 📤 Pronto para deploy na Play Store!
 ```
 
@@ -286,7 +286,7 @@ git commit -m "fix: corrigir bug X" --allow-empty
 ./scripts/generate-play-store-notes.sh "teste-1.0.0"
 
 # 3. Verificar resultado
-cat android/whatsnew/whatsnew-pt-BR.txt
+cat android/whatsnew/pt-BR.txt
 
 # 4. Limpar commits de teste
 git reset HEAD~2
@@ -296,7 +296,7 @@ git reset HEAD~2
 
 ```bash
 # Contar caracteres
-wc -c android/whatsnew/whatsnew-pt-BR.txt
+wc -c android/whatsnew/pt-BR.txt
 
 # Deve ser <= 500
 ```
@@ -332,7 +332,7 @@ git push --tags
 ```bash
 # O script avisa e adiciona "• E mais..."
 # Para ver tamanho:
-wc -c android/whatsnew/whatsnew-pt-BR.txt
+wc -c android/whatsnew/pt-BR.txt
 ```
 
 ### Problema: Traduções erradas

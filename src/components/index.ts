@@ -22,6 +22,7 @@ export { default as MFuelCostDisplay } from './molecules/MFuelCostDisplay.vue';
 export { default as MMultiSelect } from './molecules/MMultiSelect.vue';
 export { default as SettingsSection } from './molecules/SettingsSection.vue';
 export { default as SettingItem } from './molecules/SettingItem.vue';
+export { default as MFullscreenLoading } from './molecules/MFullscreenLoading.vue';
 
 // Organisms
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';

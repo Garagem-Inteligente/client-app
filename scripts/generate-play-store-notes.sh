@@ -20,7 +20,7 @@ echo ""
 VERSION="${1:-$(date +%Y.%m.%d)}"
 MAX_CHARS=500  # Limite da Play Store
 OUTPUT_DIR="android/whatsnew"
-OUTPUT_FILE="$OUTPUT_DIR/whatsnew-pt-BR.txt"
+OUTPUT_FILE="$OUTPUT_DIR/pt-BR.txt"
 
 # Criar diretório se não existir
 mkdir -p "$OUTPUT_DIR"
@@ -206,7 +206,7 @@ RELEASE_NOTES=$(echo "$RELEASE_NOTES" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
 echo "$RELEASE_NOTES" > "$OUTPUT_FILE"
 
 # Criar cópia para outros idiomas (Play Store exige)
-cp "$OUTPUT_FILE" "$OUTPUT_DIR/whatsnew-en-US.txt"
+cp "$OUTPUT_FILE" "$OUTPUT_DIR/en-US.txt"
 
 # Exibir resultado
 echo -e "${GREEN}✅ Release Notes geradas com sucesso!${NC}"

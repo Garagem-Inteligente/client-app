@@ -1,0 +1,15 @@
+🚀 Version 2024.10.24
+
+✨ New Features:
+• Intelligent caching system for vehicle brands and models
+• Modern fullscreen loading with informative messages
+• Instant loading after first query
+
+🐛 Bug Fixes:
+• Fixed safe area in header
+• Adjusted navigation bar for Android gestures
+
+⚡ Improvements:
+• Optimized performance with local cache
+• Mobile data savings
+• Smoother experience when adding vehicles

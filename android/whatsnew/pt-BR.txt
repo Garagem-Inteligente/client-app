@@ -1,0 +1,15 @@
+🚀 Versão 2024.10.24
+
+✨ Novidades:
+• Sistema de cache inteligente para marcas e modelos de veículos
+• Loading moderno em tela cheia com mensagens informativas
+• Carregamento instantâneo após primeira consulta
+
+🐛 Correções:
+• Correção na área segura do cabeçalho
+• Ajustes na barra de navegação para gestos Android
+
+⚡ Melhorias:
+• Performance otimizada com cache local
+• Economia de dados móveis
+• Experiência mais fluida ao adicionar veículos
