@@ -401,6 +401,7 @@ as alterações no firebase NUNCA devem impactar dados reais dos usuários sem u
  deve também iniciar e utilizar os mcps disponíveis, sem depender que eu solicite isso explicitamente.
 - nesse projeto usamos PNPM e não NPM
  deve seguir sem excessão essa sequencia antes de commitar uma nova feature ou uma correção de bug:
+  - sempre que rodar testes unitários já rode com o comando para finaliza-lo automaticamente após a conclusão, sem necessidade de intervenção manual.
   - type-check: verificar se todo o código novo ou modificado está devidamente tipado em TypeScript, sem uso de any desnecessário.
   - lint: rodar o linter para garantir que o código segue os padrões de estilo definidos no projeto.
   - verificar se há avisos, warnings, erros ou informação de itens depreciados, caso haja, corrigir antes de prosseguir, sem excessão.

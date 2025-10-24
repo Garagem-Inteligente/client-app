@@ -55,73 +55,58 @@ Aplicativo mobile para a plataforma **Garagem Inteligente** - uma solução comp
 ### Pré-requisitos
 
 - **Node.js** 18.x ou superior
-- **npm** 8.x ou superior
-- **Ionic CLI** - `npm install -g @ionic/cli`
-- **Capacitor CLI** - `npm install -g @capacitor/cli`
+- **pnpm** 8.x ou superior
+- **Ionic CLI** - `pnpm add -g @ionic/cli`
+- **Capacitor CLI** - `pnpm add -g @capacitor/cli`
 
-### Instalação
+### Instalação Rápida
 
 1. **Clone o repositório:**
 ```bash
-git clone https://github.com/Mikeofic/garagem-inteligente-app.git
-cd garagem-inteligente-app
+git clone https://github.com/Garagem-Inteligente/client-app.git
+cd client-app
 ```
 
-2. **Instale as dependências:**
+2. **Siga o guia de setup:**
 ```bash
-npm install
+# Veja docs/setup.md para instruções detalhadas de configuração
+# Inclui: variáveis de ambiente, Firebase, pnpm, functions, etc.
 ```
 
-3. **Configure as variáveis de ambiente:**
+3. **Inicie o servidor de desenvolvimento:**
 ```bash
-cp .env.example .env
+pnpm dev
 ```
 
-Preencha o arquivo `.env` com suas credenciais do Firebase:
-```env
-VITE_FIREBASE_API_KEY=your_api_key_here
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-```
-
-4. **Inicie o servidor de desenvolvimento:**
-```bash
-npm run dev
-```
-
-O aplicativo estará disponível em `http://localhost:8100` 🎉
+O aplicativo estará disponível em `http://localhost:5173` 🎉
 
 ---
 
-## � Documentação
+## 📚 Documentação
 
-Os guias detalhados e operacionais foram consolidados em `docs/`. Links úteis:
+Toda a documentação detalhada está organizada em `docs/`:
 
-- `docs/setup.md` — passos de setup (env, pnpm, functions)
-- `docs/android-build.md` — gerar e instalar APK Android (usa `./scripts/build-android.sh`)
-- `docs/ci-cd.md` — CI/CD e configuração de secrets
-- `docs/auth-google.md` — Google Sign-In e troubleshooting
-- `docs/password-change.md` — fluxo de troca de senha e SendGrid
-- `docs/developer-notes.md` — notas de desenvolvimento e melhorias visuais
-
-Arquivos históricos foram movidos para `docs/archive/` para referência.
+- **[docs/index.md](docs/index.md)** — Índice de todos os guias
+- **[docs/setup.md](docs/setup.md)** — Setup local, variáveis de ambiente, Firebase e dependências
+- **[docs/ci-cd.md](docs/ci-cd.md)** — Workflows CI/CD, GitHub Actions e deployments
+- **[docs/android-build.md](docs/android-build.md)** — Build e instalação de APK Android
+- **[docs/developer-notes.md](docs/developer-notes.md)** — Notas de desenvolvimento e UI/UX
+- **[docs/account-linking.md](docs/account-linking.md)** — Account Linking
+- **[docs/transfer-implementation.md](docs/transfer-implementation.md)** — Sistema de transferência
+- **[docs/password-change.md](docs/password-change.md)** — Fluxo de troca de senha
 
 ---
 
-## �📜 Scripts Disponíveis
+## 📜 Scripts Disponíveis
 
 | Script | Descrição |
 |--------|-----------|
-| `npm run dev` | Inicia o servidor de desenvolvimento |
-| `npm run build` | Gera a versão de produção |
-| `npm run preview` | Visualiza a build de produção |
-| `npm run test:unit` | Executa testes unitários |
-| `npm run test:e2e` | Executa testes E2E |
-| `npm run lint` | Executa o ESLint |
+| `pnpm dev` | Inicia o servidor de desenvolvimento (porta 5173) |
+| `pnpm build` | Gera a versão de produção |
+| `pnpm preview` | Visualiza a build de produção |
+| `pnpm test:unit` | Executa testes unitários |
+| `pnpm lint` | Executa o ESLint |
+| `pnpm type-check` | Verifica tipagem TypeScript |
 
 ---
 
@@ -209,38 +194,28 @@ app-client/
 
 ---
 
-## 🔧 Configuração do Capacitor
+## 🔧 Capacitor
 
 ### Android
 
-1. **Adicione a plataforma Android:**
-```bash
-npx cap add android
-```
-
-2. **Sincronize o projeto:**
+1. **Sincronize o projeto:**
 ```bash
 npx cap sync
 ```
 
-3. **Abra no Android Studio:**
+2. **Abra no Android Studio:**
 ```bash
 npx cap open android
 ```
 
 ### iOS
 
-1. **Adicione a plataforma iOS:**
-```bash
-npx cap add ios
-```
-
-2. **Sincronize o projeto:**
+1. **Sincronize o projeto:**
 ```bash
 npx cap sync
 ```
 
-3. **Abra no Xcode:**
+2. **Abra no Xcode:**
 ```bash
 npx cap open ios
 ```
@@ -249,35 +224,19 @@ npx cap open ios
 
 ## 🚀 Deploy
 
-### PWA (Progressive Web App)
+Para instruções completas de deployment, veja **[docs/ci-cd.md](docs/ci-cd.md)**.
+
+**Resumo rápido:**
 
 ```bash
-npm run build
+# Build
+pnpm build
+
+# Sincronizar com Capacitor
 npx cap sync
-```
 
-### Android
-
-1. **Gere a build:**
-```bash
-npx cap build android
-```
-
-2. **Assine o APK:**
-```bash
-npx cap run android --prod
-```
-
-### iOS
-
-1. **Gere a build:**
-```bash
-npx cap build ios
-```
-
-2. **Abra no Xcode e faça o deploy:**
-```bash
-npx cap open ios
+# Deploy automático via GitHub Actions
+git push origin seu-branch
 ```
 
 ---
@@ -286,31 +245,32 @@ npx cap open ios
 
 ### Boas Práticas
 
-1. **Sempre use TypeScript** para tipagem estática
-2. **Siga a convenção de commits**: 
-   - `feat:` para novas funcionalidades
-   - `fix:` para correções
-   - `docs:` para documentação
-   - `style:` para formatação
-   - `refactor:` para refatoração
-3. **Execute `npm run lint`** antes de fazer commits
-4. **Mantenha componentes pequenos e reutilizáveis**
-5. **Use Pinia para gerenciamento de estado**
+1. **Sempre use TypeScript** com tipagem estrita
+2. **Use pnpm** para gerenciar dependências
+3. **Siga padrão de commits:**
+   - `feat:` novas funcionalidades
+   - `fix:` correções de bugs
+   - `docs:` documentação
+   - `refactor:` refatorações
+   - `test:` testes
+   - `style:` formatação
+4. **Rode linter antes de commits:**
+   ```bash
+   pnpm lint
+   pnpm type-check
+   ```
+5. **Mantenha componentes pequenos e reutilizáveis**
+6. **Use Pinia** para gerenciamento de estado
 
-### Estrutura de Componentes
+### Qualidade de Código
 
-```vue
-<template>
-  <!-- Template com Ionic components -->
-</template>
+Sequência recomendada antes de commitar:
 
-<script setup lang="ts">
-// Composition API com TypeScript
-</script>
-
-<style scoped>
-/* Estilos específicos do componente */
-</style>
+```bash
+pnpm type-check    # Verifica tipagem TypeScript
+pnpm lint          # ESLint
+pnpm test:unit     # Testes unitários
+pnpm build         # Build de produção
 ```
 
 ---
@@ -319,7 +279,7 @@ npx cap open ios
 
 ### Problema: Erro de módulo não encontrado
 
-**Solução:** `rm -rf node_modules && npm install`
+**Solução:** `rm -rf node_modules && pnpm install`
 
 ### Problema: Capacitor não sincroniza
 
@@ -327,11 +287,15 @@ npx cap open ios
 
 ### Problema: Erro de Firebase
 
-**Solução:** Verifique se o arquivo `.env` está configurado corretamente
+**Solução:** Verifique o arquivo `.env` conforme [docs/setup.md](docs/setup.md)
 
 ### Problema: Build falha
 
-**Solução:** `npm run build` e verifique os logs de erro
+**Solução:** 
+```bash
+pnpm build
+```
+Verifique os logs de erro. Para mais detalhes, veja [docs/ci-cd.md](docs/ci-cd.md)
 
 ---
 
