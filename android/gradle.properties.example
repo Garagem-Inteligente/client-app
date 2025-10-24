@@ -25,3 +25,8 @@ android.useAndroidX=true
 # Usa Java 21 (Temurin) - mesma versão do CI
 # JAVA_HOME é configurado automaticamente pelo sistema ou CI
 org.gradle.java.installations.auto-detect=true
+
+# Configuração local (opcional)
+# Descomente e ajuste se precisar apontar para uma instalação específica do Java
+# ATENÇÃO: Não commite este arquivo com caminhos absolutos!
+# org.gradle.java.home=/caminho/para/seu/jdk
