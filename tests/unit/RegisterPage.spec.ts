@@ -163,7 +163,7 @@ describe('RegisterPage', () => {
       })
 
       const registerCard = wrapper.findComponent({ name: 'RegisterCard' })
-      const oauthSlot = registerCard.find('.google-signin')
+      const oauthSlot = registerCard.find('.google-sign-in-button')
       expect(oauthSlot.exists()).toBe(true)
     })
   })

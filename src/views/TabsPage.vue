@@ -126,6 +126,7 @@
     width: 100vw;
     height: 65px;
     padding: 8px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
     margin: 0;
     border-radius: 0;
     overflow: visible;

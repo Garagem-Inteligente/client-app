@@ -1161,7 +1161,7 @@
   /* FAB positioning - Always visible above tab bar */
   ion-fab {
     position: fixed;
-    bottom: 80px; /* Above tab bar (60px) + margin */
+    bottom: calc(80px + env(safe-area-inset-bottom)); /* Above tab bar (60px) + margin + safe area */
     right: 16px;
     z-index: 999;
   }

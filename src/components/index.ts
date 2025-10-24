@@ -20,6 +20,8 @@ export { default as MStatusBadge } from './molecules/MStatusBadge.vue';
 export { default as MCardTitle } from './molecules/MCardTitle.vue';
 export { default as MFuelCostDisplay } from './molecules/MFuelCostDisplay.vue';
 export { default as MMultiSelect } from './molecules/MMultiSelect.vue';
+export { default as SettingsSection } from './molecules/SettingsSection.vue';
+export { default as SettingItem } from './molecules/SettingItem.vue';
 
 // Organisms
 export { default as MaintenanceSection } from './organisms/MaintenanceSection.vue';
@@ -28,6 +30,10 @@ export { default as PageLayout } from './organisms/PageLayout.vue';
 export { default as RegisterCard } from './organisms/RegisterCard.vue';
 export { default as RegisterLogoSection } from './organisms/RegisterLogoSection.vue';
 export { default as RegisterAuthFooter } from './organisms/RegisterAuthFooter.vue';
+export { default as ProfileHeaderCard } from './organisms/ProfileHeaderCard.vue';
+export { default as EditProfileModal } from './organisms/EditProfileModal.vue';
+export { default as ChangePasswordModal } from './organisms/ChangePasswordModal.vue';
+export { default as ConnectionsModal } from './organisms/ConnectionsModal.vue';
 
 // Types
 export type { FileUploadItem } from './molecules/MFileUpload.vue';
