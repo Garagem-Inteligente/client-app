@@ -64,7 +64,7 @@ describe('useProfilePhoto', () => {
 
   describe('Estado inicial', () => {
     test('deve inicializar com estado correto', () => {
-      const { photoState, photoActionButtons, handlePhotoError } = useProfilePhoto()
+      const { photoState, photoActionButtons, handlePhotoError, photoUrl } = useProfilePhoto()
 
       expect(photoState.value).toEqual({
         currentPhotoUrl: '',
@@ -73,16 +73,35 @@ describe('useProfilePhoto', () => {
 
       expect(photoActionButtons.value).toHaveLength(2)
       expect(typeof handlePhotoError).toBe('function')
-    })
-  })
-
-  describe('handlePhotoError', () => {
-    test('deve marcar erro de carregamento', () => {
-      const { photoState, handlePhotoError } = useProfilePhoto()
-
-      handlePhotoError()
-
-      expect(photoState.value.photoLoadError).toBe(true)
+      expect(photoUrl.value).toBe('/assets/avatar-default.svg')
     })
   })
 })
+  describe('photoUrl computed', () => {
+    test('deve retornar foto atual quando disponível e sem erro', () => {
+      const { photoState, photoUrl } = useProfilePhoto()
+
+      photoState.value.currentPhotoUrl = 'https://example.com/photo.jpg'
+      photoState.value.photoLoadError = false
+
+      expect(photoUrl.value).toBe('https://example.com/photo.jpg')
+    })
+
+    test('deve retornar avatar padrão quando não há foto atual', () => {
+      const { photoState, photoUrl } = useProfilePhoto()
+
+      photoState.value.currentPhotoUrl = ''
+      photoState.value.photoLoadError = false
+
+      expect(photoUrl.value).toBe('/assets/avatar-default.svg')
+    })
+
+    test('deve retornar avatar padrão quando há erro de carregamento', () => {
+      const { photoState, photoUrl, handlePhotoError } = useProfilePhoto()
+
+      photoState.value.currentPhotoUrl = 'https://example.com/photo.jpg'
+      handlePhotoError()
+
+      expect(photoUrl.value).toBe('/assets/avatar-default.svg')
+    })
+  })

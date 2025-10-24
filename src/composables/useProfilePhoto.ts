@@ -81,6 +81,15 @@ export function useProfilePhoto() {
     },
   ])
 
+  // Computed para foto com fallback
+  const photoUrl = computed(() => {
+    if (photoState.value.currentPhotoUrl && !photoState.value.photoLoadError) {
+      return photoState.value.currentPhotoUrl
+    }
+    // Fallback para avatar padrão
+    return '/assets/avatar-default.svg'
+  })
+
   // Methods
   const handlePhotoError = () => {
     console.error('Erro ao carregar foto do perfil')
@@ -199,6 +208,7 @@ export function useProfilePhoto() {
 
     // Computed
     photoActionButtons,
+    photoUrl,
 
     // Methods
     handlePhotoError,
