@@ -187,8 +187,7 @@ const handleLinkAccount = async (password: string) => {
   
   const result = await authStore.linkGoogleAccount(
     emailToLink.value,
-    password,
-    googleCredentialToLink.value || ''
+    password
   )
   
   if (result.success) {

@@ -131,38 +131,62 @@
         </div>
 
         <!-- Vehicle Management -->
-        <SettingsSection title="Gerenciamento de Veículos">
-          <SettingItem
-            title="Transferências Pendentes"
-            subtitle="Ver e confirmar transferências"
-            :icon="swapHorizontalOutline"
-            @click="router.push('/tabs/transfer-confirm')"
-          />
+        <div class="settings-section">
+          <h2 class="section-title">Gerenciamento de Veículos</h2>
 
-          <SettingItem
-            title="Carros Transferidos"
-            subtitle="Histórico de veículos vendidos"
-            :icon="archiveOutline"
-            @click="router.push('/tabs/transferred-vehicles')"
-          />
-        </SettingsSection>
+          <div class="settings-card">
+            <button class="setting-item" @click="router.push('/tabs/transfer-confirm')">
+              <div class="setting-icon-wrapper icon-warning">
+                <ion-icon :icon="swapHorizontalOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Transferências Pendentes</span>
+                <span class="setting-description">Ver e confirmar transferências</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+
+            <button class="setting-item" @click="router.push('/tabs/transferred-vehicles')">
+              <div class="setting-icon-wrapper icon-tertiary">
+                <ion-icon :icon="archiveOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Carros Transferidos</span>
+                <span class="setting-description">Histórico de veículos vendidos</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+          </div>
+        </div>
 
         <!-- Preferences -->
-        <SettingsSection title="Preferências">
-          <SettingItem
-            title="Notificações"
-            subtitle="Gerenciar alertas e lembretes"
-            :icon="notificationsOutline"
-            @click="showNotificationsSettings"
-          />
+        <div class="settings-section">
+          <h2 class="section-title">Preferências</h2>
 
-          <SettingItem
-            title="Privacidade"
-            subtitle="Controle de dados e privacidade"
-            :icon="shieldOutline"
-            @click="showPrivacySettings"
-          />
-        </SettingsSection>
+          <div class="settings-card">
+            <button class="setting-item" @click="showNotificationsSettings">
+              <div class="setting-icon-wrapper icon-primary">
+                <ion-icon :icon="notificationsOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Notificações</span>
+                <span class="setting-description">Gerenciar alertas e lembretes</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+
+            <button class="setting-item" @click="showPrivacySettings">
+              <div class="setting-icon-wrapper icon-success">
+                <ion-icon :icon="shieldOutline"></ion-icon>
+              </div>
+              <div class="setting-content">
+                <span class="setting-title">Privacidade</span>
+                <span class="setting-description">Controle de dados e privacidade</span>
+              </div>
+              <ion-icon :icon="chevronForwardOutline" class="setting-arrow"></ion-icon>
+            </button>
+          </div>
+        </div>
 
         <!-- Support -->
         <div class="settings-section">
