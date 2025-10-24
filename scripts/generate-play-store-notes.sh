@@ -6,6 +6,21 @@
 
 set -e
 
+# Handler para erros que imprime contexto antes de sair
+on_error() {
+  local exit_code=$?
+  echo -e "\n${RED}❌ Erro no script de geração de release notes (exit code: ${exit_code})${NC}"
+  echo "Último comando: $BASH_COMMAND"
+  echo "Conteúdo do diretório $OUTPUT_DIR:" 
+  ls -la "$OUTPUT_DIR" || true
+  echo "--- Commits coletados (primeiras 10 linhas) ---"
+  printf "%s\n" "$COMMITS" | head -n 10 || true
+  echo "--- fim do contexto ---"
+  exit $exit_code
+}
+
+trap 'on_error' ERR
+
 # Cores para output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -33,10 +48,16 @@ echo ""
 LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 if [ -z "$LAST_TAG" ]; then
   echo -e "${YELLOW}⚠️  Nenhuma tag encontrada. Usando últimos 10 commits.${NC}"
-  COMMITS=$(git log -10 --pretty=format:"%s" --no-merges)
+  if ! COMMITS=$(git log -10 --pretty=format:"%s" --no-merges 2>/dev/null); then
+    echo -e "${YELLOW}⚠️  git log falhou; não será possível gerar release notes a partir de commits.${NC}"
+    COMMITS=""
+  fi
 else
   echo "📋 Commits desde: $LAST_TAG"
-  COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges)
+  if ! COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges 2>/dev/null); then
+    echo -e "${YELLOW}⚠️  git log desde a tag falhou; tentando últimos 10 commits como fallback.${NC}"
+    COMMITS=$(git log -10 --pretty=format:"%s" --no-merges 2>/dev/null || true)
+  fi
 fi
 
 # Função para limpar e formatar mensagem de commit
@@ -199,14 +220,16 @@ if add_line "Obrigado por usar Garagem Inteligente! 🚗"; then
   :
 fi
 
-# Remover última linha vazia
-RELEASE_NOTES=$(echo "$RELEASE_NOTES" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
+# Remover última linha vazia (compatível)
+RELEASE_NOTES=$(printf "%s" "$RELEASE_NOTES" | sed -e :a -e '/^\s*$/{$d;N;ba' -e '}')
 
 # Salvar arquivo
 echo "$RELEASE_NOTES" > "$OUTPUT_FILE"
 
 # Criar cópia para outros idiomas (Play Store exige)
-cp "$OUTPUT_FILE" "$OUTPUT_DIR/en-US.txt"
+if ! cp "$OUTPUT_FILE" "$OUTPUT_DIR/en-US.txt" 2>/dev/null; then
+  echo -e "${YELLOW}⚠️  Não foi possível criar cópia en-US.txt (permissão ou sistema de arquivos). Continuando...${NC}"
+fi
 
 # Exibir resultado
 echo -e "${GREEN}✅ Release Notes geradas com sucesso!${NC}"
