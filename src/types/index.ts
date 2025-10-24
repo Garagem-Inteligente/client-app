@@ -292,3 +292,6 @@ export type Theme = 'light' | 'dark' | 'auto'
 // Language Types
 export type Language = 'pt-BR' | 'en-US' | 'es-ES'
 
+// Re-export profile types
+export * from './profile'
+

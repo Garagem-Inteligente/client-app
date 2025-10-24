@@ -343,7 +343,6 @@ export const useAuthStore = defineStore('auth', () => {
   const linkGoogleAccount = async (
     email: string,
     password: string,
-    _googleCredential: string,
   ): Promise<{ success: boolean; error?: string }> => {
     loading.value = true;
     error.value = null;
@@ -477,6 +476,12 @@ export const useAuthStore = defineStore('auth', () => {
   // Initialize auth on store creation
   initializeAuth();
 
+  const updateUserAvatar = (avatar: string | null) => {
+    if (user.value) {
+      user.value.avatar = avatar || undefined;
+    }
+  };
+
   return {
     // State
     user,
@@ -500,5 +505,6 @@ export const useAuthStore = defineStore('auth', () => {
     linkGoogleAccount,
     unlinkGoogleAccount,
     getUserProviders,
+    updateUserAvatar,
   };
 });
