@@ -124,9 +124,9 @@
     left: 0;
     right: 0;
     width: 100vw;
-    height: 65px;
-    padding: 8px 0 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    /* Altura dinâmica que inclui a safe area do Android */
+    height: calc(65px + env(safe-area-inset-bottom));
+    padding: 8px 0 env(safe-area-inset-bottom);
     margin: 0;
     border-radius: 0;
     overflow: visible;

@@ -1,6 +1,15 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
 
+/** Safe Area Configuration for Android Gesture Navigation **/
+html {
+  /* Permite que o conteúdo use toda a tela, incluindo áreas de sistema */
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+}
+
 /** Global Font Size Configuration **/
 html {
   /* Base font size - increased by 2px (16px -> 18px) */
