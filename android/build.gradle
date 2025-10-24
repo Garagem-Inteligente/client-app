@@ -24,23 +24,23 @@ allprojects {
     }
 }
 
-// Força Java 21 em TODOS os módulos (compatível com Java 25)
+// Força Java 17 em TODOS os módulos (compatível com a maioria dos ambientes)
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_21
-                    targetCompatibility JavaVersion.VERSION_21
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
                 }
             }
         }
         
-        // Configura Kotlin JVM target para 21 (capacitor-geolocation usa Kotlin)
+        // Configura Kotlin JVM target para 17 (capacitor-geolocation usa Kotlin)
         tasks.configureEach { task ->
             if (task.name.contains('Kotlin') && task.hasProperty('kotlinOptions')) {
                 task.kotlinOptions {
-                    jvmTarget = '21'
+                    jvmTarget = '17'
                 }
             }
         }

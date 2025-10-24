@@ -5,9 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Garagem Inteligente',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
-    url: 'http://192.168.2.113:5173',
-    cleartext: true
+    androidScheme: 'https'
   },
   plugins: {
     FirebaseAuthentication: {
