@@ -48,10 +48,30 @@ import './style.css';
 /* Performance optimization */
 import { applyPerformanceMode } from './utils/performance';
 
+/* Capacitor Plugins */
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
+
 const app = createApp(App).use(IonicVue).use(router).use(createPinia());
 
 // Apply performance optimizations
 applyPerformanceMode();
+
+// Configurar StatusBar (apenas em plataformas nativas)
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setStyle({ style: Style.Dark }).catch(() => {
+    console.log('StatusBar plugin not available');
+  });
+  
+  StatusBar.setBackgroundColor({ color: '#1F2937' }).catch(() => {
+    console.log('StatusBar setBackgroundColor not available');
+  });
+  
+  // Garante que o conteúdo aparece sob a status bar (overlay)
+  StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {
+    console.log('StatusBar setOverlaysWebView not available');
+  });
+}
 
 router.isReady().then(() => {
   app.mount('#app');

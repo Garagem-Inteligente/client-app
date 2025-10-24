@@ -139,6 +139,10 @@ const handleBack = () => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 1000;
+  
+  /* Safe area para barra de status (Android/iOS) */
+  --padding-top: env(safe-area-inset-top);
+  padding-top: var(--padding-top);
 }
 
 .modern-toolbar {
@@ -146,6 +150,8 @@ const handleBack = () => {
   --border-width: 0;
   --min-height: 56px;
   padding: 4px 8px;
+  /* Garante que a toolbar não sobrepõe a safe area */
+  --padding-top: 0;
 }
 
 /* ====================================

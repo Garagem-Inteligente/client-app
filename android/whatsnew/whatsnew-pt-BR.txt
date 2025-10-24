@@ -1,0 +1,13 @@
+📱 Versão 2024.10.24
+
+✨ Novidades:
+• Suporte completo para navegação por gestos no Android
+• Sistema de área segura para barra de status
+• Melhorias na TabBar com altura dinâmica
+
+🐛 Correções:
+• Corrigido tela preta ao iniciar o app
+• Ajustada versão do Java de 21 para 17
+• Removida configuração de servidor de desenvolvimento
+
+Obrigado por usar Garagem Inteligente! 🚗

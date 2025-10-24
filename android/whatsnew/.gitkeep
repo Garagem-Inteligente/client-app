@@ -1,0 +1,3 @@
+# Este diretório contém as release notes para a Play Store
+# Os arquivos whatsnew-*.txt são gerados automaticamente pelo script
+# scripts/generate-play-store-notes.sh durante o processo de CI/CD

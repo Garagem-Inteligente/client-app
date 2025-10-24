@@ -459,3 +459,28 @@ ion-tab-button ion-label {
   font-size: inherit;
   opacity: 0.7;
 }
+
+/* ====================================
+   SAFE AREA - HEADER & STATUS BAR
+   ==================================== */
+
+/* Garante que TODOS os headers respeitem a safe area da barra de status */
+ion-header {
+  padding-top: var(--ion-safe-area-top);
+}
+
+/* Garante que o conteúdo não fique escondido atrás do header */
+ion-content {
+  --offset-top: 0 !important;
+}
+
+/* Para páginas que usam ion-header com translucent */
+ion-header.header-translucent {
+  padding-top: var(--ion-safe-area-top);
+}
+
+/* Garante que a toolbar dentro do header não adicione padding extra */
+ion-header ion-toolbar:first-of-type {
+  padding-top: 0;
+  --padding-top: 0;
+}

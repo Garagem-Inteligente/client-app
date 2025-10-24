@@ -266,6 +266,19 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.deploy_android == true)
 
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necessário para git log
+
+      - name: 📝 Generate Play Store Release Notes
+        run: |
+          chmod +x ./scripts/generate-play-store-notes.sh
+          ./scripts/generate-play-store-notes.sh "${{ needs.build.outputs.version_name }}"
+          
+          echo "📱 Release Notes geradas:"
+          cat android/whatsnew/whatsnew-pt-BR.txt
+
       - name: 📥 Download AAB
         uses: actions/download-artifact@v4
         with:
@@ -280,6 +293,7 @@ jobs:
           track: ${{ github.event.inputs.android_track || 'internal' }}
           status: completed
           inAppUpdatePriority: 3
+          whatsNewDirectory: android/whatsnew/
 
       - name: ✅ Deploy Summary
         run: |
