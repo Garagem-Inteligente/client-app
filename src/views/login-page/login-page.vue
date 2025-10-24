@@ -57,7 +57,3 @@ const handleRegisterClick = async () => {
   }
 }
 </style>
-
-
-
-

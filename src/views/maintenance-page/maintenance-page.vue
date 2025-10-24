@@ -375,9 +375,9 @@
     pieChart,
     trendingUp,
   } from 'ionicons/icons';
-  import { useVehiclesStore } from '../stores/vehicles';
+  import { useVehiclesStore } from '@/stores/vehicles';
   import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles';
-  import type { MaintenanceRecord } from '../stores/vehicles';
+  import type { MaintenanceRecord, Vehicle } from '@/stores/vehicles';
   import {
     calculateFuelBetweenMaintenances,
     getEstimatedFuelPrice,
@@ -426,7 +426,7 @@
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    return vehiclesStore.maintenanceRecords.filter((record) => {
+    return vehiclesStore.maintenanceRecords.filter((record: MaintenanceRecord) => {
       const recordDate = typeof record.date === 'string' ? new Date(record.date) : record.date;
       return recordDate >= thirtyDaysAgo;
     }).length;
@@ -503,12 +503,12 @@
   };
 
   const getVehicleName = (vehicleId: string): string => {
-    const vehicle = vehiclesStore.vehicles.find((v) => v.id === vehicleId);
+    const vehicle = vehiclesStore.vehicles.find((v: Vehicle) => v.id === vehicleId);
     return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Veículo não encontrado';
   };
 
   const getVehicleMaintenanceCount = (vehicleId: string): number => {
-    return vehiclesStore.maintenanceRecords.filter((record) => record.vehicleId === vehicleId)
+    return vehiclesStore.maintenanceRecords.filter((record: MaintenanceRecord) => record.vehicleId === vehicleId)
       .length;
   };
 
@@ -527,18 +527,18 @@
 
   // Calculate fuel consumption for a specific maintenance record
   const getFuelConsumption = (record: MaintenanceRecord) => {
-    const vehicle = vehiclesStore.vehicles.find((v) => v.id === record.vehicleId);
+    const vehicle = vehiclesStore.vehicles.find((v: Vehicle) => v.id === record.vehicleId);
     if (!vehicle || !vehicle.averageFuelConsumption) {
       return null;
     }
 
     // Get all maintenance records for this vehicle sorted by mileage
     const allMaintenanceRecords = vehiclesStore.maintenanceRecords
-      .filter((r) => r.vehicleId === record.vehicleId)
-      .sort((a, b) => a.mileage - b.mileage);
+      .filter((r: MaintenanceRecord) => r.vehicleId === record.vehicleId)
+      .sort((a: MaintenanceRecord, b: MaintenanceRecord) => a.mileage - b.mileage);
 
     // Find the index of the current record
-    const currentIndex = allMaintenanceRecords.findIndex((r) => r.id === record.id);
+    const currentIndex = allMaintenanceRecords.findIndex((r: MaintenanceRecord) => r.id === record.id);
     if (currentIndex <= 0) {
       return null; // No previous maintenance
     }
