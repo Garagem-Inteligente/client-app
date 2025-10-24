@@ -277,7 +277,7 @@ jobs:
           ./scripts/generate-play-store-notes.sh "${{ needs.build.outputs.version_name }}"
           
           echo "📱 Release Notes geradas:"
-          cat android/whatsnew/whatsnew-pt-BR.txt
+          cat android/whatsnew/pt-BR.txt
 
       - name: 📥 Download AAB
         uses: actions/download-artifact@v4
