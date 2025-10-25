@@ -53,6 +53,14 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/profile-page/profile-page.vue'),
       },
       {
+        path: 'profile/edit',
+        component: () => import('@/views/edit-profile-page/edit-profile-page.vue'),
+      },
+      {
+        path: 'profile/change-password',
+        component: () => import('@/views/change-password-page/change-password-page.vue'),
+      },
+      {
         path: 'maintenance',
         component: () => import('@/views/maintenance-page/maintenance-page.vue'),
       },
