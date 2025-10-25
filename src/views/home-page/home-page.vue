@@ -2,6 +2,9 @@
   <ion-page>
     <ModernHeader :title="`Bem-vindo, ${authStore.userName}`" />
 
+    <!-- UpdateBanner: Notificação de nova versão -->
+    <UpdateBanner @update="handleVersionUpdate" @dismiss="handleVersionDismiss" />
+
     <ion-content :fullscreen="true" class="app-content">
       <div class="background-gradient"></div>
       <div class="background-pattern"></div>
@@ -58,6 +61,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { calculateTotalFuelCost, getEstimatedFuelPrice } from '@/utils/fuelCalculations'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
+import UpdateBanner from './components/UpdateBanner.vue'
 import QuickActionsSection from './components/QuickActionsSection.vue'
 import StatsGrid from './components/StatsGrid.vue'
 import FuelSummaryCard from './components/FuelSummaryCard.vue'
@@ -82,6 +86,20 @@ const handleNavigation = (path: string) => {
   setTimeout(() => {
     router.push(path)
   }, 10)
+}
+
+/**
+ * Handler quando usuário clica em atualizar
+ */
+const handleVersionUpdate = (): void => {
+  console.log('🔄 Usuário clicou para atualizar')
+}
+
+/**
+ * Handler quando usuário dismissa o banner
+ */
+const handleVersionDismiss = (): void => {
+  console.log('✋ Usuário dismissiu o banner de atualização por 12h')
 }
 
 const totalCost = computed(() => vehiclesStore.totalMaintenanceCost)
