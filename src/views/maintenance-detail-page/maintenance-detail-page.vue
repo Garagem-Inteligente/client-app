@@ -11,19 +11,14 @@
     />
 
     <ion-content :fullscreen="true" class="app-content detail-content">
-      <!-- Background layers -->
-      <div class="background-gradient"></div>
-      <div class="background-pattern"></div>
+      <!-- Loading State -->
+      <div v-if="!maintenanceRecord" class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p class="loading-text">Carregando informações da manutenção...</p>
+      </div>
 
-      <div class="page-content-wrapper">
-        <!-- Loading State -->
-        <div v-if="!maintenanceRecord" class="loading-container">
-          <ion-spinner name="crescent"></ion-spinner>
-          <p class="loading-text">Carregando informações da manutenção...</p>
-        </div>
-
-        <div v-else class="detail-container">
-          <!-- Maintenance Header -->
+      <div v-else class="detail-container">
+        <!-- Maintenance Header -->
           <div class="maintenance-header">
             <div class="header-content">
               <div class="type-icon">
@@ -153,76 +148,60 @@
             </h3>
 
             <!-- Main Info Section -->
-            <div class="info-section">
-              <h4 class="info-section-title">Execução do Serviço</h4>
-              <div class="info-grid">
-                <div class="info-box">
-                  <div class="info-box-header">
-                    <ion-icon :icon="calendarOutline" class="info-icon blue"></ion-icon>
-                    <span class="info-label">Data da Manutenção</span>
-                  </div>
-                  <p class="info-value">{{ formatFullDate(maintenanceRecord.date) }}</p>
-                </div>
-
-                <div class="info-box">
-                  <div class="info-box-header">
-                    <ion-icon :icon="speedometerOutline" class="info-icon purple"></ion-icon>
-                    <span class="info-label">Quilometragem</span>
-                  </div>
-                  <p class="info-value">
-                    {{ maintenanceRecord.mileage.toLocaleString('pt-BR') }} km
-                  </p>
-                </div>
-
-                <div v-if="maintenanceRecord.serviceProvider" class="info-box full-width">
-                  <div class="info-box-header">
-                    <ion-icon :icon="businessOutline" class="info-icon green"></ion-icon>
-                    <span class="info-label">Prestador de Serviço</span>
-                  </div>
-                  <p class="info-value">{{ maintenanceRecord.serviceProvider }}</p>
-                </div>
-              </div>
-            </div>
+            <MInfoSection title="Execução do Serviço">
+              <MInfoItem label="Data da Manutenção" :icon="calendarOutline" variant="blue">
+                {{ formatFullDate(maintenanceRecord.date) }}
+              </MInfoItem>
+              <MInfoItem label="Quilometragem" :icon="speedometerOutline" variant="purple">
+                {{ maintenanceRecord.mileage.toLocaleString('pt-BR') }} km
+              </MInfoItem>
+              <MInfoItem
+                v-if="maintenanceRecord.serviceProvider"
+                label="Prestador de Serviço"
+                :icon="businessOutline"
+                variant="green"
+                :full-width="true"
+              >
+                {{ maintenanceRecord.serviceProvider }}
+              </MInfoItem>
+            </MInfoSection>
 
             <!-- Next Maintenance Section -->
-            <div
-              v-if="maintenanceRecord.nextDueDate || maintenanceRecord.nextDueMileage"
-              class="info-section"
-            >
-              <h4 class="info-section-title">Próxima Manutenção</h4>
-              <div class="info-grid">
-                <div v-if="maintenanceRecord.nextDueDate" class="info-box">
-                  <div class="info-box-header">
-                    <ion-icon :icon="calendarOutline" class="info-icon yellow"></ion-icon>
-                    <span class="info-label">Data Prevista</span>
-                  </div>
-                  <p class="info-value">{{ formatFullDate(maintenanceRecord.nextDueDate) }}</p>
-                  <p class="info-helper">{{ getTimeUntil(maintenanceRecord.nextDueDate) }}</p>
-                </div>
+            <MInfoSection v-if="maintenanceRecord.nextDueDate || maintenanceRecord.nextDueMileage" title="Próxima Manutenção">
+              <MInfoItem
+                v-if="maintenanceRecord.nextDueDate"
+                label="Data Prevista"
+                :icon="calendarOutline"
+                variant="yellow"
+              >
+                {{ formatFullDate(maintenanceRecord.nextDueDate) }}
+                <template #helper>{{ getTimeUntil(maintenanceRecord.nextDueDate) }}</template>
+              </MInfoItem>
 
-                <div v-if="maintenanceRecord.nextDueMileage" class="info-box">
-                  <div class="info-box-header">
-                    <ion-icon :icon="flagOutline" class="info-icon yellow"></ion-icon>
-                    <span class="info-label">Quilometragem Prevista</span>
-                  </div>
-                  <p class="info-value">
-                    {{ maintenanceRecord.nextDueMileage.toLocaleString('pt-BR') }} km
-                  </p>
-                  <p v-if="vehicle" class="info-helper">
-                    {{ getKmUntil(maintenanceRecord.nextDueMileage, vehicle.mileage) }}
-                  </p>
-                </div>
-              </div>
-            </div>
+              <MInfoItem
+                v-if="maintenanceRecord.nextDueMileage"
+                label="Quilometragem Prevista"
+                :icon="flagOutline"
+                variant="yellow"
+              >
+                {{ maintenanceRecord.nextDueMileage.toLocaleString('pt-BR') }} km
+                <template v-if="vehicle" #helper>
+                  {{ getKmUntil(maintenanceRecord.nextDueMileage, vehicle.mileage) }}
+                </template>
+              </MInfoItem>
+            </MInfoSection>
 
             <!-- Notes Section -->
-            <div v-if="maintenanceRecord.notes" class="info-section">
-              <h4 class="info-section-title">Observações</h4>
+            <MInfoBox v-if="maintenanceRecord.notes">
+              <template #header>
+                <ion-icon :icon="documentTextOutline"></ion-icon>
+                <span>Observações</span>
+              </template>
               <div class="notes-box">
                 <ion-icon :icon="documentTextOutline" class="notes-icon"></ion-icon>
                 <p class="notes-content">{{ maintenanceRecord.notes }}</p>
               </div>
-            </div>
+            </MInfoBox>
           </ACard>
 
           <!-- Cost Breakdown -->
@@ -235,32 +214,31 @@
               Detalhamento de Custos
             </h3>
 
-            <div class="cost-breakdown">
-              <div v-if="maintenanceRecord.partsCost" class="cost-item">
-                <div class="cost-label">
-                  <ion-icon :icon="cubeOutline"></ion-icon>
-                  <span>Peças e Materiais</span>
-                </div>
-                <span class="cost-value">{{ formatCurrency(maintenanceRecord.partsCost) }}</span>
-              </div>
+            <MCostBreakdown>
+              <MCostItem
+                v-if="maintenanceRecord.partsCost"
+                :icon="cubeOutline"
+                :value="formatCurrency(maintenanceRecord.partsCost)"
+              >
+                Peças e Materiais
+              </MCostItem>
 
-              <div v-if="maintenanceRecord.laborCost" class="cost-item">
-                <div class="cost-label">
-                  <ion-icon :icon="constructOutline"></ion-icon>
-                  <span>Mão de Obra</span>
-                </div>
-                <span class="cost-value">{{ formatCurrency(maintenanceRecord.laborCost) }}</span>
-              </div>
+              <MCostItem
+                v-if="maintenanceRecord.laborCost"
+                :icon="constructOutline"
+                :value="formatCurrency(maintenanceRecord.laborCost)"
+              >
+                Mão de Obra
+              </MCostItem>
 
-              <div class="cost-separator"></div>
-
-              <div class="cost-item total">
-                <div class="cost-label">
-                  <strong>Total</strong>
-                </div>
-                <span class="cost-value">{{ formatCurrency(maintenanceRecord.cost) }}</span>
-              </div>
-            </div>
+              <MCostItem
+                is-total
+                :icon="cashOutline"
+                :value="formatCurrency(maintenanceRecord.cost)"
+              >
+                <strong>Total</strong>
+              </MCostItem>
+            </MCostBreakdown>
           </ACard>
 
           <!-- Warranty Info -->
@@ -273,57 +251,27 @@
               Garantias
             </h3>
 
-            <div class="warranty-cards">
+            <MWarrantyCards>
               <ACard v-if="maintenanceRecord.warrantyParts" class="warranty-card">
-                <div class="warranty-header">
-                  <ion-icon :icon="cubeOutline"></ion-icon>
-                  <h4>Garantia das Peças</h4>
-                </div>
-                <p class="warranty-months">{{ maintenanceRecord.warrantyParts.months }} meses</p>
-                <p class="warranty-expiry">
-                  Válida até:
-                  <strong>{{ formatDate(maintenanceRecord.warrantyParts.expiryDate) }}</strong>
-                </p>
-                <ABadge
-                  :variant="
-                    isWarrantyValid(maintenanceRecord.warrantyParts.expiryDate)
-                      ? 'success'
-                      : 'danger'
-                  "
-                >
-                  {{
-                    isWarrantyValid(maintenanceRecord.warrantyParts.expiryDate)
-                      ? '✅ Ativa'
-                      : '❌ Expirada'
-                  }}
-                </ABadge>
+                <MWarrantyBadge
+                  title="Garantia das Peças"
+                  :icon="cubeOutline"
+                  :months="maintenanceRecord.warrantyParts.months"
+                  :expiry-date="formatDate(maintenanceRecord.warrantyParts.expiryDate)"
+                  :is-valid="isWarrantyValid(maintenanceRecord.warrantyParts.expiryDate)"
+                />
               </ACard>
 
               <ACard v-if="maintenanceRecord.warrantyLabor" class="warranty-card">
-                <div class="warranty-header">
-                  <ion-icon :icon="constructOutline"></ion-icon>
-                  <h4>Garantia da Mão de Obra</h4>
-                </div>
-                <p class="warranty-months">{{ maintenanceRecord.warrantyLabor.months }} meses</p>
-                <p class="warranty-expiry">
-                  Válida até:
-                  <strong>{{ formatDate(maintenanceRecord.warrantyLabor.expiryDate) }}</strong>
-                </p>
-                <ABadge
-                  :variant="
-                    isWarrantyValid(maintenanceRecord.warrantyLabor.expiryDate)
-                      ? 'success'
-                      : 'danger'
-                  "
-                >
-                  {{
-                    isWarrantyValid(maintenanceRecord.warrantyLabor.expiryDate)
-                      ? '✅ Ativa'
-                      : '❌ Expirada'
-                  }}
-                </ABadge>
+                <MWarrantyBadge
+                  title="Garantia da Mão de Obra"
+                  :icon="constructOutline"
+                  :months="maintenanceRecord.warrantyLabor.months"
+                  :expiry-date="formatDate(maintenanceRecord.warrantyLabor.expiryDate)"
+                  :is-valid="isWarrantyValid(maintenanceRecord.warrantyLabor.expiryDate)"
+                />
               </ACard>
-            </div>
+            </MWarrantyCards>
           </div>
 
           <!-- Photos Before/After -->
@@ -337,85 +285,25 @@
             </h3>
 
             <div class="modern-photos-grid">
-              <!-- Before Photo -->
-              <div v-if="maintenanceRecord.beforePhoto" class="modern-photo-card">
-                <div class="photo-badge before-badge">
-                  <ion-icon :icon="cameraOutline"></ion-icon>
-                  <span>ANTES</span>
-                </div>
+              <MPhotoCard
+                v-if="maintenanceRecord?.beforePhoto"
+                :photo-url="maintenanceRecord.beforePhoto!"
+                type="before"
+                alt="Foto antes da manutenção"
+                @view="() => maintenanceRecord?.beforePhoto && viewPhoto(maintenanceRecord.beforePhoto, 'before')"
+                @download="() => maintenanceRecord?.beforePhoto && downloadPhoto(maintenanceRecord.beforePhoto, 'antes')"
+                @share="() => maintenanceRecord?.beforePhoto && sharePhoto(maintenanceRecord.beforePhoto, 'antes')"
+              />
 
-                <div
-                  class="photo-container"
-                  @click="viewPhoto(maintenanceRecord.beforePhoto, 'before')"
-                >
-                  <img
-                    :src="maintenanceRecord.beforePhoto"
-                    alt="Foto antes da manutenção"
-                    class="modern-photo"
-                  />
-                  <div class="photo-overlay">
-                    <ion-icon :icon="eyeOutline" class="view-icon-large"></ion-icon>
-                    <p>Clique para ampliar</p>
-                  </div>
-                </div>
-
-                <div class="photo-actions">
-                  <button
-                    class="photo-action-btn download-btn"
-                    @click.stop="downloadPhoto(maintenanceRecord.beforePhoto, 'antes')"
-                  >
-                    <ion-icon :icon="downloadOutline"></ion-icon>
-                    <span>Baixar</span>
-                  </button>
-                  <button
-                    class="photo-action-btn share-btn"
-                    @click.stop="sharePhoto(maintenanceRecord.beforePhoto, 'antes')"
-                  >
-                    <ion-icon :icon="shareOutline"></ion-icon>
-                    <span>Compartilhar</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- After Photo -->
-              <div v-if="maintenanceRecord.afterPhoto" class="modern-photo-card">
-                <div class="photo-badge after-badge">
-                  <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-                  <span>DEPOIS</span>
-                </div>
-
-                <div
-                  class="photo-container"
-                  @click="viewPhoto(maintenanceRecord.afterPhoto, 'after')"
-                >
-                  <img
-                    :src="maintenanceRecord.afterPhoto"
-                    alt="Foto depois da manutenção"
-                    class="modern-photo"
-                  />
-                  <div class="photo-overlay">
-                    <ion-icon :icon="eyeOutline" class="view-icon-large"></ion-icon>
-                    <p>Clique para ampliar</p>
-                  </div>
-                </div>
-
-                <div class="photo-actions">
-                  <button
-                    class="photo-action-btn download-btn"
-                    @click.stop="downloadPhoto(maintenanceRecord.afterPhoto, 'depois')"
-                  >
-                    <ion-icon :icon="downloadOutline"></ion-icon>
-                    <span>Baixar</span>
-                  </button>
-                  <button
-                    class="photo-action-btn share-btn"
-                    @click.stop="sharePhoto(maintenanceRecord.afterPhoto, 'depois')"
-                  >
-                    <ion-icon :icon="shareOutline"></ion-icon>
-                    <span>Compartilhar</span>
-                  </button>
-                </div>
-              </div>
+              <MPhotoCard
+                v-if="maintenanceRecord?.afterPhoto"
+                :photo-url="maintenanceRecord.afterPhoto!"
+                type="after"
+                alt="Foto depois da manutenção"
+                @view="() => maintenanceRecord?.afterPhoto && viewPhoto(maintenanceRecord.afterPhoto, 'after')"
+                @download="() => maintenanceRecord?.afterPhoto && downloadPhoto(maintenanceRecord.afterPhoto, 'depois')"
+                @share="() => maintenanceRecord?.afterPhoto && sharePhoto(maintenanceRecord.afterPhoto, 'depois')"
+              />
             </div>
           </div>
 
@@ -429,26 +317,17 @@
               Anexos ({{ maintenanceRecord.attachments.length }})
             </h3>
 
-            <div class="attachments-list">
-              <div
+            <MAttachmentsList>
+              <MAttachmentItem
                 v-for="(attachment, index) in maintenanceRecord.attachments"
                 :key="index"
-                class="attachment-item"
-                @click="viewAttachment(attachment)"
-              >
-                <ion-icon
-                  :icon="getAttachmentIcon(attachment.type)"
-                  class="attachment-icon"
-                ></ion-icon>
-                <div class="attachment-info">
-                  <p class="attachment-name">{{ attachment.name }}</p>
-                  <p class="attachment-meta">
-                    {{ formatFileSize(attachment.size) }} • {{ formatDate(attachment.uploadedAt) }}
-                  </p>
-                </div>
-                <ion-icon :icon="eyeOutline" class="view-icon"></ion-icon>
-              </div>
-            </div>
+                :name="attachment.name"
+                :icon="getAttachmentIcon(attachment.type)"
+                :size="formatFileSize(attachment.size)"
+                :date="formatDate(attachment.uploadedAt)"
+                @view="viewAttachment(attachment)"
+              />
+            </MAttachmentsList>
           </ACard>
 
           <!-- Timeline/History -->
@@ -458,21 +337,18 @@
               Histórico
             </h3>
 
-            <div class="timeline">
-              <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                  <p class="timeline-title">Manutenção registrada</p>
-                  <p class="timeline-date">{{ formatDateTime(maintenanceRecord.createdAt) }}</p>
-                </div>
-              </div>
-            </div>
+            <MTimeline>
+              <MTimelineItem
+                title="Manutenção registrada"
+                :date="formatDateTime(maintenanceRecord.createdAt)"
+                :is-last="true"
+              />
+            </MTimeline>
           </ACard>
         </div>
-      </div>
-    </ion-content>
+      </ion-content>
 
-    <!-- Delete Confirmation Modal -->
+      <!-- Delete Confirmation Modal -->
     <MConfirmModal
       v-model:is-open="showDeleteModal"
       title="Confirmar Exclusão"
@@ -487,9 +363,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { IonPage, IonContent, IonIcon, IonSpinner } from '@ionic/vue';
+  import { IonPage, IonContent, IonIcon, IonSpinner } from '@ionic/vue'
   import {
     createOutline,
     trashOutline,
@@ -504,1203 +378,390 @@
     shieldCheckmarkOutline,
     cameraOutline,
     documentTextOutline,
-    eyeOutline,
     timeOutline,
-    documentOutline,
-    imageOutline,
-    downloadOutline,
-    shareOutline,
-    checkmarkCircleOutline,
     speedometerOutline,
     businessOutline,
     flagOutline,
-  } from 'ionicons/icons';
-  import { useVehiclesStore } from '@/stores/vehicles';
-  import type { MaintenanceType } from '@/stores/vehicles';
-  import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles';
+  } from 'ionicons/icons'
+  import { useMaintenanceDetail } from '@/composables/useMaintenanceDetail'
+  import { useMaintenanceFormatters } from '@/composables/useMaintenanceFormatters'
+  import { usePhotoHandling } from '@/composables/usePhotoHandling'
+  import { useWarrantyLogic } from '@/composables/useWarrantyLogic'
+  import ModernHeader from '@/components/organisms/ModernHeader.vue'
+  import ABadge from '@/components/atoms/ABadge.vue'
+  import ACard from '@/components/atoms/ACard.vue'
+  import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
+  import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue'
   import {
-    calculateFuelBetweenMaintenances,
-    getEstimatedFuelPrice,
-  } from '@/utils/fuelCalculations';
-  import ModernHeader from '@/components/organisms/ModernHeader.vue';
-  import ABadge from '@/components/atoms/ABadge.vue';
-  import ACard from '@/components/atoms/ACard.vue';
-  import MConfirmModal from '@/components/molecules/MConfirmModal.vue';
-  import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue';
+    MInfoBox,
+    MInfoItem,
+    MCostItem,
+    MWarrantyBadge,
+    MTimelineItem,
+    MAttachmentItem,
+    MInfoSection,
+    MCostBreakdown,
+    MWarrantyCards,
+    MTimeline,
+    MAttachmentsList,
+    MPhotoCard,
+  } from './components'
 
-  const route = useRoute();
-  const router = useRouter();
-  const vehiclesStore = useVehiclesStore();
-
-  const maintenanceId = route.params.id as string;
-  const showDeleteModal = ref(false);
-
-  const maintenanceRecord = computed(() => {
-    return vehiclesStore.maintenanceRecords.find((r) => r.id === maintenanceId);
-  });
-
-  const vehicle = computed(() => {
-    if (!maintenanceRecord.value) return null;
-    return vehiclesStore.getVehicleById(maintenanceRecord.value.vehicleId);
-  });
-
-  // Fuel consumption between maintenances
-  const fuelConsumptionData = computed(() => {
-    if (!maintenanceRecord.value || !vehicle.value || !vehicle.value.averageFuelConsumption) {
-      return null;
-    }
-
-    // Get all maintenance records for this vehicle
-    const allMaintenanceRecords = vehiclesStore.maintenanceRecords
-      .filter((r) => r.vehicleId === maintenanceRecord.value!.vehicleId)
-      .sort((a, b) => a.mileage - b.mileage);
-
-    // Find the previous maintenance
-    const currentIndex = allMaintenanceRecords.findIndex(
-      (r) => r.id === maintenanceRecord.value!.id,
-    );
-    if (currentIndex <= 0) {
-      return null; // No previous maintenance
-    }
-
-    const previousMaintenance = allMaintenanceRecords[currentIndex - 1];
-    const fuelPrice = getEstimatedFuelPrice(vehicle.value.fuelType);
-
-    return calculateFuelBetweenMaintenances(
-      previousMaintenance,
-      maintenanceRecord.value,
-      vehicle.value,
-      fuelPrice,
-    );
-  });
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(date);
-  };
-
-  const formatFullDate = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return new Intl.DateTimeFormat('pt-BR', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(dateObj);
-  };
-
-  const getTimeUntil = (futureDate: Date | string) => {
-    const future = typeof futureDate === 'string' ? new Date(futureDate) : futureDate;
-    const now = new Date();
-    const diffTime = future.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      return `Atrasada há ${Math.abs(diffDays)} dias`;
-    }
-    if (diffDays === 0) {
-      return 'Vence hoje';
-    }
-    if (diffDays === 1) {
-      return 'Vence amanhã';
-    }
-    if (diffDays <= 7) {
-      return `Vence em ${diffDays} dias`;
-    }
-    if (diffDays <= 30) {
-      const weeks = Math.floor(diffDays / 7);
-      return `Vence em ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
-    }
-    const months = Math.floor(diffDays / 30);
-    return `Vence em ${months} ${months === 1 ? 'mês' : 'meses'}`;
-  };
-
-  const getKmUntil = (targetKm: number, currentKm: number) => {
-    const diff = targetKm - currentKm;
-    if (diff < 0) {
-      return `${Math.abs(diff).toLocaleString('pt-BR')} km acima`;
-    }
-    return `Faltam ${diff.toLocaleString('pt-BR')} km`;
-  };
-
-  const formatDateTime = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getMaintenanceTypeLabel = (type: string) => {
-    return MAINTENANCE_TYPE_LABELS[type as MaintenanceType] || type;
-  };
-
-  const getMaintenanceIcon = (type: string) => {
-    return MAINTENANCE_TYPE_ICONS[type as MaintenanceType] || '🔧';
-  };
-
-  const isWarrantyValid = (expiryDate: Date) => {
-    return new Date(expiryDate) > new Date();
-  };
-
-  const getAttachmentIcon = (type: string) => {
-    if (type.includes('image')) return imageOutline;
-    if (type.includes('pdf')) return documentOutline;
-    return documentTextOutline;
-  };
-
-  const goToVehicle = () => {
-    if (vehicle.value) {
-      router.push(`/tabs/vehicle/${vehicle.value.id}`);
-    }
-  };
-
-  const handleEdit = () => {
-    router.push(`/tabs/maintenance/${maintenanceId}/edit`);
-  };
-
-  const handleDelete = async () => {
-    showDeleteModal.value = true;
-  };
-
-  const confirmDelete = async () => {
-    const success = await vehiclesStore.deleteMaintenanceRecord(maintenanceId);
-    if (success) {
-      router.back();
-    }
-  };
-
-  const viewPhoto = async (photoUrl: string, type: string) => {
-    // Create a modal-like overlay to view the photo in full screen
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-  `;
-
-    const img = document.createElement('img');
-    img.src = photoUrl;
-    img.alt = `Foto ${type} da manutenção`;
-    img.style.cssText = `
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  `;
-
-    const label = document.createElement('div');
-    label.textContent = type === 'before' ? '📸 ANTES' : '✅ DEPOIS';
-    label.style.cssText = `
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  `;
-
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '✕';
-    closeBtn.style.cssText = `
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-  `;
-
-    closeBtn.onmouseover = () => {
-      closeBtn.style.background = 'rgba(220, 38, 38, 0.9)';
-      closeBtn.style.transform = 'scale(1.1)';
-    };
-
-    closeBtn.onmouseout = () => {
-      closeBtn.style.background = 'rgba(239, 68, 68, 0.9)';
-      closeBtn.style.transform = 'scale(1)';
-    };
-
-    const closeOverlay = () => {
-      overlay.remove();
-    };
-
-    closeBtn.onclick = closeOverlay;
-    overlay.onclick = (e) => {
-      if (e.target === overlay) closeOverlay();
-    };
-
-    overlay.appendChild(label);
-    overlay.appendChild(img);
-    overlay.appendChild(closeBtn);
-    document.body.appendChild(overlay);
-  };
-
-  const downloadPhoto = (photoUrl: string, type: string) => {
-    const link = document.createElement('a');
-    link.href = photoUrl;
-    link.download = `manutencao-${type}-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  };
-
-  const sharePhoto = async (photoUrl: string, type: string) => {
-    try {
-      // Check if Web Share API is available
-      if (navigator.share) {
-        // Convert base64 to blob
-        const response = await fetch(photoUrl);
-        const blob = await response.blob();
-        const file = new File([blob], `manutencao-${type}.jpg`, { type: 'image/jpeg' });
-
-        await navigator.share({
-          title: `Manutenção - Foto ${type}`,
-          text: `Foto ${type} da manutenção`,
-          files: [file],
-        });
-      } else {
-        // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(photoUrl);
-        alert('Link da foto copiado para a área de transferência!');
-      }
-    } catch (error) {
-      console.error('Error sharing photo:', error);
-      // Fallback: download
-      downloadPhoto(photoUrl, type);
-    }
-  };
-
-  const viewAttachment = async (attachment: {
-    name: string;
-    data: string;
-    type: string;
-    size: number;
-  }) => {
-    // Open attachment in new tab or trigger download
-    if (attachment.type.includes('image')) {
-      viewPhoto(attachment.data, attachment.name);
-    } else {
-      // Download PDF or other files
-      const link = document.createElement('a');
-      link.href = attachment.data;
-      link.download = attachment.name;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  };
-
-  onMounted(async () => {
-    // Ensure data is loaded
-    if (vehiclesStore.maintenanceRecords.length === 0) {
-      await vehiclesStore.fetchMaintenanceRecords();
-    }
-    if (vehiclesStore.vehicles.length === 0) {
-      await vehiclesStore.fetchVehicles();
-    }
-
-    // Check if maintenance exists
-    if (!maintenanceRecord.value) {
-      router.push('/tabs/maintenance');
-    }
-  });
+  // Composables
+  const { maintenanceRecord, vehicle, fuelConsumptionData, showDeleteModal, goToVehicle, handleEdit, handleDelete, confirmDelete } =
+    useMaintenanceDetail()
+  const {
+    formatCurrency,
+    formatDate,
+    formatFullDate,
+    formatDateTime,
+    formatFileSize,
+    getTimeUntil,
+    getKmUntil,
+  } = useMaintenanceFormatters()
+  const { viewPhoto, downloadPhoto, sharePhoto, viewAttachment, getAttachmentIcon } =
+    usePhotoHandling()
+  const { isWarrantyValid, getMaintenanceTypeLabel, getMaintenanceIcon } = useWarrantyLogic()
 </script>
 
-<style scoped>
-  /* Dark Theme Base */
-  .detail-content {
-    --background: var(--ion-background-color);
-  }
+<style scoped lang="scss">
+@use '@/theme/tokens' as *;
 
-  .detail-toolbar {
-    --background: #1f2937;
-    --color: white;
-    --border-color: #374151;
-  }
+.detail-content {
+  --background: var(--ion-background-color);
+}
 
-  /* Loading State */
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 50vh;
-    gap: 1rem;
-  }
+.loading-container {
+  @include flex-center;
+  flex-direction: column;
+  min-height: 50vh;
+  @include flex-gap($spacing-lg);
+}
 
-  .loading-text {
-    color: #9ca3af;
-    font-size: 0.875rem;
-  }
+.loading-text {
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+}
 
-  /* Container */
-  .detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
+.detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
 
-  /* Header */
-  .maintenance-header {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 1) 100%);
-    border-radius: 24px;
-    padding: 28px;
-    margin-bottom: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-  }
+.maintenance-header {
+  @include card-base;
+  padding: $spacing-3xl;
+  margin-bottom: $spacing-2xl;
+  position: relative;
+  overflow: hidden;
 
-  .maintenance-header::before {
+  &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+    inset: 0;
+    background: $gradient-background-overlay;
     pointer-events: none;
   }
 
-  .header-content {
-    display: flex;
-    gap: 20px;
+  > .header-content {
+    @include flex-gap($spacing-xl);
     align-items: flex-start;
     position: relative;
     z-index: 1;
   }
+}
 
-  .type-icon {
-    font-size: 4rem;
-    line-height: 1;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-  }
+.type-icon {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow($shadow-dark);
+}
 
-  .header-info {
-    flex: 1;
-  }
+.header-info {
+  flex: 1;
+}
 
-  .maintenance-title {
-    color: white;
+.maintenance-title {
+  @include heading-primary;
+  font-size: 1.75rem;
+  margin: 0 0 $spacing-md 0;
+}
+
+.maintenance-description {
+  color: $color-text-secondary;
+  font-size: $font-size-lg;
+  margin: 0 0 $spacing-lg 0;
+  line-height: $line-height-normal;
+}
+
+.maintenance-badges {
+  @include flex-gap($spacing-sm);
+  flex-wrap: wrap;
+}
+
+.modern-stats-grid {
+  @include grid-auto-fit;
+  margin-bottom: $spacing-2xl;
+}
+
+.vehicle-card,
+.details-card,
+.cost-card,
+.attachments-card,
+.timeline-card {
+  margin-bottom: $spacing-2xl;
+  @include card-base;
+  @include card-hover;
+}
+
+.card-title {
+  @include flex-gap($spacing-md);
+  align-items: center;
+  @include heading-primary;
+  font-size: $font-size-xl;
+  margin: 0 0 $spacing-xl 0;
+
+  > ion-icon {
     font-size: 1.75rem;
-    font-weight: 800;
-    margin: 0 0 12px 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    color: $color-primary;
   }
+}
 
-  .maintenance-description {
-    color: #d1d5db;
-    font-size: 1.125rem;
-    margin: 0 0 16px 0;
-    line-height: 1.6;
-  }
+.vehicle-card-header {
+  @include flex-gap($spacing-sm);
+  align-items: center;
+  margin-bottom: $spacing-md;
 
-  .maintenance-badges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  /* Modern Stats Grid */
-  .modern-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .modern-stat-card {
-    position: relative;
-    padding: 24px;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .modern-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  }
-
-  .stat-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.1;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
-  }
-
-  .gradient-blue {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
-  }
-
-  .gradient-purple {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%);
-  }
-
-  .gradient-green {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
-  }
-
-  .gradient-yellow {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
-  }
-
-  .stat-content-wrapper {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .stat-icon-modern {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  .stat-icon-modern.blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-  }
-
-  .stat-icon-modern.purple {
-    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
-    color: white;
-  }
-
-  .stat-icon-modern.green {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-  }
-
-  .stat-icon-modern.yellow {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: white;
-  }
-
-  .stat-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .stat-label-modern {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.875rem;
-    font-weight: 500;
+  > h3 {
+    color: $color-text-primary;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  }
+}
+
+.vehicle-icon {
+  font-size: 1.25rem;
+  color: $color-primary;
+}
+
+.vehicle-info {
+  @include flex-gap($spacing-lg);
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-surface;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  @include smooth-transition;
+
+  &:hover {
+    background: $color-bg-surface-hover;
   }
 
-  .stat-value-modern {
-    color: white;
+  > .vehicle-details {
+    > h4 {
+      color: $color-text-primary;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      margin: 0 0 $spacing-sm 0;
+    }
+  }
+}
+
+.vehicle-meta {
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+  margin: 0;
+}
+
+.nav-icon {
+  color: $color-text-tertiary;
+  font-size: 1.25rem;
+}
+
+.notes-box {
+  @include info-box-base;
+  @include flex-gap($spacing-lg);
+
+  > .notes-icon {
     font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .stat-value-modern.text-sm {
-    font-size: 1.125rem;
-  }
-
-  /* Cards */
-  .vehicle-card,
-  .details-card,
-  .cost-card,
-  .attachments-card,
-  .timeline-card {
-    margin-bottom: 24px;
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-  }
-
-  .vehicle-card:hover,
-  .details-card:hover,
-  .cost-card:hover,
-  .attachments-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(59, 130, 246, 0.2);
-  }
-
-  .card-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  .card-title ion-icon {
-    font-size: 1.75rem;
-    color: #3b82f6;
-  }
-
-  /* Vehicle Card */
-  .vehicle-card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .vehicle-card-header h3 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .vehicle-icon {
-    font-size: 1.25rem;
-    color: #3b82f6;
-  }
-
-  .vehicle-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem;
-    background: #1f2937;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .vehicle-info:hover {
-    background: #374151;
-  }
-
-  .vehicle-details h4 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-  }
-
-  .vehicle-meta {
-    color: #9ca3af;
-    font-size: 0.875rem;
-    margin: 0;
-  }
-
-  .nav-icon {
-    color: #9ca3af;
-    font-size: 1.25rem;
-  }
-
-  /* Details Card - New Modern Layout */
-  .info-section {
-    margin-bottom: 28px;
-  }
-
-  .info-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .info-section-title {
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #3b82f6;
-    margin: 0 0 16px 0;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
-  }
-
-  .info-box {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-  }
-
-  .info-box:hover {
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  .info-box.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .info-box-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .info-icon {
-    font-size: 1.5rem;
-    padding: 8px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .info-icon.blue {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .info-icon.purple {
-    color: #a855f7;
-    background: rgba(168, 85, 247, 0.1);
-  }
-
-  .info-icon.green {
-    color: #10b981;
-    background: rgba(16, 185, 129, 0.1);
-  }
-
-  .info-icon.yellow {
-    color: #fbbf24;
-    background: rgba(251, 191, 36, 0.1);
-  }
-
-  .info-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #9ca3af;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-  }
-
-  .info-value {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  .info-helper {
-    font-size: 0.813rem;
-    color: #6b7280;
-    margin: 6px 0 0 0;
-    font-weight: 500;
-  }
-
-  /* Notes Box */
-  .notes-box {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    gap: 16px;
-  }
-
-  .notes-icon {
-    font-size: 1.5rem;
-    color: #3b82f6;
+    color: $color-primary;
     flex-shrink: 0;
     margin-top: 2px;
   }
 
-  .notes-content {
-    color: #e5e7eb;
-    line-height: 1.7;
+  > .notes-content {
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
   }
+}
 
-  /* Cost Breakdown */
-  .cost-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+.warranty-section {
+  margin-bottom: 1.5rem;
+}
 
-  .cost-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem;
-    background: #1f2937;
-    border-radius: 0.5rem;
-  }
+.section-title {
+  @include flex-gap($spacing-sm);
+  align-items: center;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-xl 0;
 
-  .cost-item.total {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-  }
-
-  .cost-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #9ca3af;
-    font-size: 0.875rem;
-  }
-
-  .cost-label ion-icon {
-    font-size: 1.25rem;
-  }
-
-  .cost-value {
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-
-  .cost-separator {
-    height: 1px;
-    background: #374151;
-  }
-
-  /* Warranty Section */
-  .warranty-section {
-    margin-bottom: 1.5rem;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
-  }
-
-  .section-title ion-icon {
+  > ion-icon {
     font-size: 1.5rem;
-    color: #10b981;
+    color: $color-success;
   }
+}
 
-  .warranty-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-  }
+.warranty-card {
+  border: 1px solid rgba($color-success, 0.3);
+}
 
-  .warranty-card {
-    border: 1px solid rgba(16, 185, 129, 0.3);
-  }
+.modern-photos-section {
+  margin-bottom: $spacing-2xl;
+}
 
-  .warranty-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
+.modern-section-title {
+  @include flex-gap($spacing-lg);
+  align-items: center;
+  @include heading-primary;
+  font-size: $font-size-xl;
+  margin: 0 0 $spacing-xl 0;
 
-  .warranty-header ion-icon {
-    font-size: 1.5rem;
-    color: #10b981;
-  }
-
-  .warranty-header h4 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .warranty-months {
-    color: #3b82f6;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .warranty-expiry {
-    color: #9ca3af;
-    font-size: 0.875rem;
-    margin: 0 0 0.75rem 0;
-  }
-
-  /* Modern Photos Section */
-  .modern-photos-section {
-    margin-bottom: 24px;
-  }
-
-  .modern-section-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  .modern-section-title ion-icon {
+  > ion-icon {
     font-size: 1.75rem;
-    color: #3b82f6;
+    color: $color-primary;
+  }
+}
+
+.modern-photos-grid {
+  @include grid-auto-fit(300px, $spacing-xl);
+}
+
+.fuel-consumption-section {
+  margin-top: $spacing-2xl;
+  animation: fadeInUp $transition-slow;
+}
+
+.modern-stat-card {
+  position: relative;
+  padding: $spacing-2xl;
+  border-radius: $radius-xl;
+  @include smooth-transition;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-dark;
+  }
+
+  > .stat-background {
+    position: absolute;
+    inset: 0;
+    border-radius: $radius-xl;
+  }
+
+  > .stat-content-wrapper {
+    position: relative;
+    z-index: 1;
+    @include flex-gap($spacing-lg);
+    align-items: flex-start;
+  }
+
+  .stat-details {
+    flex: 1;
+  }
+}
+
+.stat-icon-modern {
+  width: 56px;
+  height: 56px;
+  @include flex-center;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+
+  > ion-icon {
+    font-size: 1.75rem;
+    color: $color-text-primary;
+  }
+
+  &.blue {
+    background: $gradient-blue;
+  }
+
+  &.purple {
+    background: $gradient-purple;
+  }
+
+  &.green {
+    background: $gradient-green;
+  }
+
+  &.yellow {
+    background: $gradient-yellow;
+  }
+}
+
+.stat-label-modern {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin: 0 0 $spacing-xs 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-modern {
+  color: $color-text-primary;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  margin: 0;
+  line-height: $line-height-tight;
+
+  &.text-sm {
+    font-size: $font-size-lg;
+  }
+}
+
+.gradient-blue {
+  background: $gradient-blue !important;
+}
+
+.gradient-purple {
+  background: $gradient-purple !important;
+}
+
+.gradient-green {
+  background: $gradient-green !important;
+}
+
+.gradient-yellow {
+  background: $gradient-yellow !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY($spacing-xl);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .modern-photos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr;
   }
-
-  .modern-photo-card {
-    position: relative;
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%);
-    border-radius: 24px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .modern-photo-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .photo-badge {
-    position: absolute;
-    top: 32px;
-    right: 32px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    z-index: 2;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .before-badge {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
-    color: white;
-    border: 1px solid rgba(239, 68, 68, 0.5);
-  }
-
-  .after-badge {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%);
-    color: white;
-    border: 1px solid rgba(16, 185, 129, 0.5);
-  }
-
-  .photo-container {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    cursor: pointer;
-    background: #000;
-    aspect-ratio: 4/3;
-  }
-
-  .modern-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  .photo-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .photo-container:hover .photo-overlay {
-    opacity: 1;
-  }
-
-  .photo-container:hover .modern-photo {
-    transform: scale(1.05);
-  }
-
-  .view-icon-large {
-    font-size: 3rem;
-    color: white;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-  }
-
-  .photo-overlay p {
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  }
-
-  .photo-actions {
-    display: flex;
-    gap: 12px;
-  }
-
-  .photo-action-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border: none;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .download-btn {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-  }
-
-  .download-btn:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.2) 100%);
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-    transform: translateY(-2px);
-  }
-
-  .share-btn {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-  }
-
-  .share-btn:hover {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%);
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-    transform: translateY(-2px);
-  }
-
-  .photo-action-btn ion-icon {
-    font-size: 1.125rem;
-  }
-
-  /* Attachments List */
-  .attachments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .attachment-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: #1f2937;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .attachment-item:hover {
-    background: #374151;
-  }
-
-  .attachment-icon {
-    font-size: 2rem;
-    color: #3b82f6;
-  }
-
-  .attachment-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .attachment-name {
-    color: white;
-    font-weight: 500;
-    margin: 0 0 0.25rem 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .attachment-meta {
-    color: #9ca3af;
-    font-size: 0.75rem;
-    margin: 0;
-  }
-
-  .view-icon {
-    color: #9ca3af;
-    font-size: 1.25rem;
-  }
-
-  /* Timeline */
-  .timeline {
-    position: relative;
-    padding-left: 2rem;
-  }
-
-  .timeline-item {
-    position: relative;
-    padding-bottom: 1.5rem;
-  }
-
-  .timeline-item:last-child {
-    padding-bottom: 0;
-  }
-
-  .timeline-dot {
-    position: absolute;
-    left: -2rem;
-    top: 0.25rem;
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
-    background: #3b82f6;
-    border: 2px solid #1f2937;
-  }
-
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -1.625rem;
-    top: 1rem;
-    bottom: -0.5rem;
-    width: 2px;
-    background: #374151;
-  }
-
-  .timeline-item:last-child::before {
-    display: none;
-  }
-
-  .timeline-content {
-    padding-left: 0.5rem;
-  }
-
-  .timeline-title {
-    color: white;
-    font-weight: 500;
-    margin: 0 0 0.25rem 0;
-  }
-
-  .timeline-date {
-    color: #9ca3af;
-    font-size: 0.875rem;
-    margin: 0;
-  }
-
-  /* Fuel Consumption Section */
-  .fuel-consumption-section {
-    margin-top: 24px;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .details-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .warranty-cards,
-    .photos-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}
 </style>
