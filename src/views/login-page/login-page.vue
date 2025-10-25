@@ -14,10 +14,10 @@
 
 <script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue'
-import LogoSection from '@/components/organisms/LogoSection.vue'
-import AuthCard from '@/components/organisms/AuthCard.vue'
-import AuthFooter from '@/components/organisms/AuthFooter.vue'
-import { PageLayout } from '@/components'
+import LogoSection from './components/LogoSection.vue'
+import AuthCard from './components/AuthCard.vue'
+import AuthFooter from './components/AuthFooter.vue'
+import PageLayout from './components/PageLayout.vue'
 import { useAuthNavigation } from '@/composables/useAuthNavigation'
 
 const { navigateToRegister } = useAuthNavigation()

@@ -58,11 +58,11 @@ import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { calculateTotalFuelCost, getEstimatedFuelPrice } from '@/utils/fuelCalculations'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
-import QuickActionsSection from '@/components/organisms/QuickActionsSection.vue'
-import StatsGrid from '@/components/organisms/StatsGrid.vue'
-import FuelSummaryCard from '@/components/organisms/FuelSummaryCard.vue'
-import VehiclesList from '@/components/organisms/VehiclesList.vue'
-import MaintenanceList from '@/components/organisms/MaintenanceList.vue'
+import QuickActionsSection from './components/QuickActionsSection.vue'
+import StatsGrid from './components/StatsGrid.vue'
+import FuelSummaryCard from './components/FuelSummaryCard.vue'
+import VehiclesList from './components/VehiclesList.vue'
+import MaintenanceList from './components/MaintenanceList.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

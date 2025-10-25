@@ -1,5 +1,7 @@
 # Garagem Inteligente - AI Coding Instructions
 
+use comandos compativeis com o WINDOWS POWERSHELL sempre que possível. 
+
 ## 🏗️ Architecture Overview
 
 This is an **Ionic Vue 8 + Capacitor** mobile app with Firebase backend for vehicle management and maintenance tracking.
