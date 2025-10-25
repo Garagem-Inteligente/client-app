@@ -42,7 +42,7 @@
           </div>
         </div>
         <PSettingsSection title="Configurações da Conta">
-          <PSettingItem title="Editar Perfil" description="Alterar nome e informações pessoais" :icon="personCircleOutline" icon-variant="primary" @click="openEditModal" />
+          <PSettingItem title="Editar Perfil" description="Alterar nome e informações pessoais" :icon="personCircleOutline" icon-variant="primary" @click="router.push('/tabs/profile/edit')" />
           <PSettingItem title="Conexões de Conta" description="Gerenciar métodos de login" :icon="linkOutline" icon-variant="tertiary" :badge="connectedProvidersText" @click="showConnectionsModal = true" />
           <PSettingItem title="Alterar Senha" description="Atualizar senha de acesso" :icon="keyOutline" icon-variant="warning" @click="showPasswordModal = true" />
         </PSettingsSection>
@@ -66,7 +66,6 @@
       </div>
     </ion-content>
     <ion-action-sheet :is-open="showPhotoSheet" header="Foto do Perfil" :buttons="photoActionButtons" @didDismiss="showPhotoSheet = false"></ion-action-sheet>
-    <PEditProfileModal v-model:is-open="showEditModal" :initialName="authStore.userName" :initialEmail="authStore.userEmail" :loading="savingProfile" @save="saveProfile" />
     <PConnectionsModal v-model:is-open="showConnectionsModal" :userEmail="authStore.userEmail" :hasPassword="hasPasswordProvider" :hasGoogle="hasGoogleProvider" :connectedProvidersCount="connectedProviders.length" :unlinkingGoogle="unlinkingGoogle" @unlink-google="handleUnlinkGoogle" />
     <PPasswordChangeModal v-model:is-open="showPasswordModal" :loading="changingPassword" :error="passwordError" @submit="handlePasswordChange" />
     <PAboutModal v-model:is-open="showAboutModal" :versionString="fullVersionString" :changelog="changelog" />
@@ -88,7 +87,7 @@ import { useChangelog } from '@/composables/useChangelog'
 import { useProfilePhoto } from '@/composables/useProfilePhoto'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
-import { PBadge, PQuickStatItem, PQuickStats, PSettingItem, PSettingsSection, PVersionInfo, PEditProfileModal, PConnectionsModal, PPasswordChangeModal, PAboutModal } from './components'
+import { PBadge, PQuickStatItem, PQuickStats, PSettingItem, PSettingsSection, PVersionInfo, PConnectionsModal, PPasswordChangeModal, PAboutModal } from './components'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -103,11 +102,9 @@ const showPhotoSheet = ref(false)
 const showRemovePhotoModal = ref(false)
 const showUnlinkGoogleModal = ref(false)
 const showDeleteAccountModal = ref(false)
-const showEditModal = ref(false)
 const showConnectionsModal = ref(false)
 const showPasswordModal = ref(false)
 const showAboutModal = ref(false)
-const savingProfile = ref(false)
 const unlinkingGoogle = ref(false)
 const changingPassword = ref(false)
 const passwordError = ref('')
@@ -134,51 +131,6 @@ const totalMaintenanceCount = computed(() => {
 
 const showPhotoOptions = () => {
   showPhotoSheet.value = true
-}
-
-const openEditModal = () => {
-  showEditModal.value = true
-}
-
-const saveProfile = async (form: { name: string; email: string }) => {
-  const { updateProfile } = await import('firebase/auth')
-  const { doc, updateDoc } = await import('firebase/firestore')
-  const { auth, db } = await import('@/firebase/config')
-
-  savingProfile.value = true
-
-  try {
-    if (!auth.currentUser) return
-
-    await updateProfile(auth.currentUser, { displayName: form.name })
-    await updateDoc(doc(db, 'users', auth.currentUser.uid), { name: form.name })
-
-    if (authStore.user) {
-      authStore.user.name = form.name
-    }
-
-    const toast = await toastController.create({
-      message: '✅ Perfil atualizado com sucesso!',
-      duration: 2000,
-      color: 'success',
-      position: 'bottom',
-    })
-    await toast.present()
-
-    showEditModal.value = false
-  } catch (error) {
-    console.error('Error updating profile:', error)
-
-    const toast = await toastController.create({
-      message: '❌ Erro ao atualizar perfil',
-      duration: 2000,
-      color: 'danger',
-      position: 'bottom',
-    })
-    await toast.present()
-  } finally {
-    savingProfile.value = false
-  }
 }
 
 const handleUnlinkGoogle = async () => {
