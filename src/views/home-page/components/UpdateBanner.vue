@@ -1,7 +1,7 @@
 <template>
   <!-- Banner discreto de atualização -->
   <transition name="slide-down">
-    <div v-if="!isVisible" class="update-banner" :class="{ 'update-banner-critical': isCritical }">
+    <div v-if="isVisible" class="update-banner" :class="{ 'update-banner-critical': isCritical }">
       <div class="banner-content">
         <div class="banner-text">
           <span class="banner-icon">
