@@ -11,19 +11,14 @@
     />
 
     <ion-content :fullscreen="true" class="app-content detail-content">
-      <!-- Background layers -->
-      <div class="background-gradient"></div>
-      <div class="background-pattern"></div>
+      <!-- Loading State -->
+      <div v-if="!maintenanceRecord" class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p class="loading-text">Carregando informações da manutenção...</p>
+      </div>
 
-      <div class="page-content-wrapper">
-        <!-- Loading State -->
-        <div v-if="!maintenanceRecord" class="loading-container">
-          <ion-spinner name="crescent"></ion-spinner>
-          <p class="loading-text">Carregando informações da manutenção...</p>
-        </div>
-
-        <div v-else class="detail-container">
-          <!-- Maintenance Header -->
+      <div v-else class="detail-container">
+        <!-- Maintenance Header -->
           <div class="maintenance-header">
             <div class="header-content">
               <div class="type-icon">
@@ -469,10 +464,9 @@
             </div>
           </ACard>
         </div>
-      </div>
-    </ion-content>
+      </ion-content>
 
-    <!-- Delete Confirmation Modal -->
+      <!-- Delete Confirmation Modal -->
     <MConfirmModal
       v-model:is-open="showDeleteModal"
       title="Confirmar Exclusão"
@@ -487,9 +481,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { IonPage, IonContent, IonIcon, IonSpinner } from '@ionic/vue';
+  import { IonPage, IonContent, IonIcon, IonSpinner } from '@ionic/vue'
   import {
     createOutline,
     trashOutline,
@@ -506,344 +498,38 @@
     documentTextOutline,
     eyeOutline,
     timeOutline,
-    documentOutline,
-    imageOutline,
     downloadOutline,
     shareOutline,
     checkmarkCircleOutline,
     speedometerOutline,
     businessOutline,
     flagOutline,
-  } from 'ionicons/icons';
-  import { useVehiclesStore } from '@/stores/vehicles';
-  import type { MaintenanceType } from '@/stores/vehicles';
-  import { MAINTENANCE_TYPE_LABELS, MAINTENANCE_TYPE_ICONS } from '@/constants/vehicles';
-  import {
-    calculateFuelBetweenMaintenances,
-    getEstimatedFuelPrice,
-  } from '@/utils/fuelCalculations';
-  import ModernHeader from '@/components/organisms/ModernHeader.vue';
-  import ABadge from '@/components/atoms/ABadge.vue';
-  import ACard from '@/components/atoms/ACard.vue';
-  import MConfirmModal from '@/components/molecules/MConfirmModal.vue';
-  import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue';
+  } from 'ionicons/icons'
+  import { useMaintenanceDetail } from '@/composables/useMaintenanceDetail'
+  import { useMaintenanceFormatters } from '@/composables/useMaintenanceFormatters'
+  import { usePhotoHandling } from '@/composables/usePhotoHandling'
+  import { useWarrantyLogic } from '@/composables/useWarrantyLogic'
+  import ModernHeader from '@/components/organisms/ModernHeader.vue'
+  import ABadge from '@/components/atoms/ABadge.vue'
+  import ACard from '@/components/atoms/ACard.vue'
+  import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
+  import MFuelCostDisplay from '@/components/molecules/MFuelCostDisplay.vue'
 
-  const route = useRoute();
-  const router = useRouter();
-  const vehiclesStore = useVehiclesStore();
-
-  const maintenanceId = route.params.id as string;
-  const showDeleteModal = ref(false);
-
-  const maintenanceRecord = computed(() => {
-    return vehiclesStore.maintenanceRecords.find((r) => r.id === maintenanceId);
-  });
-
-  const vehicle = computed(() => {
-    if (!maintenanceRecord.value) return null;
-    return vehiclesStore.getVehicleById(maintenanceRecord.value.vehicleId);
-  });
-
-  // Fuel consumption between maintenances
-  const fuelConsumptionData = computed(() => {
-    if (!maintenanceRecord.value || !vehicle.value || !vehicle.value.averageFuelConsumption) {
-      return null;
-    }
-
-    // Get all maintenance records for this vehicle
-    const allMaintenanceRecords = vehiclesStore.maintenanceRecords
-      .filter((r) => r.vehicleId === maintenanceRecord.value!.vehicleId)
-      .sort((a, b) => a.mileage - b.mileage);
-
-    // Find the previous maintenance
-    const currentIndex = allMaintenanceRecords.findIndex(
-      (r) => r.id === maintenanceRecord.value!.id,
-    );
-    if (currentIndex <= 0) {
-      return null; // No previous maintenance
-    }
-
-    const previousMaintenance = allMaintenanceRecords[currentIndex - 1];
-    const fuelPrice = getEstimatedFuelPrice(vehicle.value.fuelType);
-
-    return calculateFuelBetweenMaintenances(
-      previousMaintenance,
-      maintenanceRecord.value,
-      vehicle.value,
-      fuelPrice,
-    );
-  });
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(date);
-  };
-
-  const formatFullDate = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return new Intl.DateTimeFormat('pt-BR', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(dateObj);
-  };
-
-  const getTimeUntil = (futureDate: Date | string) => {
-    const future = typeof futureDate === 'string' ? new Date(futureDate) : futureDate;
-    const now = new Date();
-    const diffTime = future.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      return `Atrasada há ${Math.abs(diffDays)} dias`;
-    }
-    if (diffDays === 0) {
-      return 'Vence hoje';
-    }
-    if (diffDays === 1) {
-      return 'Vence amanhã';
-    }
-    if (diffDays <= 7) {
-      return `Vence em ${diffDays} dias`;
-    }
-    if (diffDays <= 30) {
-      const weeks = Math.floor(diffDays / 7);
-      return `Vence em ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
-    }
-    const months = Math.floor(diffDays / 30);
-    return `Vence em ${months} ${months === 1 ? 'mês' : 'meses'}`;
-  };
-
-  const getKmUntil = (targetKm: number, currentKm: number) => {
-    const diff = targetKm - currentKm;
-    if (diff < 0) {
-      return `${Math.abs(diff).toLocaleString('pt-BR')} km acima`;
-    }
-    return `Faltam ${diff.toLocaleString('pt-BR')} km`;
-  };
-
-  const formatDateTime = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getMaintenanceTypeLabel = (type: string) => {
-    return MAINTENANCE_TYPE_LABELS[type as MaintenanceType] || type;
-  };
-
-  const getMaintenanceIcon = (type: string) => {
-    return MAINTENANCE_TYPE_ICONS[type as MaintenanceType] || '🔧';
-  };
-
-  const isWarrantyValid = (expiryDate: Date) => {
-    return new Date(expiryDate) > new Date();
-  };
-
-  const getAttachmentIcon = (type: string) => {
-    if (type.includes('image')) return imageOutline;
-    if (type.includes('pdf')) return documentOutline;
-    return documentTextOutline;
-  };
-
-  const goToVehicle = () => {
-    if (vehicle.value) {
-      router.push(`/tabs/vehicle/${vehicle.value.id}`);
-    }
-  };
-
-  const handleEdit = () => {
-    router.push(`/tabs/maintenance/${maintenanceId}/edit`);
-  };
-
-  const handleDelete = async () => {
-    showDeleteModal.value = true;
-  };
-
-  const confirmDelete = async () => {
-    const success = await vehiclesStore.deleteMaintenanceRecord(maintenanceId);
-    if (success) {
-      router.back();
-    }
-  };
-
-  const viewPhoto = async (photoUrl: string, type: string) => {
-    // Create a modal-like overlay to view the photo in full screen
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-  `;
-
-    const img = document.createElement('img');
-    img.src = photoUrl;
-    img.alt = `Foto ${type} da manutenção`;
-    img.style.cssText = `
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  `;
-
-    const label = document.createElement('div');
-    label.textContent = type === 'before' ? '📸 ANTES' : '✅ DEPOIS';
-    label.style.cssText = `
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  `;
-
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '✕';
-    closeBtn.style.cssText = `
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-  `;
-
-    closeBtn.onmouseover = () => {
-      closeBtn.style.background = 'rgba(220, 38, 38, 0.9)';
-      closeBtn.style.transform = 'scale(1.1)';
-    };
-
-    closeBtn.onmouseout = () => {
-      closeBtn.style.background = 'rgba(239, 68, 68, 0.9)';
-      closeBtn.style.transform = 'scale(1)';
-    };
-
-    const closeOverlay = () => {
-      overlay.remove();
-    };
-
-    closeBtn.onclick = closeOverlay;
-    overlay.onclick = (e) => {
-      if (e.target === overlay) closeOverlay();
-    };
-
-    overlay.appendChild(label);
-    overlay.appendChild(img);
-    overlay.appendChild(closeBtn);
-    document.body.appendChild(overlay);
-  };
-
-  const downloadPhoto = (photoUrl: string, type: string) => {
-    const link = document.createElement('a');
-    link.href = photoUrl;
-    link.download = `manutencao-${type}-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  };
-
-  const sharePhoto = async (photoUrl: string, type: string) => {
-    try {
-      // Check if Web Share API is available
-      if (navigator.share) {
-        // Convert base64 to blob
-        const response = await fetch(photoUrl);
-        const blob = await response.blob();
-        const file = new File([blob], `manutencao-${type}.jpg`, { type: 'image/jpeg' });
-
-        await navigator.share({
-          title: `Manutenção - Foto ${type}`,
-          text: `Foto ${type} da manutenção`,
-          files: [file],
-        });
-      } else {
-        // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(photoUrl);
-        alert('Link da foto copiado para a área de transferência!');
-      }
-    } catch (error) {
-      console.error('Error sharing photo:', error);
-      // Fallback: download
-      downloadPhoto(photoUrl, type);
-    }
-  };
-
-  const viewAttachment = async (attachment: {
-    name: string;
-    data: string;
-    type: string;
-    size: number;
-  }) => {
-    // Open attachment in new tab or trigger download
-    if (attachment.type.includes('image')) {
-      viewPhoto(attachment.data, attachment.name);
-    } else {
-      // Download PDF or other files
-      const link = document.createElement('a');
-      link.href = attachment.data;
-      link.download = attachment.name;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  };
-
-  onMounted(async () => {
-    // Ensure data is loaded
-    if (vehiclesStore.maintenanceRecords.length === 0) {
-      await vehiclesStore.fetchMaintenanceRecords();
-    }
-    if (vehiclesStore.vehicles.length === 0) {
-      await vehiclesStore.fetchVehicles();
-    }
-
-    // Check if maintenance exists
-    if (!maintenanceRecord.value) {
-      router.push('/tabs/maintenance');
-    }
-  });
+  // Composables
+  const { maintenanceRecord, vehicle, fuelConsumptionData, showDeleteModal, goToVehicle, handleEdit, handleDelete, confirmDelete } =
+    useMaintenanceDetail()
+  const {
+    formatCurrency,
+    formatDate,
+    formatFullDate,
+    formatDateTime,
+    formatFileSize,
+    getTimeUntil,
+    getKmUntil,
+  } = useMaintenanceFormatters()
+  const { viewPhoto, downloadPhoto, sharePhoto, viewAttachment, getAttachmentIcon } =
+    usePhotoHandling()
+  const { isWarrantyValid, getMaintenanceTypeLabel, getMaintenanceIcon } = useWarrantyLogic()
 </script>
 
 <style scoped>
