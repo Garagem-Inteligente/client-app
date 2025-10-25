@@ -34,110 +34,95 @@ withDefaults(
 </script>
 
 <style scoped lang="scss">
+@use '@/theme/tokens' as *;
+
 .stat-card {
   position: relative;
-  padding: 24px;
-  border-radius: 20px;
+  padding: $spacing-2xl;
+  border-radius: $radius-xl;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  @include card-hover;
+  @include smooth-transition;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  > .stat-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    background: $gradient-background-overlay;
   }
 
   &-blue {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+    background: $gradient-blue;
   }
 
   &-purple {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%);
+    background: $gradient-purple;
   }
 
   &-green {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+    background: $gradient-green;
   }
 
   &-yellow {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+    background: $gradient-yellow;
   }
-}
-
-.stat-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0.1;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .stat-content-wrapper {
   position: relative;
   z-index: 1;
-  display: flex;
+  @include flex-gap($spacing-lg);
   align-items: center;
-  gap: 16px;
 }
 
 .stat-icon {
   width: 56px;
   height: 56px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: $radius-lg;
+  @include flex-center;
   font-size: 1.75rem;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  color: white;
+  box-shadow: $shadow-md;
+  color: $color-text-primary;
 
   &-blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    @include icon-gradient($gradient-blue-icon);
   }
 
   &-purple {
-    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    @include icon-gradient($gradient-purple-icon);
   }
 
   &-green {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    @include icon-gradient($gradient-green-icon);
   }
 
   &-yellow {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    @include icon-gradient($gradient-yellow-icon);
   }
 }
 
 .stat-details {
   flex: 1;
-  display: flex;
+  @include flex-gap($spacing-xs);
   flex-direction: column;
-  gap: 4px;
 }
 
 .stat-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.875rem;
-  font-weight: 500;
+  @include label-uppercase;
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .stat-value {
-  color: white;
+  @include heading-primary;
   font-size: 1.5rem;
-  font-weight: 700;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
   &-sm {
-    font-size: 1.125rem;
+    font-size: $font-size-lg;
   }
 }
 </style>

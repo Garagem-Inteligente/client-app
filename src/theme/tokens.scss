@@ -1,0 +1,266 @@
+// ============================================================================
+// DESIGN TOKENS - Sistema de tokens CSS global
+// ============================================================================
+// Variáveis reutilizáveis para cores, espaçamento, sombras, tipografia
+// Importar no início de arquivos de estilo scoped: @import '@/theme/tokens.scss'
+// ============================================================================
+
+// ============================================================================
+// CORES - Paleta de cores do projeto
+// ============================================================================
+
+// Cores primárias
+$color-primary: #3b82f6;
+$color-primary-light: rgba(59, 130, 246, 0.2);
+$color-primary-lightest: rgba(59, 130, 246, 0.1);
+$color-primary-dark: #2563eb;
+
+// Cores secundárias
+$color-secondary: #8b5cf6;
+$color-secondary-light: rgba(139, 92, 246, 0.2);
+$color-secondary-lightest: rgba(139, 92, 246, 0.1);
+$color-secondary-dark: #7c3aed;
+
+// Cores de sucesso (verde)
+$color-success: #10b981;
+$color-success-light: rgba(16, 185, 129, 0.2);
+$color-success-lightest: rgba(16, 185, 129, 0.1);
+$color-success-dark: #059669;
+
+// Cores de alerta (amarelo)
+$color-warning: #fbbf24;
+$color-warning-light: rgba(251, 191, 36, 0.2);
+$color-warning-lightest: rgba(251, 191, 36, 0.1);
+$color-warning-dark: #f59e0b;
+
+// Cores de perigo (vermelho)
+$color-danger: #ef4444;
+$color-danger-light: rgba(239, 68, 68, 0.2);
+$color-danger-lightest: rgba(239, 68, 68, 0.1);
+$color-danger-dark: #dc2626;
+
+// Cores de fundo (escala de cinza)
+$color-bg-dark: #111827;
+$color-bg-darker: #0f1722;
+$color-bg-card: rgba(31, 41, 55, 0.9);
+$color-bg-card-light: rgba(31, 41, 55, 0.6);
+$color-bg-surface: #1f2937;
+$color-bg-surface-hover: #374151;
+
+// Cores de texto
+$color-text-primary: #ffffff;
+$color-text-secondary: #d1d5db;
+$color-text-tertiary: #9ca3af;
+$color-text-muted: #6b7280;
+
+// Cores de borda
+$color-border-light: rgba(255, 255, 255, 0.1);
+$color-border-lighter: rgba(255, 255, 255, 0.05);
+
+// Cores de fundo com opacidade
+$color-overlay-dark: rgba(0, 0, 0, 0.7);
+
+// ============================================================================
+// GRADIENTES - Padrões de gradiente reutilizáveis
+// ============================================================================
+
+// Gradientes por cor
+$gradient-blue: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+$gradient-blue-icon: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+
+$gradient-purple: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%);
+$gradient-purple-icon: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+
+$gradient-green: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+$gradient-green-icon: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+$gradient-yellow: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+$gradient-yellow-icon: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+
+// Gradientes de fundo de card
+$gradient-card: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 1) 100%);
+$gradient-card-light: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+$gradient-info-box: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+
+// Gradiente de fundo padrão com overlay
+$gradient-background-overlay: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+
+// ============================================================================
+// SOMBRAS - Efeitos de sombra em profundidade
+// ============================================================================
+
+// Sombras por elevação
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
+$shadow-2xl: 0 12px 40px rgba(0, 0, 0, 0.4);
+$shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+// Sombras com cores específicas
+$shadow-blue: 0 4px 16px rgba(59, 130, 246, 0.3);
+$shadow-green: 0 4px 16px rgba(16, 185, 129, 0.3);
+$shadow-primary: 0 4px 16px rgba(59, 130, 246, 0.2);
+
+// ============================================================================
+// ESPAÇAMENTO - Escala de espaços reutilizáveis
+// ============================================================================
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-2xl: 24px;
+$spacing-3xl: 28px;
+$spacing-4xl: 32px;
+
+// ============================================================================
+// BORDER RADIUS - Raios de borda padronizados
+// ============================================================================
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-2xl: 24px;
+$radius-full: 9999px;
+
+// ============================================================================
+// TIPOGRAFIA - Estilos de texto reutilizáveis
+// ============================================================================
+
+// Font weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Font sizes
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 1.875rem;
+$font-size-4xl: 2.25rem;
+
+// Line heights
+$line-height-tight: 1.2;
+$line-height-snug: 1.4;
+$line-height-normal: 1.6;
+$line-height-relaxed: 1.75;
+
+// ============================================================================
+// TRANSIÇÕES - Animações e transições padrão
+// ============================================================================
+
+$transition-fast: 0.15s ease-in-out;
+$transition-base: 0.3s ease-in-out;
+$transition-slow: 0.5s ease-in-out;
+$transition-hover: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+$transition-all: all 0.3s ease;
+
+// ============================================================================
+// MIXINS - Helpers reutilizáveis
+// ============================================================================
+
+/// Aplica estilos de card com gradiente e bordas padrão
+@mixin card-base {
+  background: $gradient-card;
+  border-radius: $radius-2xl;
+  border: 1px solid $color-border-light;
+  box-shadow: $shadow-xl;
+  backdrop-filter: blur(10px);
+}
+
+/// Efeito hover padrão para cards
+@mixin card-hover {
+  transition: $transition-hover;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-2xl;
+    border-color: rgba($color-primary, 0.2);
+  }
+}
+
+/// Aplica efeito de elevação ao hover
+@mixin hover-elevate {
+  transition: $transition-hover;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-2xl;
+  }
+}
+
+/// Box de informação com gradiente padrão
+@mixin info-box-base {
+  background: $gradient-info-box;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  border: 1px solid $color-border-lighter;
+}
+
+/// Heading padrão com sombra de texto
+@mixin heading-primary {
+  color: $color-text-primary;
+  font-weight: $font-weight-extrabold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/// Label uppercase padrão
+@mixin label-uppercase {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-tertiary;
+}
+
+/// Flex center utilitário
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Flex gap padrão
+@mixin flex-gap($gap: $spacing-lg) {
+  display: flex;
+  gap: $gap;
+}
+
+/// Grid autofill responsivo
+@mixin grid-auto-fit($min-width: 240px, $gap: $spacing-lg) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+/// Trunca texto com ellipsis
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// Transição suave entre estados
+@mixin smooth-transition($props: all) {
+  transition: $props $transition-base;
+}
+
+/// Aplica gradiente de ícone por cor
+@mixin icon-gradient($gradient) {
+  background: $gradient;
+  color: $color-text-primary;
+}
+
+/// Box com borda de cor específica
+@mixin box-bordered($color) {
+  border: 1px solid rgba($color, 0.3);
+  background: linear-gradient(135deg, rgba($color, 0.15) 0%, rgba($color, 0.05) 100%);
+}
