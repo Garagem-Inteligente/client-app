@@ -1,7 +1,20 @@
-<template>
+import os
+
+# Remove o arquivo anterior se existir
+file_path = r"c:\Users\Miker\OneDrive\Documentos\Projetos\Garagem Inteligente\client-app\src\views\profile-page\profile-page.vue"
+
+if os.path.exists(file_path):
+    os.remove(file_path)
+    print(f"✅ Arquivo deletado: {file_path}")
+
+content = '''<template>
   <ion-page>
     <ModernHeader title="Meu Perfil" />
+
     <ion-content :fullscreen="true" class="custom-content">
+      <div class="background-gradient"></div>
+      <div class="background-pattern"></div>
+
       <div class="container">
         <div class="profile-header-card">
           <div class="profile-header-content">
@@ -20,67 +33,240 @@
                     <ion-icon :icon="personOutline" class="placeholder-icon"></ion-icon>
                   </div>
                 </div>
+
                 <div class="avatar-overlay">
                   <ion-icon :icon="cameraOutline" class="camera-icon"></ion-icon>
                   <span class="overlay-text">Alterar foto</span>
                 </div>
               </div>
+
               <div class="user-info-section">
                 <h1 class="user-name">{{ authStore.userName }}</h1>
                 <p class="user-email">{{ authStore.userEmail }}</p>
+
                 <div class="user-badges">
                   <PBadge label="Conta Verificada" :icon="shieldCheckmarkOutline" variant="primary" />
                   <PBadge v-if="hasGoogleProvider" label="Google vinculado" :icon="logoGoogle" variant="success" />
                 </div>
               </div>
             </div>
+
             <PQuickStats>
-              <PQuickStatItem label="Veículos" :value="vehiclesStore.vehicleCount" :icon="carOutline" variant="primary" />
-              <PQuickStatItem label="Manutenções" :value="totalMaintenanceCount" :icon="constructOutline" variant="success" />
-              <PQuickStatItem label="Próximas" :value="upcomingMaintenanceCount" :icon="timeOutline" variant="warning" />
+              <PQuickStatItem
+                label="Veículos"
+                :value="vehiclesStore.vehicleCount"
+                :icon="carOutline"
+                variant="primary"
+              />
+              <PQuickStatItem
+                label="Manutenções"
+                :value="totalMaintenanceCount"
+                :icon="constructOutline"
+                variant="success"
+              />
+              <PQuickStatItem
+                label="Próximas"
+                :value="upcomingMaintenanceCount"
+                :icon="timeOutline"
+                variant="warning"
+              />
             </PQuickStats>
           </div>
         </div>
+
         <PSettingsSection title="Configurações da Conta">
-          <PSettingItem title="Editar Perfil" description="Alterar nome e informações pessoais" :icon="personCircleOutline" icon-variant="primary" @click="openEditModal" />
-          <PSettingItem title="Conexões de Conta" description="Gerenciar métodos de login" :icon="linkOutline" icon-variant="tertiary" :badge="connectedProvidersText" @click="showConnectionsModal = true" />
-          <PSettingItem title="Alterar Senha" description="Atualizar senha de acesso" :icon="keyOutline" icon-variant="warning" @click="showPasswordModal = true" />
+          <PSettingItem
+            title="Editar Perfil"
+            description="Alterar nome e informações pessoais"
+            :icon="personCircleOutline"
+            icon-variant="primary"
+            @click="openEditModal"
+          />
+          <PSettingItem
+            title="Conexões de Conta"
+            description="Gerenciar métodos de login"
+            :icon="linkOutline"
+            icon-variant="tertiary"
+            :badge="connectedProvidersText"
+            @click="showConnectionsModal = true"
+          />
+          <PSettingItem
+            title="Alterar Senha"
+            description="Atualizar senha de acesso"
+            :icon="keyOutline"
+            icon-variant="warning"
+            @click="showPasswordModal = true"
+          />
         </PSettingsSection>
+
         <PSettingsSection title="Gerenciamento de Veículos">
-          <PSettingItem title="Transferências Pendentes" description="Ver e confirmar transferências" :icon="swapHorizontalOutline" icon-variant="warning" @click="router.push('/tabs/transfer-confirm')" />
-          <PSettingItem title="Carros Transferidos" description="Histórico de veículos vendidos" :icon="archiveOutline" icon-variant="tertiary" @click="router.push('/tabs/transferred-vehicles')" />
+          <PSettingItem
+            title="Transferências Pendentes"
+            description="Ver e confirmar transferências"
+            :icon="swapHorizontalOutline"
+            icon-variant="warning"
+            @click="router.push('/tabs/transfer-confirm')"
+          />
+          <PSettingItem
+            title="Carros Transferidos"
+            description="Histórico de veículos vendidos"
+            :icon="archiveOutline"
+            icon-variant="tertiary"
+            @click="router.push('/tabs/transferred-vehicles')"
+          />
         </PSettingsSection>
+
         <PSettingsSection title="Preferências">
-          <PSettingItem title="Notificações" description="Gerenciar alertas e lembretes" :icon="notificationsOutline" icon-variant="primary" @click="showNotificationsSettings" />
-          <PSettingItem title="Privacidade" description="Controle de dados e privacidade" :icon="shieldOutline" icon-variant="success" @click="showPrivacySettings" />
+          <PSettingItem
+            title="Notificações"
+            description="Gerenciar alertas e lembretes"
+            :icon="notificationsOutline"
+            icon-variant="primary"
+            @click="showNotificationsSettings"
+          />
+          <PSettingItem
+            title="Privacidade"
+            description="Controle de dados e privacidade"
+            :icon="shieldOutline"
+            icon-variant="success"
+            @click="showPrivacySettings"
+          />
         </PSettingsSection>
+
         <PSettingsSection title="Suporte">
-          <PSettingItem title="Ajuda" description="Central de ajuda e FAQ" :icon="helpCircleOutline" icon-variant="info" @click="showHelp" />
-          <PSettingItem title="Sobre" description="Versão e informações do app" :icon="informationCircleOutline" icon-variant="medium" @click="showAbout" />
+          <PSettingItem
+            title="Ajuda"
+            description="Central de ajuda e FAQ"
+            :icon="helpCircleOutline"
+            icon-variant="info"
+            @click="showHelp"
+          />
+          <PSettingItem
+            title="Sobre"
+            description="Versão e informações do app"
+            :icon="informationCircleOutline"
+            icon-variant="medium"
+            @click="showAbout"
+          />
         </PSettingsSection>
+
         <button class="logout-button" @click="handleLogout">
           <ion-icon :icon="logOutOutline"></ion-icon>
           <span>Sair da Conta</span>
         </button>
-        <PVersionInfo :versionString="fullVersionString" :buildDate="formattedBuildDate" :shortSha="shortSha" :isProduction="isProduction" />
+
+        <PVersionInfo
+          :versionString="fullVersionString"
+          :buildDate="formattedBuildDate"
+          :shortSha="shortSha"
+          :isProduction="isProduction"
+        />
       </div>
     </ion-content>
-    <ion-action-sheet :is-open="showPhotoSheet" header="Foto do Perfil" :buttons="photoActionButtons" @didDismiss="showPhotoSheet = false"></ion-action-sheet>
-    <PEditProfileModal v-model:is-open="showEditModal" :initialName="authStore.userName" :initialEmail="authStore.userEmail" :loading="savingProfile" @save="saveProfile" />
-    <PConnectionsModal v-model:is-open="showConnectionsModal" :userEmail="authStore.userEmail" :hasPassword="hasPasswordProvider" :hasGoogle="hasGoogleProvider" :connectedProvidersCount="connectedProviders.length" :unlinkingGoogle="unlinkingGoogle" @unlink-google="handleUnlinkGoogle" />
-    <PPasswordChangeModal v-model:is-open="showPasswordModal" :loading="changingPassword" :error="passwordError" @submit="handlePasswordChange" />
-    <PAboutModal v-model:is-open="showAboutModal" :versionString="fullVersionString" :changelog="changelog" />
-    <MConfirmModal v-model:is-open="showRemovePhotoModal" title="Remover Foto" message="Tem certeza que deseja remover sua foto de perfil?" variant="warning" confirm-text="Remover" cancel-text="Cancelar" confirm-color="danger" @confirm="confirmRemovePhoto" />
-    <MConfirmModal v-model:is-open="showUnlinkGoogleModal" title="Desvincular Google" message="Tem certeza que deseja desvincular sua conta Google? Você ainda poderá fazer login com email e senha." variant="warning" confirm-text="Desvincular" cancel-text="Cancelar" confirm-color="danger" @confirm="confirmUnlinkGoogle" />
-    <MConfirmModal v-model:is-open="showDeleteAccountModal" title="Sair da Conta" message="Tem certeza que deseja sair?" variant="danger" confirm-text="Sair" cancel-text="Cancelar" confirm-color="danger" @confirm="confirmLogout" />
+
+    <ion-action-sheet
+      :is-open="showPhotoSheet"
+      header="Foto do Perfil"
+      :buttons="photoActionButtons"
+      @didDismiss="showPhotoSheet = false"
+    >
+    </ion-action-sheet>
+
+    <PEditProfileModal
+      v-model:is-open="showEditModal"
+      :initialName="authStore.userName"
+      :initialEmail="authStore.userEmail"
+      :loading="savingProfile"
+      @save="saveProfile"
+    />
+
+    <PConnectionsModal
+      v-model:is-open="showConnectionsModal"
+      :userEmail="authStore.userEmail"
+      :hasPassword="hasPasswordProvider"
+      :hasGoogle="hasGoogleProvider"
+      :connectedProvidersCount="connectedProviders.length"
+      :unlinkingGoogle="unlinkingGoogle"
+      @unlink-google="handleUnlinkGoogle"
+    />
+
+    <PPasswordChangeModal
+      v-model:is-open="showPasswordModal"
+      :loading="changingPassword"
+      :error="passwordError"
+      @submit="handlePasswordChange"
+    />
+
+    <PAboutModal
+      v-model:is-open="showAboutModal"
+      :versionString="fullVersionString"
+      :changelog="changelog"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showRemovePhotoModal"
+      title="Remover Foto"
+      message="Tem certeza que deseja remover sua foto de perfil?"
+      variant="warning"
+      confirm-text="Remover"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmRemovePhoto"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showUnlinkGoogleModal"
+      title="Desvincular Google"
+      message="Tem certeza que deseja desvincular sua conta Google? Você ainda poderá fazer login com email e senha."
+      variant="warning"
+      confirm-text="Desvincular"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmUnlinkGoogle"
+    />
+
+    <MConfirmModal
+      v-model:is-open="showDeleteAccountModal"
+      title="Sair da Conta"
+      message="Tem certeza que deseja sair?"
+      variant="danger"
+      confirm-text="Sair"
+      cancel-text="Cancelar"
+      confirm-color="danger"
+      @confirm="confirmLogout"
+    />
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonPage, IonContent, IonIcon, IonActionSheet, toastController } from '@ionic/vue'
-import { personOutline, cameraOutline, carOutline, constructOutline, timeOutline, notificationsOutline, shieldOutline, shieldCheckmarkOutline, helpCircleOutline, informationCircleOutline, logOutOutline, linkOutline, keyOutline, personCircleOutline, swapHorizontalOutline, archiveOutline, logoGoogle } from 'ionicons/icons'
+import {
+  IonPage,
+  IonContent,
+  IonIcon,
+  IonActionSheet,
+  toastController,
+} from '@ionic/vue'
+import {
+  personOutline,
+  cameraOutline,
+  carOutline,
+  constructOutline,
+  timeOutline,
+  notificationsOutline,
+  shieldOutline,
+  shieldCheckmarkOutline,
+  helpCircleOutline,
+  informationCircleOutline,
+  logOutOutline,
+  linkOutline,
+  keyOutline,
+  personCircleOutline,
+  swapHorizontalOutline,
+  archiveOutline,
+  logoGoogle,
+} from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useVehiclesStore } from '@/stores/vehicles'
 import { useVersion } from '@/composables/useVersion'
@@ -88,7 +274,18 @@ import { useChangelog } from '@/composables/useChangelog'
 import { useProfilePhoto } from '@/composables/useProfilePhoto'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
-import { PBadge, PQuickStatItem, PQuickStats, PSettingItem, PSettingsSection, PVersionInfo, PEditProfileModal, PConnectionsModal, PPasswordChangeModal, PAboutModal } from './components'
+import {
+  PBadge,
+  PQuickStatItem,
+  PQuickStats,
+  PSettingItem,
+  PSettingsSection,
+  PVersionInfo,
+  PEditProfileModal,
+  PConnectionsModal,
+  PPasswordChangeModal,
+  PAboutModal,
+} from './components'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -97,6 +294,7 @@ const { fullVersionString, formattedBuildDate, shortSha, isProduction } = useVer
 const { changelog } = useChangelog()
 const { photoState, photoActionButtons, handlePhotoError, handlePhotoLoad } = useProfilePhoto()
 
+// State
 const currentPhotoUrl = computed(() => photoState.value.currentPhotoUrl)
 const photoLoadError = computed(() => photoState.value.photoLoadError)
 const showPhotoSheet = ref(false)
@@ -112,6 +310,7 @@ const unlinkingGoogle = ref(false)
 const changingPassword = ref(false)
 const passwordError = ref('')
 
+// Computed
 const connectedProviders = computed(() => authStore.getUserProviders())
 const hasPasswordProvider = computed(() => connectedProviders.value.includes('password'))
 const hasGoogleProvider = computed(() => connectedProviders.value.includes('google.com'))
@@ -132,6 +331,7 @@ const totalMaintenanceCount = computed(() => {
   return vehiclesStore.maintenanceRecords.length
 })
 
+// Methods
 const showPhotoOptions = () => {
   showPhotoSheet.value = true
 }
@@ -375,6 +575,7 @@ const confirmLogout = async () => {
   router.push('/login')
 }
 
+// Initialize
 onMounted(() => {
   if (authStore.user?.avatar) {
     photoState.value.currentPhotoUrl = authStore.user.avatar
@@ -387,30 +588,41 @@ onMounted(() => {
 <style scoped lang="scss">
 @use '@/theme/tokens' as *;
 
-.custom-content {
-  position: relative;
-  
-  &::before,
-  &::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-  }
+/* ====================================
+   BACKGROUND LAYERS
+   ==================================== */
 
-  &::before {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-    z-index: 0;
-  }
-
-  &::after {
-    background-image: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
-    z-index: 0;
-  }
+.background-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(139, 92, 246, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
+
+.background-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ====================================
+   CONTAINER
+   ==================================== */
 
 .container {
   position: relative;
@@ -420,17 +632,25 @@ onMounted(() => {
   padding: 24px;
 }
 
+/* ====================================
+   PROFILE HEADER CARD
+   ==================================== */
+
 .profile-header-card {
-  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 41, 55, 0.95) 0%,
+    rgba(17, 24, 39, 0.98) 100%
+  );
   backdrop-filter: blur(10px);
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 40px 32px;
+  padding: 32px;
   margin-bottom: 32px;
   animation: fadeInUp 0.6s ease-out backwards;
 
   @media (max-width: 480px) {
-    padding: 28px 16px;
+    padding: 20px 16px;
   }
 }
 
@@ -440,12 +660,20 @@ onMounted(() => {
   gap: 32px;
 }
 
+/* ====================================
+   AVATAR SECTION
+   ==================================== */
+
 .avatar-section {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 24px;
   animation: fadeInUp 0.6s ease-out 0.1s backwards;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 16px;
+  }
 }
 
 .avatar-wrapper {
@@ -490,6 +718,10 @@ onMounted(() => {
   }
 }
 
+/* ====================================
+   AVATAR OVERLAY
+   ==================================== */
+
 .avatar-overlay {
   position: absolute;
   top: 0;
@@ -522,6 +754,10 @@ onMounted(() => {
   font-weight: 600;
 }
 
+/* ====================================
+   USER INFO SECTION
+   ==================================== */
+
 .user-info-section {
   text-align: center;
 }
@@ -553,6 +789,10 @@ onMounted(() => {
     gap: 8px;
   }
 }
+
+/* ====================================
+   LOGOUT BUTTON
+   ==================================== */
 
 .logout-button {
   width: 100%;
@@ -591,6 +831,10 @@ onMounted(() => {
   }
 }
 
+/* ====================================
+   ANIMATIONS
+   ==================================== */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -602,6 +846,10 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
+
+/* ====================================
+   RESPONSIVE DESIGN
+   ==================================== */
 
 @media (max-width: 768px) {
   .profile-header-card {
@@ -615,3 +863,10 @@ onMounted(() => {
   }
 }
 </style>
+'''
+
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print(f"✅ Arquivo criado com sucesso: {file_path}")
+print(f"📊 Total de linhas: {len(content.splitlines())}")
