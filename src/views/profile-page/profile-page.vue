@@ -44,7 +44,7 @@
         <PSettingsSection title="Configurações da Conta">
           <PSettingItem title="Editar Perfil" description="Alterar nome e informações pessoais" :icon="personCircleOutline" icon-variant="primary" @click="router.push('/tabs/profile/edit')" />
           <PSettingItem title="Conexões de Conta" description="Gerenciar métodos de login" :icon="linkOutline" icon-variant="tertiary" :badge="connectedProvidersText" @click="showConnectionsModal = true" />
-          <PSettingItem title="Alterar Senha" description="Atualizar senha de acesso" :icon="keyOutline" icon-variant="warning" @click="showPasswordModal = true" />
+          <PSettingItem title="Alterar Senha" description="Atualizar senha de acesso" :icon="keyOutline" icon-variant="warning" @click="router.push('/tabs/profile/change-password')" />
         </PSettingsSection>
         <PSettingsSection title="Gerenciamento de Veículos">
           <PSettingItem title="Transferências Pendentes" description="Ver e confirmar transferências" :icon="swapHorizontalOutline" icon-variant="warning" @click="router.push('/tabs/transfer-confirm')" />
@@ -67,7 +67,6 @@
     </ion-content>
     <ion-action-sheet :is-open="showPhotoSheet" header="Foto do Perfil" :buttons="photoActionButtons" @didDismiss="showPhotoSheet = false"></ion-action-sheet>
     <PConnectionsModal v-model:is-open="showConnectionsModal" :userEmail="authStore.userEmail" :hasPassword="hasPasswordProvider" :hasGoogle="hasGoogleProvider" :connectedProvidersCount="connectedProviders.length" :unlinkingGoogle="unlinkingGoogle" @unlink-google="handleUnlinkGoogle" />
-    <PPasswordChangeModal v-model:is-open="showPasswordModal" :loading="changingPassword" :error="passwordError" @submit="handlePasswordChange" />
     <PAboutModal v-model:is-open="showAboutModal" :versionString="fullVersionString" :changelog="changelog" />
     <MConfirmModal v-model:is-open="showRemovePhotoModal" title="Remover Foto" message="Tem certeza que deseja remover sua foto de perfil?" variant="warning" confirm-text="Remover" cancel-text="Cancelar" confirm-color="danger" @confirm="confirmRemovePhoto" />
     <MConfirmModal v-model:is-open="showUnlinkGoogleModal" title="Desvincular Google" message="Tem certeza que deseja desvincular sua conta Google? Você ainda poderá fazer login com email e senha." variant="warning" confirm-text="Desvincular" cancel-text="Cancelar" confirm-color="danger" @confirm="confirmUnlinkGoogle" />
@@ -87,7 +86,7 @@ import { useChangelog } from '@/composables/useChangelog'
 import { useProfilePhoto } from '@/composables/useProfilePhoto'
 import ModernHeader from '@/components/organisms/ModernHeader.vue'
 import MConfirmModal from '@/components/molecules/MConfirmModal.vue'
-import { PBadge, PQuickStatItem, PQuickStats, PSettingItem, PSettingsSection, PVersionInfo, PConnectionsModal, PPasswordChangeModal, PAboutModal } from './components'
+import { PBadge, PQuickStatItem, PQuickStats, PSettingItem, PSettingsSection, PVersionInfo, PConnectionsModal, PAboutModal } from './components'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -103,11 +102,8 @@ const showRemovePhotoModal = ref(false)
 const showUnlinkGoogleModal = ref(false)
 const showDeleteAccountModal = ref(false)
 const showConnectionsModal = ref(false)
-const showPasswordModal = ref(false)
 const showAboutModal = ref(false)
 const unlinkingGoogle = ref(false)
-const changingPassword = ref(false)
-const passwordError = ref('')
 
 const connectedProviders = computed(() => authStore.getUserProviders())
 const hasPasswordProvider = computed(() => connectedProviders.value.includes('password'))
@@ -213,80 +209,6 @@ const confirmRemovePhoto = async () => {
       position: 'bottom',
     })
     await errorToast.present()
-  }
-}
-
-const handlePasswordChange = async (form: {
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
-}) => {
-  const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import(
-    'firebase/auth'
-  )
-  const { auth } = await import('@/firebase/config')
-
-  if (form.newPassword !== form.confirmPassword) {
-    passwordError.value = 'As senhas não coincidem'
-    return
-  }
-
-  if (form.newPassword.length < 6) {
-    passwordError.value = 'A nova senha deve ter no mínimo 6 caracteres'
-    return
-  }
-
-  changingPassword.value = true
-  passwordError.value = ''
-
-  try {
-    if (!auth.currentUser || !authStore.userEmail) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const credential = EmailAuthProvider.credential(authStore.userEmail, form.currentPassword)
-    await reauthenticateWithCredential(auth.currentUser, credential)
-    await updatePassword(auth.currentUser, form.newPassword)
-
-    try {
-      const { getFunctions, httpsCallable } = await import('firebase/functions')
-      const functions = getFunctions()
-      const sendConfirmation = httpsCallable(functions, 'sendPasswordChangeConfirmation')
-
-      await sendConfirmation({
-        email: authStore.userEmail,
-        userName: authStore.userName,
-      })
-    } catch (emailError) {
-      console.warn('Não foi possível enviar email de confirmação:', emailError)
-    }
-
-    const toast = await toastController.create({
-      message: '✅ Senha alterada com sucesso!',
-      duration: 3000,
-      color: 'success',
-      position: 'bottom',
-    })
-    await toast.present()
-
-    showPasswordModal.value = false
-  } catch (error: unknown) {
-    console.error('Error changing password:', error)
-
-    let errorMessage = 'Erro ao alterar senha'
-    if (error instanceof Error) {
-      if (error.message.includes('wrong-password') || error.message.includes('invalid-credential')) {
-        errorMessage = 'Senha atual incorreta'
-      } else if (error.message.includes('weak-password')) {
-        errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres'
-      } else if (error.message.includes('requires-recent-login')) {
-        errorMessage = 'Por segurança, faça login novamente antes de alterar a senha'
-      }
-    }
-
-    passwordError.value = errorMessage
-  } finally {
-    changingPassword.value = false
   }
 }
 
