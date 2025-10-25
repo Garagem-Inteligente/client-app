@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import TabsPage from '../views/TabsPage.vue';
+import TabsPage from '../views/tabs-page/tabs-page.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -10,22 +10,22 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/onboarding',
-    component: () => import('@/views/OnboardingPage.vue'),
+    component: () => import('@/views/onboarding-page/onboarding-page.vue'),
     meta: { requiresGuest: true },
   },
   {
     path: '/login',
-    component: () => import('@/views/LoginPage.vue'),
+    component: () => import('@/views/login-page/login-page.vue'),
     meta: { requiresGuest: true },
   },
   {
     path: '/register',
-    component: () => import('@/views/RegisterPage.vue'),
+    component: () => import('@/views/register-page/register-page.vue'),
     meta: { requiresGuest: true },
   },
   {
     path: '/privacy-policy',
-    component: () => import('@/views/PrivacyPolicyPage.vue'),
+    component: () => import('@/views/privacy-policy-page/privacy-policy-page.vue'),
   },
   {
     path: '/tabs/',
@@ -38,63 +38,63 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'home',
-        component: () => import('@/views/HomePage.vue'),
+        component: () => import('@/views/home-page/home-page.vue'),
       },
       {
         path: 'vehicles',
-        component: () => import('@/views/VehiclesPage.vue'),
+        component: () => import('@/views/vehicles-page/vehicles-page.vue'),
       },
       {
         path: 'orders',
-        component: () => import('@/views/OrdersPage.vue'),
+        component: () => import('@/views/orders-page/orders-page.vue'),
       },
       {
         path: 'profile',
-        component: () => import('@/views/ProfilePage.vue'),
+        component: () => import('@/views/profile-page/profile-page.vue'),
       },
       {
         path: 'maintenance',
-        component: () => import('@/views/MaintenancePage.vue'),
+        component: () => import('@/views/maintenance-page/maintenance-page.vue'),
       },
       {
         path: 'maintenance/new',
-        component: () => import('@/views/MaintenanceFormPage.vue'),
+        component: () => import('@/views/maintenance-form-page/maintenance-form-page.vue'),
       },
       {
         path: 'maintenance/:id/edit',
-        component: () => import('@/views/MaintenanceFormPage.vue'),
+        component: () => import('@/views/maintenance-form-page/maintenance-form-page.vue'),
       },
       {
         path: 'maintenance/:id',
-        component: () => import('@/views/MaintenanceDetailPage.vue'),
+        component: () => import('@/views/maintenance-detail-page/maintenance-detail-page.vue'),
       },
       {
         path: 'vehicle/new',
-        component: () => import('@/views/VehicleFormPage.vue'),
+        component: () => import('@/views/vehicle-form-page/vehicle-form-page.vue'),
       },
       {
         path: 'vehicle/:id/edit',
-        component: () => import('@/views/VehicleFormPage.vue'),
+        component: () => import('@/views/vehicle-form-page/vehicle-form-page.vue'),
       },
       {
         path: 'vehicle/:id',
-        component: () => import('@/views/VehicleDetailPage.vue'),
+        component: () => import('@/views/vehicle-detail-page/vehicle-detail-page.vue'),
       },
       {
         path: 'order/:id',
-        component: () => import('@/views/OrderDetailPage.vue'),
+        component: () => import('@/views/order-detail-page/order-detail-page.vue'),
       },
       {
         path: 'vehicle-transfer/:id',
-        component: () => import('@/views/VehicleTransferPage.vue'),
+        component: () => import('@/views/vehicle-transfer-page/vehicle-transfer-page.vue'),
       },
       {
         path: 'transfer-confirm',
-        component: () => import('@/views/TransferConfirmPage.vue'),
+        component: () => import('@/views/transfer-confirm-page/transfer-confirm-page.vue'),
       },
       {
         path: 'transferred-vehicles',
-        component: () => import('@/views/TransferredVehiclesPage.vue'),
+        component: () => import('@/views/transferred-vehicles-page/transferred-vehicles-page.vue'),
       },
     ],
   },
@@ -148,3 +148,4 @@ router.beforeEach(async (to, _from, next) => {
 });
 
 export default router;
+
